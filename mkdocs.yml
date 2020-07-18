@@ -1,0 +1,53 @@
+# Project information
+site_name: Пишем Telegram-ботов на Python
+site_description: Учебник по разработке ботов для Telegram на языке Python
+site_author: MasterGroosha
+site_url: https://github.com/MasterGroosha/telegram-tutorial-2
+docs_dir: book_src
+
+# Repository
+repo_name: MasterGroosha/telegram-tutorial-2
+repo_url: https://github.com/MasterGroosha/telegram-tutorial-2
+edit_uri: ""
+
+# Copyright
+copyright: Copyright &copy; 2020 Master Groosha
+
+# Configuration
+theme:
+  name: material
+  custom_dir: book_src/overrides
+  language: ru
+  palette:
+    primary: teal
+    accent: teal
+    scheme: preference
+  font:
+    text: Roboto
+    code: Roboto Mono
+  icon:
+    logo: material/robot
+
+# Extras
+extra:
+  social:
+    - icon: fontawesome/brands/telegram
+      link: https://t.me/joinchat/ABtnIE7H7Q3TRRh8n8uNww
+    - icon: fontawesome/brands/github-alt
+      link: https://github.com/MasterGroosha/telegram-tutorial-2
+
+
+# Extensions
+markdown_extensions:
+  - admonition
+  - codehilite:
+      guess_lang: false
+  - toc:
+      permalink: true
+
+nav:
+    - 'Урок 1': lesson_01.md
+    - 'Issue Tracker': 'https://example.com/'
+
+# Custom
+nav_name: "Оглавление"
