@@ -2,7 +2,7 @@
 site_name: Пишем Telegram-ботов на Python
 site_description: Учебник по разработке ботов для Telegram на языке Python
 site_author: MasterGroosha
-site_url: https://github.com/MasterGroosha/telegram-tutorial-2
+site_url: https://mastergroosha.github.io/telegram-tutorial-2
 docs_dir: book_src
 
 # Repository
