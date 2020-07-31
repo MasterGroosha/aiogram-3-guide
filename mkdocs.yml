@@ -4,6 +4,7 @@ site_description: Учебник по разработке ботов для Tel
 site_author: MasterGroosha
 site_url: https://mastergroosha.github.io/telegram-tutorial-2
 docs_dir: book_src
+site_dir: docs
 
 # Repository
 repo_name: MasterGroosha/telegram-tutorial-2
