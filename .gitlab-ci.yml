@@ -1,0 +1,9 @@
+build:
+    before_script:
+    - pip install -r requirements.txt
+    image: python:3.8.5-slim-buster
+    script:
+    - mkdocs build
+    artifacts:
+        paths:
+        - docs
