@@ -1,9 +1,25 @@
+stages:
+    - build
+    - deploy
+
 build:
+    stage: build
     before_script:
     - pip install -r requirements.txt
     image: python:3.8.5-slim-buster
     script:
+    - sed 's/mastergroosha.github.io/groosha.2038.io/g' mkdocs.yml > mkdocs2.yml
+    - mv mkdocs2.yml mkdocs.yml
     - mkdocs build
     artifacts:
         paths:
         - docs
+
+
+deploy:
+    stage: deploy
+    image:
+        name: alpacadb/docker-lftp
+        entrypoint: [""]
+    script:
+        - lftp -e "mirror -R --delete-first docs/ /public/telegram-tutorial-2/; exit" -u $FTP_USER,$FTP_PWD $FTP_HOST
