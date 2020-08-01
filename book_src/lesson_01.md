@@ -2,6 +2,6 @@
 title: Урок 1
 ---
 
-Текст edited
+Текст edited 2
 
 ![resistance](images/cacodemon.png)
