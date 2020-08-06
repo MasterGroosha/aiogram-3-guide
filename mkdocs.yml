@@ -1,5 +1,5 @@
 # Project information
-site_name: Пишем Telegram-ботов на Python
+site_name: Пишем Telegram-ботов на Python (v2)
 site_description: Учебник по разработке ботов для Telegram на языке Python
 site_author: MasterGroosha
 site_url: https://mastergroosha.github.io/telegram-tutorial-2
@@ -12,7 +12,7 @@ repo_url: https://github.com/MasterGroosha/telegram-tutorial-2
 edit_uri: ""
 
 # Copyright
-copyright: Copyright &copy; 2020 Master Groosha
+copyright: Copyright &copy; 2020 Groosha
 
 # Configuration
 theme:
@@ -34,9 +34,13 @@ extra:
   social:
     - icon: fontawesome/brands/telegram
       link: https://t.me/joinchat/ABtnIE7H7Q3TRRh8n8uNww
+      name: "Чат в Telegram"
     - icon: fontawesome/brands/github-alt
       link: https://github.com/MasterGroosha/telegram-tutorial-2
-
+      name: GitHub
+    - icon: fontawesome/brands/gitlab
+      link: https://gitlab.com/groosha/telegram-tutorial-2
+      name: Gitlab
 
 # Extensions
 markdown_extensions:
