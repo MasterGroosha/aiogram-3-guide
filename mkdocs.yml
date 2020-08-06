@@ -51,8 +51,8 @@ markdown_extensions:
       permalink: true
 
 nav:
-    - 'Урок 1': lesson_01.md
-    - 'Issue Tracker': 'https://example.com/'
+  - 'Введение': index.md
+  - 'Урок 1': lesson_01.md
 
 
 plugins:
