@@ -8,7 +8,7 @@ build:
     - pip install -r requirements.txt
     image: python:3.8.5-slim-buster
     script:
-    - sed 's/mastergroosha.github.io/groosha.2038.io/g' mkdocs.yml > mkdocs2.yml
+    - sed "s/mastergroosha.github.io/$PAGES_DOMAIN/g" mkdocs.yml > mkdocs2.yml
     - mv mkdocs2.yml mkdocs.yml
     - mkdocs build
     artifacts:
