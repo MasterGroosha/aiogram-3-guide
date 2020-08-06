@@ -54,5 +54,13 @@ nav:
     - 'Урок 1': lesson_01.md
     - 'Issue Tracker': 'https://example.com/'
 
+
+plugins:
+  - search:
+      lang:
+        - en
+        - ru
+
+
 # Custom
 nav_name: "Оглавление"
