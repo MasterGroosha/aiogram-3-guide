@@ -2,7 +2,7 @@
 title: Введение
 ---
 
-D**Добро пожаловать!**  
+**Добро пожаловать!**  
 С момента выхода [первой версии](https://mastergroosha.github.io/telegram-tutorial/) учебника в 2015 году
 много чего изменилось как у Python, так и в Telegram (в частности, в их Bot API). 
 Да и библиотека [pyTelegramBotAPI](https://github.com/eternnoir/pyTelegramBotAPI), на мой взгляд,
