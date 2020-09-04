@@ -9,11 +9,32 @@ bot_token = getenv("BOT_TOKEN")
 if not bot_token:
     exit("Error: no token provided")
 
-bot = Bot(token=bot_token, parse_mode="Markdown")
+bot = Bot(token=bot_token)
 dp = Dispatcher(bot)
 logging.basicConfig(level=logging.INFO)
 
 pic_file_id = "some_file_id"
+
+
+@dp.message_handler(commands="test")
+async def cmd_test(message: types.Message):
+    await message.answer("Hello, <b>world</b>!", parse_mode=types.ParseMode.HTML)
+    # Вместо Enum-а можно задать parse_mode в виде обычной строки:
+    await message.answer("Hello, *world*\!", parse_mode="MarkdownV2")
+
+
+@dp.message_handler(commands="test2")
+async def cmd_test2(message: types.Message):
+    await message.answer("Сообщение с <u>HTML-разметкой</u>")
+    await message.answer("Сообщение без <s>какой-либо разметки</s>", parse_mode="")
+
+
+@dp.message_handler()
+async def any_text_message(message: types.Message):
+    await message.answer(message.text)
+    await message.answer(message.md_text)
+    await message.answer(message.html_text)
+    await message.answer(f"<u>Ваш текст</u>:\n\n{message.html_text}", parse_mode="HTML")
 
 
 @dp.message_handler(commands="bad")
