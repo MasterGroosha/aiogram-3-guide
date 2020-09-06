@@ -1,3 +1,8 @@
+---
+title: Урок 1
+description: Знакомство с aiogram
+---
+
 #1. Знакомство с aiogram
 ## Установка 
 
