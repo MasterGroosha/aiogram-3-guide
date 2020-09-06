@@ -53,6 +53,7 @@ markdown_extensions:
 nav:
   - 'Введение': index.md
   - 'Урок 1': lesson_01.md
+  - 'Урок 2': lesson_02.md
 
 
 plugins:
