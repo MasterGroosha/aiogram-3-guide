@@ -1,7 +1,7 @@
 #!venv/bin/python
 import logging
 from aiogram import Bot, Dispatcher, executor, types
-import aiogram.utils.markdown as md
+import aiogram.utils.markdown as fmt
 from os import getenv
 from sys import exit
 
@@ -12,8 +12,6 @@ if not bot_token:
 bot = Bot(token=bot_token)
 dp = Dispatcher(bot)
 logging.basicConfig(level=logging.INFO)
-
-pic_file_id = "some_file_id"
 
 
 @dp.message_handler(commands="test")
@@ -29,6 +27,43 @@ async def cmd_test2(message: types.Message):
     await message.answer("Сообщение без <s>какой-либо разметки</s>", parse_mode="")
 
 
+@dp.message_handler(commands="test3")
+async def show_dynamic_formatting(message: types.Message):
+    print("OK")
+    await message.answer(
+        fmt.text(
+            fmt.text(fmt.hunderline("Яблоки"), ", вес 1 кг."),
+            fmt.text("Старая цена:", fmt.hstrikethrough(50), "рублей"),
+            fmt.text("Новая цена:", fmt.hbold(25), "рублей"),
+            sep="\n"
+        ), parse_mode="HTML"
+    )
+
+
+@dp.message_handler(commands="test4")
+async def with_hidden_link(message: types.Message):
+    await message.answer(f"{fmt.hide_link('https://telegram.org/blog/video-calls/ru')}Кто бы мог подумать, что "
+                         f"в 2020 году в Telegram появятся видеозвонки!\n\nОбычные голосовые вызовы "
+                         f"возникли в Telegram лишь в 2017, заметно позже своих конкурентов. А спустя три года, "
+                         f"когда огромное количество людей на планете приучились работать из дома из-за эпидемии "
+                         f"коронавируса, команда Павла Дурова не растерялась и сделала качественные "
+                         f"видеозвонки на WebRTC!\n\nP.S. а ещё ходят слухи про демонстрацию своего экрана :)",
+                         parse_mode=types.ParseMode.HTML)
+
+
+@dp.message_handler(content_types=[types.ContentType.DOCUMENT])
+async def download_doc(message: types.Message):
+    # Скачивание в каталог с ботом с созданием подкаталогов по типу файла
+    await message.document.download()
+
+
+# Типы содержимого тоже можно указывать по-разному.
+@dp.message_handler(content_types=["photo"])
+async def download_photo(message: types.Message):
+    # Скачивание прямо в /tmp/hello без создания подкаталогов
+    await message.photo[-1].download(destination="/tmp/somedir/", make_dirs=False)
+
+
 @dp.message_handler()
 async def any_text_message(message: types.Message):
     await message.answer(message.text)
@@ -37,35 +72,12 @@ async def any_text_message(message: types.Message):
     await message.answer(f"<u>Ваш текст</u>:\n\n{message.html_text}", parse_mode="HTML")
 
 
-@dp.message_handler(commands="bad")
-async def renameme(message: types.Message):
-    await message.answer(f"Hello, {md.quote_html(message.from_user.first_name)}")
-    await message.answer(f"Hello, {md.quote_html(message.from_user.last_name)}")
-    await message.answer(f"Hello, {md.quote_html(message.from_user.full_name)}")
-
-
-@dp.message_handler(commands="bad_md")
-async def renameme(message: types.Message):
-    await message.answer(f"Hello, {md.escape_md(message.from_user.first_name)}")
-    await message.answer(f"Hello, {md.escape_md(message.from_user.last_name)}")
-    await message.answer(f"Hello, {md.escape_md(message.from_user.full_name)}")
-
-
-@dp.message_handler(commands="parse")
-async def with_parse(message: types.Message):
-    # await message.answer("Hello, <b>Stranger</b>")
-    await message.reply_photo(pic_file_id, caption="Hello, <b>Stranger</b>")
-
-
-@dp.message_handler(commands="noparse")
-async def with_noparse(message: types.Message):
-    # await message.answer("Hello, <b>Stranger</b>", parse_mode="")
-    await message.reply_photo(pic_file_id, caption="Hello, <b>Stranger</b>", parse_mode="")
-
-
-@dp.message_handler(content_types=types.ContentType.PHOTO)
-async def get_photo_id(message: types.Message):
-    await message.reply(message.photo[-1].file_id)
+# Этот хэндлер не будет вызван, если хэндлер функции any_text_message() определён выше!
+@dp.message_handler()
+async def any_text_message2(message: types.Message):
+    await message.answer(f"Привет, <b>{fmt.quote_html(message.text)}</b>", parse_mode=types.ParseMode.HTML)
+    # А можно и так:
+    await message.answer(fmt.text("Привет,", fmt.hbold(message.text)), parse_mode=types.ParseMode.HTML)
 
 
 if __name__ == "__main__":
