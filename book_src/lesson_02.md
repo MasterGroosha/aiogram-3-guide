@@ -100,6 +100,14 @@ async def any_text_message2(message: types.Message):
 геолокации, стикеры и т.д. У большинства медиафайлов есть свойства `file_id` и `file_unique_id`. Первый можно использовать 
 для повторной отправки одного и того же медиафайла много раз, причём отправка будет мгновенной, т.к. сам файл уже лежит 
 на серверах Telegram. Это самый предпочтительный способ.  
+К примеру, следующий код заставит бота моментально ответить пользователю той же гифкой, что была прислана: 
+
+```python
+@dp.message_handler(content_types=[types.ContentType.ANIMATION])
+async def echo_document(message: types.Message):
+    await message.reply_animation(message.animation.file_id)
+```
+
 `file_id` уникален для каждого бота, т.е. переиспользовать чужой идентификатор нельзя. Однако в Bot API есть ещё 
 `file_unique_id`. Его нельзя использовать для повторной отправки или скачивания медиафайла, но зато он одинаковый у всех 
 ботов. Нужен `file_unique_id` обычно тогда, когда нескольким ботам требуется знать, что их собственные `file_id` односятся 
@@ -117,14 +125,9 @@ async def download_doc(message: types.Message):
 # Типы содержимого тоже можно указывать по-разному.
 @dp.message_handler(content_types=["photo"])
 async def download_photo(message: types.Message):
-    # Скачивание прямо в /tmp/hello без создания подкаталогов
-    await message.photo[-1].download(destination="/tmp/somedir/", make_dirs=False)
+    # Убедитесь, что каталог /tmp/somedir существует!
+    await message.photo[-1].download(destination="/tmp/somedir/")
 ```
-
-!!! warning ""
-    В aiogram версии 2.9.2 существует баг, из-за которого загрузка файлов с явным указанием каталога может не работать 
-    должным образом. Баг [уже исправлен](https://github.com/aiogram/aiogram/issues/143), но до выхода новой версии 
-    фреймворка он будет присутствовать.
 
 !!! info "Работа с изображениями"
     Обратите внимание на конструкцию `message.photo[-1]`. Когда пользователь присылает боту изображение, Telegram присылает 
@@ -135,7 +138,13 @@ async def download_photo(message: types.Message):
     Боты, использующие Telegram Bot API, могут скачивать файлы размером не более [20 мегабайт](https://core.telegram.org/bots/api#getfile). 
     Если вы планируете скачивать/заливать большие файлы, лучше рассмотрите библиотеки, взаимодействующие с 
     Telegram Client API, а не с Telegram Bot API, например, [Telethon](https://docs.telethon.dev/en/latest/index.html). 
-    Немногие знают, но Client API могут использовать не только обычные аккаунты, но ещё и [боты](https://docs.telethon.dev/en/latest/concepts/botapi-vs-mtproto.html).
+    Немногие знают, но Client API могут использовать не только обычные аккаунты, но ещё и 
+    [боты](https://docs.telethon.dev/en/latest/concepts/botapi-vs-mtproto.html).
+    
+    А начиная с Bot API версии 5.0, можно использовать 
+    [собственный сервер Bot API](https://core.telegram.org/bots/api#using-a-local-bot-api-server) для работы с 
+    большими файлами.
+    
 
 
 ## Бонус

@@ -60,8 +60,13 @@ async def download_doc(message: types.Message):
 # Типы содержимого тоже можно указывать по-разному.
 @dp.message_handler(content_types=["photo"])
 async def download_photo(message: types.Message):
-    # Скачивание прямо в /tmp/hello без создания подкаталогов
-    await message.photo[-1].download(destination="/tmp/somedir/", make_dirs=False)
+    # Убедитесь, что каталог /tmp/somedir существует!
+    await message.photo[-1].download(destination="/tmp/somedir/")
+
+
+@dp.message_handler(content_types=[types.ContentType.ANIMATION])
+async def echo_document(message: types.Message):
+    await message.reply_animation(message.animation.file_id)
 
 
 @dp.message_handler()
