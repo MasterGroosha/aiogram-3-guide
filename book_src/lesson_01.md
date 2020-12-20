@@ -231,4 +231,4 @@ bot = Bot(token=bot_token)
 Запустите снова бота и убедитесь, что он работает. Получившийся код можно смело сохранять в 
 PyCharm в [File Templates](https://www.jetbrains.com/help/pycharm/using-file-and-code-templates.html).
 
-На этом мы закончим знакомство с библиотекой, а в следующих уроках рассмотрим другие "фишки" aiogram и Telegram Bot API.
+На этом мы закончим знакомство с библиотекой, а в следующих главах рассмотрим другие "фишки" aiogram и Telegram Bot API.
