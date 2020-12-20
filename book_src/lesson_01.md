@@ -3,7 +3,7 @@ title: Знакомство с aiogram
 description: Знакомство с aiogram
 ---
 
-#1. Знакомство с aiogram
+# Знакомство с aiogram
 ## Установка 
 
 Для начала давайте создадим каталог для бота, организуем там virtual environment (далее venv) и
