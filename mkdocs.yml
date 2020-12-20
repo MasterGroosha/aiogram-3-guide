@@ -55,6 +55,7 @@ nav:
   - 'Введение': index.md
   - 'Урок 1': lesson_01.md
   - 'Урок 2': lesson_02.md
+  - 'Урок 3': lesson_03.md
 
 
 plugins:
