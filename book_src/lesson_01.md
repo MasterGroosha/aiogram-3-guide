@@ -1,5 +1,5 @@
 ---
-title: Урок 1
+title: Знакомство с aiogram
 description: Знакомство с aiogram
 ---
 
