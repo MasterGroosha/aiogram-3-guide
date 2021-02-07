@@ -109,7 +109,7 @@ async def cmd_test2(message: types.Message):
 ```
 
 Давайте запустим с ним бота:  
-![Команда /test2 не работает](images/l01_1.jpg)
+![Команда /test2 не работает](images/quickstart/l01_1.jpg)
 
 Функция `cmd_test2` не работает, т.к. диспетчер о ней не знает. Исправим эту ошибку 
 и отдельно зарегистрируем функцию:
@@ -123,7 +123,7 @@ dp.register_message_handler(cmd_test2, commands="test2")
 ```
 
 Снова запустим бота:  
-![Обе команды работают](images/l01_2.jpg)
+![Обе команды работают](images/quickstart/l01_2.jpg)
 
 ## Обработка ошибок
 
@@ -176,7 +176,7 @@ async def cmd_answer(message: types.Message):
 async def cmd_reply(message: types.Message):
     await message.reply('Это ответ с "ответом"')
 ```
-![Разница между message.answer() и message.reply()](images/l01_3.jpg)
+![Разница между message.answer() и message.reply()](images/quickstart/l01_3.jpg)
 
 Более того, для большинства типов сообщений есть вспомогательные методы вида 
 "answer_{type}" или "reply_{type}", например:
@@ -226,7 +226,7 @@ bot = Bot(token=bot_token)
 Чтобы передать переменную окружения в PyCharm, откройте сверху раздел Run -> Edit Configurations 
 и добавьте в окне Environment Variables переменную с именем BOT_TOKEN и значением токена. 
 
-![Разница между message.answer() и message.reply()](images/l01_4.png)
+![Разница между message.answer() и message.reply()](images/quickstart/l01_4.png)
 
 Запустите снова бота и убедитесь, что он работает. Получившийся код можно смело сохранять в 
 PyCharm в [File Templates](https://www.jetbrains.com/help/pycharm/using-file-and-code-templates.html).

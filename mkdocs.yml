@@ -53,9 +53,9 @@ markdown_extensions:
 
 nav:
   - 'Введение': index.md
-  - 'Знакомство с aiogram': 01_quickstart.md
-  - 'Работа с собщениями': 02_messages.md
-  - 'Кнопки': 03_buttons.md
+  - 'Знакомство с aiogram': quickstart.md
+  - 'Работа с собщениями': messages.md
+  - 'Кнопки': buttons.md
 
 
 plugins:

@@ -23,7 +23,7 @@ await message.answer("Hello, <b>world</b>!", parse_mode=types.ParseMode.HTML)
 await message.answer("Hello, *world*\!", parse_mode="MarkdownV2")
 ```
 
-![Hello world с разным форматированием](images/l02_1.png)
+![Hello world с разным форматированием](images/messages/l02_1.png)
 
 Если в боте повсеместно используется определённое форматирование, то каждый раз указывать аргумент `parse_mode` довольно 
 накладно. К счастью, в aiogram можно передать необходимый тип прямо в объект **Bot**, а если в каком-то конкретном случае 
@@ -38,7 +38,7 @@ await message.answer("Сообщение с <u>HTML-разметкой</u>")
 await message.answer("Сообщение без <s>какой-либо разметки</s>", parse_mode="")
 ```
 
-![Настройка типа разметки по умолчанию](images/l02_2.png)
+![Настройка типа разметки по умолчанию](images/messages/l02_2.png)
 
 Существует и более «программный» или даже «динамический» способ формирования сообщения.
 Для этого нужно импортировать модуль markdown из aiogram.utils, который, несмотря на название, поддерживает и HTML тоже.
@@ -59,7 +59,7 @@ await message.answer(
         ), parse_mode="HTML"
     )
 ```
-![Динамическое форматирование](images/l02_3.png)
+![Динамическое форматирование](images/messages/l02_3.png)
 
 Помимо отправки с форматированием, Aiogram позволяет извлекать входящий текст как простое содержимое (plain text), 
 как HTML и как Markdown. Сравнить можно на скриншоте ниже. 
@@ -76,7 +76,7 @@ async def any_text_message(message: types.Message):
     )
 ```
 
-![Настройка типа разметки по умолчанию](images/l02_4.png)
+![Настройка типа разметки по умолчанию](images/messages/l02_4.png)
 
 Всё бы ничего, но с использованием форматирования есть проблема: не в меру хитрые пользователи могут использовать спец. 
 символы в именах или сообщениях, ломая бота. Впрочем, в aiogram существуют методы экранирования таких символов: 
@@ -88,7 +88,7 @@ async def any_text_message2(message: types.Message):
     # А можно и так:
     await message.answer(fmt.text("Привет,", fmt.hbold(message.text)), parse_mode=types.ParseMode.HTML)
 ```
-![Экранирование ввода](images/l02_5.png)
+![Экранирование ввода](images/messages/l02_5.png)
 
 !!! info ""
     Подробнее о различных способах форматирования и поддерживаемых тегах можно узнать 
@@ -172,7 +172,7 @@ async def with_hidden_link(message: types.Message):
         parse_mode=types.ParseMode.HTML)
 ```
 
-![Изображение со скрытой ссылкой](images/l02_6.png)
+![Изображение со скрытой ссылкой](images/messages/l02_6.png)
 
 На этом всё. До следующих глав!  
 <s><small>Ставьте лайки, подписывайтесь, прожимайте колокольчик</small></s>
