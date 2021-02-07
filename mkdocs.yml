@@ -56,6 +56,7 @@ nav:
   - 'Знакомство с aiogram': quickstart.md
   - 'Работа с собщениями': messages.md
   - 'Кнопки': buttons.md
+  - 'Конечные автоматы': fsm.md
 
 
 plugins:
