@@ -141,7 +141,7 @@ async def food_chosen(message: types.Message, state: FSMContext):
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     for size in available_food_sizes:
         keyboard.add(size)
-    # Для простых шагов можно не указывать название состояния, обходясь next()
+    # Для последовательных шагов можно не указывать название состояния, обходясь next()
     await OrderFood.next()
     await message.answer("Теперь выберите размер порции:", reply_markup=keyboard)
 ```
