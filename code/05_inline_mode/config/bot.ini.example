@@ -1,0 +1,4 @@
+[tg_bot]
+token = 1234567890:abcdefghijklmnopqrstuvwxyz
+
+# Не забудьте скопировать этот файл под именем bot.ini

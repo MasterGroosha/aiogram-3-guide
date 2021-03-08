@@ -57,6 +57,7 @@ nav:
   - 'Работа с собщениями': messages.md
   - 'Кнопки': buttons.md
   - 'Конечные автоматы': fsm.md
+  - 'Инлайн-режим': inline_mode.md
 
 
 plugins:
