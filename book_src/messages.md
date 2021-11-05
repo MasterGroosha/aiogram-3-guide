@@ -126,7 +126,7 @@ async def download_doc(message: types.Message):
 @dp.message_handler(content_types=["photo"])
 async def download_photo(message: types.Message):
     # Убедитесь, что каталог /tmp/somedir существует!
-    await message.photo[-1].download(destination="/tmp/somedir/")
+    await message.photo[-1].download(destination_dir="/tmp/somedir/")
 ```
 
 !!! info "Работа с изображениями"
