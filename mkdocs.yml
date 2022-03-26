@@ -20,9 +20,18 @@ theme:
   custom_dir: book_src/overrides
   language: ru
   palette:
-    primary: teal
-    accent: teal
-    scheme: preference
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      toggle:
+        icon: material/brightness-4
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      toggle:
+        icon: material/brightness-7
+        name: Switch to light mode
   font:
     text: Roboto
     code: Roboto Mono
@@ -48,6 +57,7 @@ markdown_extensions:
   - pymdownx.highlight
   - pymdownx.superfences
   - meta
+  - attr_list
   - toc:
       permalink: true
 
