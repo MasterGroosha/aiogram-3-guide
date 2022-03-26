@@ -8,8 +8,8 @@ title: Введение
 Да и библиотека [pyTelegramBotAPI](https://github.com/eternnoir/pyTelegramBotAPI), на мой взгляд,
 не пережила проверку временем и стала приносить всё больше и больше проблем.
 
-В этой, обновлённой версии книги, мы будем использовать библиотеки [aiogram](https://github.com/aiogram/aiogram) и [Telethon](https://github.com/LonamiWebs/Telethon), 
-а также разберёмся с некоторыми интересными подходами к обеспечению работы Telegram-ботов.
+В этой, обновлённой версии книги, мы будем использовать библиотеку [aiogram](https://github.com/aiogram/aiogram) 
+версии 3.х.
 
 **Для кого эта книга?**  
 Предполагается, что вы знакомы с программированием в целом и языком Python в частности, знаете, что такое "venv" и "pip", 
@@ -17,8 +17,8 @@ title: Введение
 курсов по Python, пройдите их, а лишь затем принимайтесь за написание ботов, сэкономите себе время и нервные клетки.
 
 Во всех главах в качестве операционной системы мы будем использовать что-нибудь семейства GNU/Linux, 
-например, [Ubuntu](https://ubuntu.com/), Python 3.7 (в Virtual Environment) и среду разработки 
-[PyCharm Community Edition](https://www.jetbrains.com/ru-ru/pycharm/download/), впрочем, не возбраняется и [Visual Studio Code](https://code.visualstudio.com/).
+например, [Ubuntu](https://ubuntu.com/), Python 3.9 (в Virtual Environment) и среду разработки 
+[PyCharm](https://www.jetbrains.com/ru-ru/pycharm/download/), впрочем, не возбраняется и [Visual Studio Code](https://code.visualstudio.com/).
 При этом пользователи Windows не в пролёте: всё, что касается кода, будет спокойно работать и у вас, а для специфичных вещей
 вроде systemd вы можете использовать Ubuntu в [VirtualBox](https://www.virtualbox.org).
 
