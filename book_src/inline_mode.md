@@ -3,6 +3,9 @@ title: Инлайн-режим
 description: Инлайн-режим
 ---
 
+!!! error "raise NotImplementedError"
+    Данная глава ещё не переписана под aiogram 3.x и содержит текст про aiogram 2.x 
+
 # Инлайн-режим
 
 ## Введение

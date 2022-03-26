@@ -3,6 +3,9 @@ title: Конечные автоматы (FSM)
 description: Конечные автоматы (FSM)
 ---
 
+!!! error "raise NotImplementedError"
+    Данная глава ещё не переписана под aiogram 3.x и содержит текст про aiogram 2.x 
+
 # Конечные автоматы (FSM)
 
 ## Теория
