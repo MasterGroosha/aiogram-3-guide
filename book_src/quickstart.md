@@ -6,7 +6,7 @@ description: Знакомство с aiogram
 # Знакомство с aiogram
 ## Терминология {: id="glossary" }
 
-Прежде, чем рассматривать aiogram, введём некоторые термины, чтобы в дальнейшем не путаться:
+Чтобы разговаривать в одних и тех же понятиях, введём некоторые термины, чтобы в дальнейшем не путаться:
 
 * ЛС — личные сообщения, в контексте бота это диалог один-на-один с пользователем, а не группа/канал.
 * Чат — общее название для ЛС, групп, супергрупп и каналов.
@@ -43,7 +43,7 @@ Type "help", "copyright", "credits" or "license" for more information.
 
 ```plain
 [groosha@main 01_quickstart]$ python3.9 -m venv venv
-[groosha@main 01_quickstart]$ echo "aiogram==3.0.0b1" > requirements.txt
+[groosha@main 01_quickstart]$ echo "aiogram==3.0.0b2" > requirements.txt
 [groosha@main 01_quickstart]$ source venv/bin/activate
 (venv) [groosha@main 01_quickstart]$ pip install --pre -r requirements.txt 
 # ...здесь куча строк про установку...
@@ -109,7 +109,7 @@ if __name__ == "__main__":
 
 Чтобы зарегистрировать функцию как обработчик сообщений, нужно сделать одно из двух действий:  
 1. Навесить на неё [декоратор](https://devpractice.ru/python-lesson-19-decorators/), как в примере выше. 
-С различными типами декораторов мы познакомимся позднее.
+С различными типами декораторов мы познакомимся позднее.  
 2. Напрямую вызвать метод регистрации у диспетчера или роутера.
 
 Рассмотрим следующий код: 
