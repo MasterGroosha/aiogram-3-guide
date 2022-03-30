@@ -37,6 +37,8 @@ theme:
     code: Roboto Mono
   icon:
     logo: material/robot
+#  features:
+#    - navigation.expand
 
 # Extras
 extra:
@@ -68,6 +70,8 @@ nav:
   - 'Кнопки': buttons.md
   - 'Конечные автоматы': fsm.md
   - 'Инлайн-режим': inline_mode.md
+#  - 'Дополнительное чтение':
+#    - 'Тест': extra/test.md
 
 
 plugins:
