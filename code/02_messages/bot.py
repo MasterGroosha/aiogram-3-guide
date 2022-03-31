@@ -47,7 +47,10 @@ async def extract_data(message: types.Message):
     entities = message.entities or []
     for item in entities:
         if item.type in data.keys():
-            data[item.type] = message.text[item.offset : item.offset+item.length]
+            # Неправильно
+            # data[item.type] = message.text[item.offset : item.offset+item.length]
+            # Правильно
+            data[item.type] = item.extract(message.text)
     await message.reply(
         "Вот что я нашёл:\n"
         f"URL: {html.quote(data['url'])}\n"
