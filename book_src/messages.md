@@ -45,7 +45,7 @@ from aiogram import types
 # Если не указать фильтр content_types, 
 # то хэндлер сработает даже на картинку с подписью /test,
 # но пока нам это не важно и рассматриваем только текстовые сообщения
-@dp.message(commands="test")
+@dp.message(commands=["test"])
 async def any_message(message: types.Message):
     await message.answer("Hello, <b>world</b>!", parse_mode="HTML")
     await message.answer("Hello, *world*\!", parse_mode="MarkdownV2")
@@ -74,7 +74,7 @@ await message.answer("Сообщение без <s>какой-либо разм�
 указанным после команды, например, `/name Иван Иванов`:
 
 ```python
-@dp.message(commands="name")
+@dp.message(commands=["name"])
 async def cmd_name(message: types.Message, command: CommandObject):
     if command.args:
         await message.answer(f"Привет, <b>{command.args}</b>")
@@ -304,7 +304,7 @@ async def somebody_added(message: types.Message):
 # новый импорт!
 from aiogram.utils.markdown import hide_link
 
-@dp.message(commands="hidden_link")
+@dp.message(commands=["hidden_link"])
 async def cmd_hidden_link(message: types.Message):
     await message.answer(
         f"{hide_link('https://telegra.ph/file/562a512448876923e28c3.png')}"
