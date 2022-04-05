@@ -1,79 +1,127 @@
+import asyncio
 import logging
-from aiogram import Bot, Dispatcher, executor, types
-from aiogram.dispatcher.filters import Text
-from aiogram.utils.exceptions import MessageNotModified
-from aiogram.utils.callback_data import CallbackData
-from os import getenv
-from sys import exit
-from random import randint
 from contextlib import suppress
+from random import randint
 
-# Токен берётся из переменной окружения
-token = getenv("BOT_TOKEN")
-if not token:
-    exit("Error: no token provided")
+from aiogram import Bot, Dispatcher, types
+from aiogram.dispatcher.filters import Text
+from aiogram.dispatcher.filters.callback_data import CallbackData
+from aiogram.exceptions import TelegramBadRequest
+from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
+from magic_filter import F
 
-bot = Bot(token=token)
-dp = Dispatcher(bot)
+bot = Bot(token="TOKEN")
+dp = Dispatcher()
 logging.basicConfig(level=logging.INFO)
 
 user_data = {}
 
-# ----------
 
-@dp.message_handler(commands="start")
+@dp.message(commands=["start"])
 async def cmd_start(message: types.Message):
-    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    buttons = ["С пюрешкой", "Без пюрешки"]
-    keyboard.add(*buttons)
+    kb = [
+        [
+            types.KeyboardButton(text="С пюрешкой"),
+            types.KeyboardButton(text="Без пюрешки")
+        ],
+    ]
+    keyboard = types.ReplyKeyboardMarkup(
+        keyboard=kb,
+        resize_keyboard=True,
+        input_field_placeholder="Выберите способ подачи"
+    )
     await message.answer("Как подавать котлеты?", reply_markup=keyboard)
 
 
-@dp.message_handler(Text(equals="С пюрешкой"))
+@dp.message(Text(text="С пюрешкой"))
 async def with_puree(message: types.Message):
     await message.reply("Отличный выбор!", reply_markup=types.ReplyKeyboardRemove())
 
 
-@dp.message_handler(lambda message: message.text == "Без пюрешки")
+@dp.message(lambda message: message.text == "Без пюрешки")
 async def without_puree(message: types.Message):
     await message.reply("Так невкусно!")
 
-# ----------
 
-@dp.message_handler(commands="special_buttons")
+@dp.message(commands=["reply_builder"])
+async def reply_builder(message: types.Message):
+    builder = ReplyKeyboardBuilder()
+    for i in range(1, 17):
+        builder.add(types.KeyboardButton(text=str(i)))
+    builder.adjust(4)
+    await message.answer(
+        "Выберите число:",
+        reply_markup=builder.as_markup(resize_keyboard=True),
+    )
+
+
+@dp.message(commands=["special_buttons"])
 async def cmd_special_buttons(message: types.Message):
-    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.add(types.KeyboardButton(text="Запросить геолокацию", request_location=True))
-    keyboard.add(types.KeyboardButton(text="Запросить контакт", request_contact=True))
-    keyboard.add(types.KeyboardButton(text="Создать викторину",
-                                      request_poll=types.KeyboardButtonPollType(type=types.PollType.QUIZ)))
-    await message.answer("Выберите действие:", reply_markup=keyboard)
+    builder = ReplyKeyboardBuilder()
+    # метод row позволяет явным образом сформировать ряд
+    # из одной или нескольких кнопок. Например, первый ряд
+    # будет состоять из двух кнопок...
+    builder.row(
+        types.KeyboardButton(text="Запросить геолокацию", request_location=True),
+        types.KeyboardButton(text="Запросить контакт", request_contact=True)
+    )
+    # ... а второй из одной
+    builder.row(types.KeyboardButton(
+        text="Создать викторину",
+        request_poll=types.KeyboardButtonPollType(type="quiz"))
+    )
+    await message.answer(
+        "Выберите действие:",
+        reply_markup=builder.as_markup(resize_keyboard=True),
+    )
 
-# ----------
 
-@dp.message_handler(commands="inline_url")
-async def cmd_inline_url(message: types.Message):
-    buttons = [
-        types.InlineKeyboardButton(text="GitHub", url="https://github.com"),
-        types.InlineKeyboardButton(text="Оф. канал Telegram", url="tg://resolve?domain=telegram")
-    ]
-    keyboard = types.InlineKeyboardMarkup(row_width=1)
-    keyboard.add(*buttons)
-    await message.answer("Кнопки-ссылки", reply_markup=keyboard)
+@dp.message(commands=["inline_url"])
+async def cmd_inline_url(message: types.Message, bot: Bot):
+    builder = InlineKeyboardBuilder()
+    builder.row(types.InlineKeyboardButton(
+        text="GitHub", url="https://github.com")
+    )
+    builder.row(types.InlineKeyboardButton(
+        text="Оф. канал Telegram",
+        url="tg://resolve?domain=telegram")
+    )
 
-# ----------
+    # Чтобы иметь возможность показать ID-кнопку,
+    # У юзера должен быть False флаг has_private_forwards
+    user_id = 1234567890
+    chat_info = await bot.get_chat(user_id)
+    if not chat_info.has_private_forwards:
+        builder.row(types.InlineKeyboardButton(
+            text="Какой-то пользователь",
+            url=f"tg://user?id={user_id}")
+        )
+    await message.answer(
+        'Выберите ссылку',
+        reply_markup=builder.as_markup(),
+    )
 
-@dp.message_handler(commands="random")
+
+@dp.message(commands=["random"])
 async def cmd_random(message: types.Message):
-    keyboard = types.InlineKeyboardMarkup()
-    keyboard.add(types.InlineKeyboardButton(text="Нажми меня", callback_data="random_value"))
-    await message.answer("Нажмите на кнопку, чтобы бот отправил число от 1 до 10", reply_markup=keyboard)
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="Нажми меня",
+        callback_data="random_value")
+    )
+    await message.answer(
+        "Нажмите на кнопку, чтобы бот отправил число от 1 до 10",
+        reply_markup=builder.as_markup()
+    )
 
 
-@dp.callback_query_handler(text="random_value")
-async def send_random_value(call: types.CallbackQuery):
-    await call.message.answer(str(randint(1, 10)))
-    await call.answer(text="Спасибо, что воспользовались ботом!", show_alert=True)
+@dp.callback_query(text="random_value")
+async def send_random_value(callback: types.CallbackQuery):
+    await callback.message.answer(str(randint(1, 10)))
+    await callback.answer(
+        text="Спасибо, что воспользовались ботом!",
+        show_alert=True
+    )
     # или просто await call.answer()
 
 
@@ -82,95 +130,123 @@ async def send_random_value(call: types.CallbackQuery):
 
 def get_keyboard():
     buttons = [
-        types.InlineKeyboardButton(text="-1", callback_data="num_decr"),
-        types.InlineKeyboardButton(text="+1", callback_data="num_incr"),
-        types.InlineKeyboardButton(text="Подтвердить", callback_data="num_finish")
+        [
+            types.InlineKeyboardButton(text="-1", callback_data="num_decr"),
+            types.InlineKeyboardButton(text="+1", callback_data="num_incr")
+        ],
+        [types.InlineKeyboardButton(text="Подтвердить", callback_data="num_finish")]
     ]
-    keyboard = types.InlineKeyboardMarkup(row_width=2)
-    keyboard.add(*buttons)
+    keyboard = types.InlineKeyboardMarkup(inline_keyboard=buttons)
     return keyboard
 
 
 async def update_num_text(message: types.Message, new_value: int):
-    with suppress(MessageNotModified):
-        await message.edit_text(f"Укажите число: {new_value}", reply_markup=get_keyboard())
+    with suppress(TelegramBadRequest):
+        await message.edit_text(
+            f"Укажите число: {new_value}",
+            reply_markup=get_keyboard()
+        )
 
 
-@dp.message_handler(commands="numbers")
+@dp.message(commands=["numbers"])
 async def cmd_numbers(message: types.Message):
     user_data[message.from_user.id] = 0
     await message.answer("Укажите число: 0", reply_markup=get_keyboard())
 
 
-@dp.callback_query_handler(Text(startswith="num_"))
-async def callbacks_num(call: types.CallbackQuery):
-    print(call.data)
-    user_value = user_data.get(call.from_user.id, 0)
-    action = call.data.split("_")[1]
+@dp.callback_query(Text(text_startswith="num_"))
+async def callbacks_num(callback: types.CallbackQuery):
+    user_value = user_data.get(callback.from_user.id, 0)
+    action = callback.data.split("_")[1]
 
     if action == "incr":
-        user_data[call.from_user.id] = user_value+1
-        await update_num_text(call.message, user_value+1)
+        user_data[callback.from_user.id] = user_value+1
+        await update_num_text(callback.message, user_value+1)
     elif action == "decr":
-        user_data[call.from_user.id] = user_value-1
-        await update_num_text(call.message, user_value-1)
+        user_data[callback.from_user.id] = user_value-1
+        await update_num_text(callback.message, user_value-1)
     elif action == "finish":
-        await call.message.edit_text(f"Итого: {user_value}")
+        await callback.message.edit_text(f"Итого: {user_value}")
 
-    await call.answer()
+    await callback.answer()
 
 
 # ----------
 # Это вариант с фабрикой колбэков
 
-# fabnum - префикс, action - название аргумента, которым будем передавать значение
-callback_numbers = CallbackData("fabnum", "action")
+class NumbersCallbackFactory(CallbackData, prefix="fabnum"):
+    action: str
+    value: int
 
 
 def get_keyboard_fab():
-    buttons = [
-        types.InlineKeyboardButton(text="-1", callback_data=callback_numbers.new(action="decr")),
-        types.InlineKeyboardButton(text="+1", callback_data=callback_numbers.new(action="incr")),
-        types.InlineKeyboardButton(text="Подтвердить", callback_data=callback_numbers.new(action="finish"))
-    ]
-    keyboard = types.InlineKeyboardMarkup(row_width=2)
-    keyboard.add(*buttons)
-    return keyboard
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="-2",
+        callback_data=NumbersCallbackFactory(action="decr", value=-2).pack()
+    ))
+    builder.add(types.InlineKeyboardButton(
+        text="-1",
+        callback_data=NumbersCallbackFactory(action="decr", value=-1).pack()
+    ))
+    builder.add(types.InlineKeyboardButton(
+        text="+1",
+        callback_data=NumbersCallbackFactory(action="incr", value=1).pack()
+    ))
+    builder.add(types.InlineKeyboardButton(
+        text="+2",
+        callback_data=NumbersCallbackFactory(action="incr", value=2).pack()
+    ))
+    builder.adjust(4)
+    builder.row(types.InlineKeyboardButton(
+        text="Подтвердить",
+        callback_data=NumbersCallbackFactory(action="finish", value=0).pack()
+    ))
+    return builder.as_markup()
 
 
 async def update_num_text_fab(message: types.Message, new_value: int):
-    with suppress(MessageNotModified):
-        await message.edit_text(f"Укажите число: {new_value}", reply_markup=get_keyboard_fab())
+    with suppress(TelegramBadRequest):
+        await message.edit_text(
+            f"Укажите число: {new_value}",
+            reply_markup=get_keyboard_fab()
+        )
 
 
-@dp.message_handler(commands="numbers_fab")
-async def cmd_numbers(message: types.Message):
+@dp.message(commands=["numbers_fab"])
+async def cmd_numbers_fab(message: types.Message):
     user_data[message.from_user.id] = 0
     await message.answer("Укажите число: 0", reply_markup=get_keyboard_fab())
 
 
-@dp.callback_query_handler(callback_numbers.filter(action=["incr", "decr"]))
-async def callbacks_num_change_fab(call: types.CallbackQuery, callback_data: dict):
-    user_value = user_data.get(call.from_user.id, 0)
-    action = callback_data["action"]
+# Нажатие на одну из кнопок: -2, -1, +1, +2
+@dp.callback_query(NumbersCallbackFactory.filter(F.action.in_({"incr", "decr"})))
+async def callbacks_num_change_fab(callback: types.CallbackQuery, callback_data: NumbersCallbackFactory):
+    # Текущее значение
+    user_value = user_data.get(callback.from_user.id, 0)
 
-    if action == "incr":
-        user_data[call.from_user.id] = user_value + 1
-        await update_num_text_fab(call.message, user_value + 1)
-    elif action == "decr":
-        user_data[call.from_user.id] = user_value - 1
-        await update_num_text_fab(call.message, user_value - 1)
-    await call.answer()
+    user_data[callback.from_user.id] = user_value + callback_data.value
+    await update_num_text_fab(callback.message, user_value + callback_data.value)
+    await callback.answer()
 
 
-@dp.callback_query_handler(callback_numbers.filter(action=["finish"]))
-async def callbacks_num_finish_fab(call: types.CallbackQuery):
-    user_value = user_data.get(call.from_user.id, 0)
-    await call.message.edit_text(f"Итого: {user_value}")
-    await call.answer()
+# Нажатие на кнопку "подтвердить"
+@dp.callback_query(NumbersCallbackFactory.filter(F.action == "finish"))
+async def callbacks_num_finish_fab(callback: types.CallbackQuery):
+    # Текущее значение
+    user_value = user_data.get(callback.from_user.id, 0)
 
-# --------------------
+    await callback.message.edit_text(f"Итого: {user_value}")
+    await callback.answer()
+
 
 # Запуск бота
+async def main():
+    # Запускаем бота и пропускаем все накопленные входящие
+    # Да, этот метод можно вызвать даже если у вас поллинг
+    await bot.delete_webhook(drop_pending_updates=True)
+    await dp.start_polling(bot)
+
+
 if __name__ == "__main__":
-    executor.start_polling(dp, skip_updates=True)
+    asyncio.run(main())
