@@ -101,7 +101,8 @@ async def without_puree(message: types.Message):
 
 - `add(<KeyboardButton>)` — добавляет кнопку в память сборщика;
 - `adjust(<int>)` — делает строки по `<int>` кнопок;
-- `ad_markup()` — возвращает готовый объект клавиатуры.
+- `as_markup()` — возвращает готовый объект клавиатуры;
+- `button(<params>)` — добавляет кнопку с заданными параметрами, тип кнопки (Reply или Inline) определяется автоматически.
 
 Создадим пронумерованную клавиатуру размером 4×4:
 
@@ -389,48 +390,48 @@ async def update_num_text(message: types.Message, new_value: int):
 В какой-то момент возникает необходимость структурировать содержимое таких callback data, и в aiogram есть решение! 
 Вы создаёте объекты типа `CallbackData`, указываете префикс, описываете структуру, а дальше фреймворк самостоятельно собирает 
 строку с данными колбэка и, что важнее, корректно разбирает входящее значение. Снова разберёмся на конкретном примере; 
-создадим класс `NumbersCallbackFactory` с префиксом `fabnum` и двумя полями `action` и `value` для определения, 
-в какую сторону и на сколько изменять значение соответственно:
+создадим класс `NumbersCallbackFactory` с префиксом `fabnum` и двумя полями `action` и `value`. Поле `action` определяет, 
+что делать, менять значение (change) или зафиксировать (finish), а поле `value` показывает, на сколько изменять 
+значение. Оно помечено как `Optional[int]`, т.к. если action равен "finish", то значение указывать бессмысленно. Код:
 
 ```python
-# новый импорт!
+# новые импорты!
+from typing import Optional
 from aiogram.dispatcher.filters.callback_data import CallbackData
 
 class NumbersCallbackFactory(CallbackData, prefix="fabnum"):
     action: str
-    value: int
+    value: Optional[int]
 ```
 
 Наш класс обязательно должен наследоваться от `CallbackData` и принимать значение префикса. Префикс — это 
 общая подстрока в начале, по которой фреймворк будет определять, какая структура лежит в колбэке. 
 
-Теперь напишем функцию генерации клавиатуры. В качестве аргумента `callback_data` вместо строки будем указывать 
-экземпляр нашего класса `NumbersCallbackFactory` с вызванным методом `.pack()`:
+Теперь напишем функцию генерации клавиатуры. Здесь нам пригодится метод `button()`, который автоматически 
+будет создавать кнопку с нужным типом, а от нас требуется только передать аргументы. 
+В качестве аргумента `callback_data` вместо строки будем указывать 
+экземпляр нашего класса `NumbersCallbackFactory`:
 
 ```python
 def get_keyboard_fab():
     builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text="-2",
-        callback_data=NumbersCallbackFactory(action="decr", value=-2).pack()
-    ))
-    builder.add(types.InlineKeyboardButton(
-        text="-1",
-        callback_data=NumbersCallbackFactory(action="decr", value=-1).pack()
-    ))
-    builder.add(types.InlineKeyboardButton(
-        text="+1",
-        callback_data=NumbersCallbackFactory(action="incr", value=1).pack()
-    ))
-    builder.add(types.InlineKeyboardButton(
-        text="+2",
-        callback_data=NumbersCallbackFactory(action="incr", value=2).pack()
-    ))
+    builder.button(
+        text="-2", callback_data=NumbersCallbackFactory(action="change", value=-2)
+    )
+    builder.button(
+        text="-1", callback_data=NumbersCallbackFactory(action="change", value=-1)
+    )
+    builder.button(
+        text="+1", callback_data=NumbersCallbackFactory(action="change", value=1)
+    )
+    builder.button(
+        text="+2", callback_data=NumbersCallbackFactory(action="change", value=2)
+    )
+    builder.button(
+        text="Подтвердить", callback_data=NumbersCallbackFactory(action="finish")
+    )
+    # Выравниваем кнопки по 4 в ряд, чтобы получилось 4 + 1
     builder.adjust(4)
-    builder.row(types.InlineKeyboardButton(
-        text="Подтвердить", 
-        callback_data=NumbersCallbackFactory(action="finish", value=0).pack()
-    ))
     return builder.as_markup()
 ```
 
@@ -463,7 +464,7 @@ async def callbacks_num_change_fab(
     # Текущее значение
     user_value = user_data.get(callback.from_user.id, 0)
     # Если число нужно изменить
-    if callback_data.action in ("incr", "decr"):
+    if callback_data.action == "change":
         user_data[callback.from_user.id] = user_value + callback_data.value
         await update_num_text_fab(callback.message, user_value + callback_data.value)
     # Если число нужно зафиксировать
@@ -482,7 +483,7 @@ async def callbacks_num_change_fab(
 from magic_filter import F
 
 # Нажатие на одну из кнопок: -2, -1, +1, +2
-@dp.callback_query(NumbersCallbackFactory.filter(F.action.in_({"incr", "decr"})))
+@dp.callback_query(NumbersCallbackFactory.filter(F.action == "change"))
 async def callbacks_num_change_fab(
         callback: types.CallbackQuery, 
         callback_data: NumbersCallbackFactory

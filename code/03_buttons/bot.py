@@ -2,6 +2,7 @@ import asyncio
 import logging
 from contextlib import suppress
 from random import randint
+from typing import Optional
 
 from aiogram import Bot, Dispatcher, types
 from aiogram.dispatcher.filters import Text
@@ -176,32 +177,17 @@ async def callbacks_num(callback: types.CallbackQuery):
 
 class NumbersCallbackFactory(CallbackData, prefix="fabnum"):
     action: str
-    value: int
+    value: Optional[int]
 
 
 def get_keyboard_fab():
     builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text="-2",
-        callback_data=NumbersCallbackFactory(action="decr", value=-2).pack()
-    ))
-    builder.add(types.InlineKeyboardButton(
-        text="-1",
-        callback_data=NumbersCallbackFactory(action="decr", value=-1).pack()
-    ))
-    builder.add(types.InlineKeyboardButton(
-        text="+1",
-        callback_data=NumbersCallbackFactory(action="incr", value=1).pack()
-    ))
-    builder.add(types.InlineKeyboardButton(
-        text="+2",
-        callback_data=NumbersCallbackFactory(action="incr", value=2).pack()
-    ))
+    builder.button(text="-2", callback_data=NumbersCallbackFactory(action="change", value=-2))
+    builder.button(text="-1", callback_data=NumbersCallbackFactory(action="change", value=-1))
+    builder.button(text="+1", callback_data=NumbersCallbackFactory(action="change", value=1))
+    builder.button(text="+2", callback_data=NumbersCallbackFactory(action="change", value=2))
+    builder.button(text="Подтвердить", callback_data=NumbersCallbackFactory(action="finish"))
     builder.adjust(4)
-    builder.row(types.InlineKeyboardButton(
-        text="Подтвердить",
-        callback_data=NumbersCallbackFactory(action="finish", value=0).pack()
-    ))
     return builder.as_markup()
 
 
@@ -220,7 +206,7 @@ async def cmd_numbers_fab(message: types.Message):
 
 
 # Нажатие на одну из кнопок: -2, -1, +1, +2
-@dp.callback_query(NumbersCallbackFactory.filter(F.action.in_({"incr", "decr"})))
+@dp.callback_query(NumbersCallbackFactory.filter(F.action == "change"))
 async def callbacks_num_change_fab(callback: types.CallbackQuery, callback_data: NumbersCallbackFactory):
     # Текущее значение
     user_value = user_data.get(callback.from_user.id, 0)
