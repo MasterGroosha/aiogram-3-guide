@@ -68,6 +68,7 @@ nav:
   - 'Знакомство с aiogram': quickstart.md
   - 'Работа с собщениями': messages.md
   - 'Кнопки': buttons.md
+  - 'Роутеры. Структура': routers.md
   - 'Конечные автоматы': fsm.md
   - 'Инлайн-режим': inline_mode.md
 #  - 'Дополнительное чтение':
