@@ -1,6 +1,6 @@
 # Project information
-site_name: Пишем Telegram-ботов на Python (v2)
-site_description: Учебник по разработке ботов для Telegram на языке Python
+site_name: Пишем Telegram-ботов с aiogram 3.x
+site_description: Учебник по разработке ботов для Telegram на языке Python при помощи фреймворка aiogram 3.x
 site_author: MasterGroosha
 site_url: https://mastergroosha.github.io/telegram-tutorial-2
 docs_dir: book_src
