@@ -81,7 +81,7 @@ bot = Bot(token="12345678:AaBbCcDdEeFfGgHh")
 dp = Dispatcher()
 
 # Хэндлер на команду /start
-@dp.message(commands="start")
+@dp.message(commands=["start"])
 async def cmd_start(message: types.Message):
     await message.answer("Hello!")
 
@@ -115,7 +115,7 @@ if __name__ == "__main__":
 Рассмотрим следующий код: 
 ```python
 # Хэндлер на команду /test1
-@dp.message(commands="test1")
+@dp.message(commands=["test1"])
 async def cmd_test1(message: types.Message):
     await message.reply("Test 1")
 
@@ -135,7 +135,7 @@ async def cmd_test2(message: types.Message):
     await message.reply("Test 2")
 
 # Где-то в другом месте, например, в функции main():
-dp.message.register(cmd_test2, commands="test2")
+dp.message.register(cmd_test2, commands=["test2"])
 ```
 
 Снова запустим бота:  
@@ -149,12 +149,12 @@ dp.message.register(cmd_test2, commands="test2")
 Разница между `answer` и `reply` простая: первый метод просто отправляет сообщение в тот же чат, второй делает "ответ" на 
 сообщение из `message`:
 ```python
-@dp.message(commands="answer")
+@dp.message(commands=["answer"])
 async def cmd_answer(message: types.Message):
     await message.answer("Это простой ответ")
 
 
-@dp.message(commands="reply")
+@dp.message(commands=["reply"])
 async def cmd_reply(message: types.Message):
     await message.reply('Это ответ с "ответом"')
 ```
@@ -163,7 +163,7 @@ async def cmd_reply(message: types.Message):
 Более того, для большинства типов сообщений есть вспомогательные методы вида 
 "answer_{type}" или "reply_{type}", например:
 ```python
-@dp.message(commands="dice")
+@dp.message(commands=["dice"])
 async def cmd_dice(message: types.Message):
     await message.answer_dice(emoji="🎲")
 ```
@@ -184,7 +184,7 @@ async def cmd_dice(message: types.Message):
 отправлять кубик не в тот же чат, а в канал с ID -100123456789. Перепишем предыдущую функцию:
 
 ```python
-@dp.message(commands="dice")
+@dp.message(commands=["dice"])
 async def cmd_dice(message: types.Message, bot: Bot):
     await bot.send_dice(-100123456789, emoji="🎲")
 ```
