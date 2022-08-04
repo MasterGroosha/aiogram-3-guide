@@ -41,6 +41,17 @@ async def cmd_dice(message: types.Message):
     await message.answer_dice(emoji="🎲")
 
 
+@dp.message(commands=["add_to_list"])
+async def cmd_add_to_list(message: types.Message, mylist: list[int]):
+    mylist.append(7)
+    await message.answer("Добавлено число 7")
+
+
+@dp.message(commands=["show_list"])
+async def cmd_show_list(message: types.Message, mylist: list[int]):
+    await message.answer(f"Ваш список: {mylist}")
+
+
 async def main():
     # Регистрируем хэндлер cmd_test2 по команде /start
     dp.message.register(cmd_test2, commands=["test2"])
@@ -48,7 +59,7 @@ async def main():
     # Запускаем бота и пропускаем все накопленные входящие
     # Да, этот метод можно вызвать даже если у вас поллинг
     await bot.delete_webhook(drop_pending_updates=True)
-    await dp.start_polling(bot)
+    await dp.start_polling(bot, mylist=[1, 2, 3])
 
 
 if __name__ == "__main__":
