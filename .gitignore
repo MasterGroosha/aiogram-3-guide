@@ -6,3 +6,4 @@ docs/
 
 # .env-файлы
 /code/01_quickstart/.env
+/code/06_special_updates/.env

@@ -70,6 +70,7 @@ nav:
   - 'Кнопки': buttons.md
   - 'Роутеры. Структура': routers.md
   - 'Фильтры и мидлвари': filters-and-middlewares.md
+  - 'Особые апдейты': special-updates.md
   - 'Конечные автоматы': fsm.md
   - 'Инлайн-режим': inline_mode.md
 #  - 'Дополнительное чтение':
