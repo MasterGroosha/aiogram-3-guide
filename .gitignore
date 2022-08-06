@@ -3,3 +3,6 @@ venv/
 
 # Каталог сборки
 docs/
+
+# .env-файлы
+/code/01_quickstart/.env

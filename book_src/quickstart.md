@@ -56,7 +56,8 @@ Type "help", "copyright", "credits" or "license" for more information.
 [groosha@main lesson_01]$ 
 ```
 
-Теперь создадим файл `requirements.txt`, в котором укажем используемую нами версию aiogram.
+Теперь создадим файл `requirements.txt`, в котором укажем используемую нами версию aiogram. Также нам понадобится 
+библиотека python-dotenv для файлов конфигурации.
 !!! important "О версиях aiogram"
     В этой главе используется aiogram **3.x**, перед началом работы рекомендую заглянуть в 
     [канал релизов](https://t.me/aiogram_live) библиотеки и проверить наличие более новой версии. Подойдёт любая 
@@ -64,9 +65,10 @@ Type "help", "copyright", "credits" or "license" for more information.
 
 ```plain
 [groosha@main 01_quickstart]$ python3.9 -m venv venv
-[groosha@main 01_quickstart]$ echo "aiogram==3.0.0b2" > requirements.txt
+[groosha@main 01_quickstart]$ echo "aiogram==3.0.0b3" > requirements.txt
+[groosha@main 01_quickstart]$ echo "python-dotenv==0.20.0" >> requirements.txt
 [groosha@main 01_quickstart]$ source venv/bin/activate
-(venv) [groosha@main 01_quickstart]$ pip install --pre -r requirements.txt 
+(venv) [groosha@main 01_quickstart]$ pip install -r requirements.txt 
 # ...здесь куча строк про установку...
 Successfully installed ...тут длинный список...
 [groosha@main 01_quickstart]$
@@ -235,5 +237,59 @@ async def cmd_show_list(message: types.Message, mylist: list[int]):
 [в соответствующей главе](filters-and-middlewares.md).
 
 ![Аргумент mylist может быть изменён между вызовами](images/quickstart/extra-args.png)
+
+## Файлы конфигурации
+
+Чтобы не хранить токен прямо в коде (вдруг вы захотите залить своего бота в публичный репозиторий?) можно вынести 
+подобные данные в отдельный конфигурационный файл. Существует [хорошее и адекватное мнение](https://t.me/advice17/26), 
+что для прода достаточно переменных окружения, однако в рамках этой книги мы будем пользоваться отдельными файлами `.env`, 
+чтобы немного упростить себе жизнь и сэкономить читателям время на разворачивание демонстрационного проекта.
+
+Итак, создадим рядом с `bot.py` отдельный файл `config_reader.py` со следующим содержимым
+
+```python title="config_reader.py"
+from pydantic import BaseSettings, SecretStr
+
+
+class Settings(BaseSettings):
+    # Желательно вместо str использовать SecretStr 
+    # для конфиденциальных данных, например, токена бота
+    bot_token: SecretStr
+
+    # Вложенный класс с дополнительными указаниями для настроек
+    class Config:
+        # Имя файла, откуда будут прочитаны данные 
+        # (относительно текущей рабочей директории)
+        env_file = '.env'
+        # Кодировка читаемого файла
+        env_file_encoding = 'utf-8'
+
+
+# При импорте файла сразу создастся 
+# и провалидируется объект конфига, 
+# который можно далее импортировать из разных мест
+config = Settings()
+```
+
+Теперь немного отредактируем наш `bot.py`:
+
+```python title="bot.py"
+# импорты
+from config_reader import config
+
+# Для записей с типом Secret* необходимо 
+# вызывать метод get_secret_value(), 
+# чтобы получить настоящее содержимое вместо '*******'
+bot = Bot(token=config.bot_token.get_secret_value())
+```
+
+Наконец, создадим файл `.env` (с точкой в начале), где опишем токен бота:
+
+```title=".env"
+BOT_TOKEN = 0000000000:AaBbCcDdEeFfGgHhIiJjKkLlMmNn
+```
+
+Если всё сделано правильно, то при запуске python-dotenv подгрузит переменные из файла `.env`, pydantic 
+их провалидирует и объект бота успешно создастся с нужным токеном.
 
 На этом мы закончим знакомство с библиотекой, а в следующих главах рассмотрим другие "фишки" aiogram и Telegram Bot API.
