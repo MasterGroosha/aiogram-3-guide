@@ -3,6 +3,7 @@ import logging
 
 from aiogram import Bot, Dispatcher
 from aiogram.dispatcher.fsm.storage.memory import MemoryStorage
+from aiogram.dispatcher.fsm.strategy import FSMStrategy
 
 # файл config_reader.py можно взять из репозитория
 # пример — в первой главе
@@ -19,6 +20,8 @@ async def main():
     # Если не указать storage, то по умолчанию всё равно будет MemoryStorage
     # Но явное лучше неявного =]
     dp = Dispatcher(storage=MemoryStorage())
+    # Для выбора другой стратегии FSM:
+    # dp = Dispatcher(storage=MemoryStorage(), fsm_strategy=FSMStrategy.CHAT)
     bot = Bot(config.bot_token.get_secret_value())
 
     dp.include_router(common.router)
