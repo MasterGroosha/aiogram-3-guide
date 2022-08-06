@@ -320,6 +320,7 @@ import asyncio
 import logging
 
 from aiogram import Bot, Dispatcher
+from aiogram.dispatcher.fsm.storage.memory import MemoryStorage
 
 # файл config_reader.py можно взять из репозитория
 # пример — в первой главе
@@ -333,7 +334,9 @@ async def main():
         format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
     )
 
-    dp = Dispatcher()
+    # Если не указать storage, то по умолчанию всё равно будет MemoryStorage
+    # Но явное лучше неявного =]
+    dp = Dispatcher(storage=MemoryStorage())
     bot = Bot(config.bot_token.get_secret_value())
 
     dp.include_router(common.router)
