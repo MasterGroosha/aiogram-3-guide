@@ -78,7 +78,10 @@ nav:
 
 
 plugins:
-  - mkdocs-video
+  - mkdocs-video:
+      is_video: True
+      video_autoplay: True
+      video_type: mp4
   - search:
       lang:
         - en

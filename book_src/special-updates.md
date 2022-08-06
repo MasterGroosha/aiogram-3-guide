@@ -3,7 +3,7 @@ title: Апдейты my_chat_member и chat_member
 description: Апдейты my_chat_member и chat_member
 ---
 
-# Особые апдейты
+# Особые апдейты {: id="special-updates" }
 
 ## Введение {: id="intro" }
 
@@ -185,7 +185,7 @@ async def cmd_users(message: Message):
 
 И вот как это выглядит на практике:
 
-![type:video](images/special-updates/my_chat_member_video.webm)
+![type:video](images/special-updates/my_chat_member_video.mp4)
 
 ### Добавление в группу {: id="bot-added-to-group" }
 
