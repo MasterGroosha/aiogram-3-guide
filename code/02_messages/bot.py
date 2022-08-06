@@ -98,7 +98,6 @@ async def somebody_added(message: types.Message):
         await message.reply(f"Привет, {user.full_name}")
 
 
-
 async def main():
     # Запускаем бота и пропускаем все накопленные входящие
     # Да, этот метод можно вызвать даже если у вас поллинг
