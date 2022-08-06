@@ -360,9 +360,6 @@ async def bot_added_as_member(event: ChatMemberUpdated, bot: Bot):
 
 ## Апдейт chat_member {: id="chat-member" }
 
-!!! error "raise NotImplementedError"
-    Данный раздел ещё не написан
-
 Первая и самая частая проблема у новичков при работе с апдейтом `chat_member`: «как, блин, его получать в боте?». 
 Дело в том, что этот тип по умолчанию не отправляется Телеграмом, и чтобы Bot API присылал апдейт, необходимо 
 явным образом об этом сообщить в аргументе `allowed_updates` при получении апдейтов поллингом (метод **getUpdates**) 
