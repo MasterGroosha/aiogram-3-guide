@@ -100,7 +100,7 @@ async def without_puree(message: types.Message):
 следующие методы:
 
 - `add(<KeyboardButton>)` — добавляет кнопку в память сборщика;
-- `adjust(<int>)` — делает строки по `<int>` кнопок;
+- `adjust(int1, int2, int3...)` — делает строки по `int1, int2, int3...` кнопок;
 - `as_markup()` — возвращает готовый объект клавиатуры;
 - `button(<params>)` — добавляет кнопку с заданными параметрами, тип кнопки (Reply или Inline) определяется автоматически.
 
