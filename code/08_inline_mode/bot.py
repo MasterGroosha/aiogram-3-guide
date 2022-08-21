@@ -1,0 +1,36 @@
+import asyncio
+import logging
+
+from aiogram import Bot, Dispatcher
+from aiogram.dispatcher.fsm.storage.memory import MemoryStorage
+
+# файл config_reader.py можно взять из репозитория
+# пример — в первой главе
+from config_reader import config
+from handlers import common, save_text, save_images, \
+    inline_mode, delete_data, inline_pagination_demo, \
+    inline_chosen_result_demo
+
+
+async def main():
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
+    )
+
+    dp = Dispatcher(storage=MemoryStorage())
+    bot = Bot(config.bot_token.get_secret_value())
+
+    dp.include_router(common.router)
+    dp.include_router(save_text.router)
+    dp.include_router(save_images.router)
+    dp.include_router(delete_data.router)
+    dp.include_router(inline_mode.router)
+    dp.include_router(inline_pagination_demo.router)
+    dp.include_router(inline_chosen_result_demo.router)
+
+    await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
+
+
+if __name__ == '__main__':
+    asyncio.run(main())
