@@ -179,7 +179,7 @@ async def cmd_special_buttons(message: types.Message):
 !!! info ""
     Login- и Pay-кнопки в книге рассматриваться не будут вообще. Если у кого-то есть желание помочь хотя бы 
     с рабочим кодом для авторизации или оплаты, пожалуйста, создайте Pull Request на 
-    [GitHub](https://github.com/MasterGroosha/telegram-tutorial-2). Спасибо!
+    [GitHub](https://github.com/MasterGroosha/aiogram-3-guide). Спасибо!
 
 Самые простые инлайн-кнопки относятся к типу URL, т.е. «ссылка». Поддерживаются только протоколы HTTP(S) и tg://
 
