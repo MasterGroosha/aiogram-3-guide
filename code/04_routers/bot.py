@@ -2,12 +2,13 @@ import asyncio
 
 from aiogram import Bot, Dispatcher
 
+from config_reader import config
 from handlers import questions, different_types
 
 
 # Запуск бота
 async def main():
-    bot = Bot(token="TOKEN")
+    bot = Bot(token=config.bot_token.get_secret_value())
     dp = Dispatcher()
 
     dp.include_router(questions.router)
