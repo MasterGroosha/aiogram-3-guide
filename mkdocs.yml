@@ -49,9 +49,6 @@ extra:
     - icon: fontawesome/brands/github-alt
       link: https://github.com/MasterGroosha/telegram-tutorial-2
       name: GitHub
-    - icon: fontawesome/brands/gitlab
-      link: https://gitlab.com/groosha/telegram-tutorial-2
-      name: Gitlab
 
 # Extensions
 markdown_extensions:
