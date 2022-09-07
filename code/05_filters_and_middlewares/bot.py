@@ -2,12 +2,13 @@ import asyncio
 
 from aiogram import Bot, Dispatcher
 
+from config_reader import config
 from handlers import group_games, checkin, usernames
 from middlewares.weekend import WeekendCallbackMiddleware
 
 
 async def main():
-    bot = Bot(token="TOKEN")
+    bot = Bot(token=config.bot_token.get_secret_value())
     dp = Dispatcher()
 
     dp.include_router(group_games.router)
