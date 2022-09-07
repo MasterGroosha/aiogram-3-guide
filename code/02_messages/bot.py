@@ -6,7 +6,9 @@ from aiogram import Bot, Dispatcher, types, html
 from aiogram.dispatcher.filters import CommandObject
 from aiogram.utils.markdown import hide_link
 
-bot = Bot(token="TOKEN", parse_mode="HTML")
+from config_reader import config
+
+bot = Bot(token=config.bot_token.get_secret_value(), parse_mode="HTML")
 dp = Dispatcher()
 logging.basicConfig(level=logging.INFO)
 
