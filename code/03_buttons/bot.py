@@ -11,7 +11,9 @@ from aiogram.exceptions import TelegramBadRequest
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 from magic_filter import F
 
-bot = Bot(token="TOKEN")
+from config_reader import config
+
+bot = Bot(token=config.bot_token.get_secret_value())
 dp = Dispatcher()
 logging.basicConfig(level=logging.INFO)
 
