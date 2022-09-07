@@ -1,6 +1,6 @@
 # Знакомство с aiogram
 
-В этом каталоге исходники к главе https://mastergroosha.github.io/telegram-tutorial-2/routers/
+В этом каталоге исходники к главе https://mastergroosha.github.io/aiogram-3-guide/routers/
 
 Запуск:  
 1. `pip install poetry`;  

@@ -2,13 +2,13 @@
 site_name: Пишем Telegram-ботов с aiogram 3.x (β)
 site_description: Учебник по разработке ботов для Telegram на языке Python при помощи фреймворка aiogram 3.x
 site_author: MasterGroosha
-site_url: https://mastergroosha.github.io/telegram-tutorial-2
+site_url: https://mastergroosha.github.io/aiogram-3-guide
 docs_dir: book_src
 site_dir: docs
 
 # Repository
-repo_name: MasterGroosha/telegram-tutorial-2
-repo_url: https://github.com/MasterGroosha/telegram-tutorial-2
+repo_name: MasterGroosha/aiogram-3-guide
+repo_url: https://mastergroosha.github.io/aiogram-3-guide
 edit_uri: ""
 
 # Copyright
@@ -47,7 +47,7 @@ extra:
       link: https://t.me/joinchat/TsftDfnevFLQS1ts
       name: "Чат в Telegram"
     - icon: fontawesome/brands/github-alt
-      link: https://github.com/MasterGroosha/telegram-tutorial-2
+      link: https://mastergroosha.github.io/aiogram-3-guide
       name: GitHub
 
 # Extensions
