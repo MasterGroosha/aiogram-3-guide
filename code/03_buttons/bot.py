@@ -4,12 +4,11 @@ from contextlib import suppress
 from random import randint
 from typing import Optional
 
-from aiogram import Bot, Dispatcher, types
+from aiogram import Bot, Dispatcher, types, F
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.callback_data import CallbackData
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
-from magic_filter import F
 
 from config_reader import config
 
