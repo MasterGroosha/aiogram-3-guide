@@ -47,7 +47,7 @@ extra:
       link: https://t.me/joinchat/TsftDfnevFLQS1ts
       name: "Чат в Telegram"
     - icon: fontawesome/brands/github-alt
-      link: https://mastergroosha.github.io/aiogram-3-guide
+      link: https://github.com/MasterGroosha/aiogram-3-guide
       name: GitHub
 
 # Extensions
