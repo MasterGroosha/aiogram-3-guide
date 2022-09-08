@@ -1,18 +1,18 @@
 # Project information
-site_name: Пишем Telegram-ботов на Python (v2)
-site_description: Учебник по разработке ботов для Telegram на языке Python
+site_name: Пишем Telegram-ботов с aiogram 3.x (β)
+site_description: Учебник по разработке ботов для Telegram на языке Python при помощи фреймворка aiogram 3.x
 site_author: MasterGroosha
-site_url: https://mastergroosha.github.io/telegram-tutorial-2
+site_url: https://mastergroosha.github.io/aiogram-3-guide
 docs_dir: book_src
 site_dir: docs
 
 # Repository
-repo_name: MasterGroosha/telegram-tutorial-2
-repo_url: https://github.com/MasterGroosha/telegram-tutorial-2
+repo_name: MasterGroosha/aiogram-3-guide
+repo_url: https://github.com/MasterGroosha/aiogram-3-guide
 edit_uri: ""
 
 # Copyright
-copyright: Copyright &copy; 2020-2021 Groosha
+copyright: Copyright &copy; 2020-2022 Groosha
 
 # Configuration
 theme:
@@ -20,14 +20,25 @@ theme:
   custom_dir: book_src/overrides
   language: ru
   palette:
-    primary: teal
-    accent: teal
-    scheme: preference
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      toggle:
+        icon: material/brightness-4
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      toggle:
+        icon: material/brightness-7
+        name: Switch to light mode
   font:
     text: Roboto
     code: Roboto Mono
   icon:
     logo: material/robot
+#  features:
+#    - navigation.expand
 
 # Extras
 extra:
@@ -36,11 +47,8 @@ extra:
       link: https://t.me/joinchat/TsftDfnevFLQS1ts
       name: "Чат в Telegram"
     - icon: fontawesome/brands/github-alt
-      link: https://github.com/MasterGroosha/telegram-tutorial-2
+      link: https://mastergroosha.github.io/aiogram-3-guide
       name: GitHub
-    - icon: fontawesome/brands/gitlab
-      link: https://gitlab.com/groosha/telegram-tutorial-2
-      name: Gitlab
 
 # Extensions
 markdown_extensions:
@@ -48,6 +56,7 @@ markdown_extensions:
   - pymdownx.highlight
   - pymdownx.superfences
   - meta
+  - attr_list
   - toc:
       permalink: true
 
@@ -56,11 +65,20 @@ nav:
   - 'Знакомство с aiogram': quickstart.md
   - 'Работа с собщениями': messages.md
   - 'Кнопки': buttons.md
+  - 'Роутеры. Структура': routers.md
+  - 'Фильтры и мидлвари': filters-and-middlewares.md
+  - 'Особые апдейты': special-updates.md
   - 'Конечные автоматы': fsm.md
   - 'Инлайн-режим': inline_mode.md
+#  - 'Дополнительное чтение':
+#    - 'Тест': extra/test.md
 
 
 plugins:
+  - mkdocs-video:
+      is_video: True
+      video_autoplay: True
+      video_type: mp4
   - search:
       lang:
         - en

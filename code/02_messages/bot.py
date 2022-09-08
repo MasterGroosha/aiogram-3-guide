@@ -1,90 +1,111 @@
-#!venv/bin/python
+import asyncio
 import logging
-from aiogram import Bot, Dispatcher, executor, types
-import aiogram.utils.markdown as fmt
-from os import getenv
-from sys import exit
+from datetime import datetime
 
-bot_token = getenv("BOT_TOKEN")
-if not bot_token:
-    exit("Error: no token provided")
+from aiogram import Bot, Dispatcher, types, html
+from aiogram.dispatcher.filters import CommandObject
+from aiogram.utils.markdown import hide_link
 
-bot = Bot(token=bot_token)
-dp = Dispatcher(bot)
+from config_reader import config
+
+bot = Bot(token=config.bot_token.get_secret_value(), parse_mode="HTML")
+dp = Dispatcher()
 logging.basicConfig(level=logging.INFO)
 
 
-@dp.message_handler(commands="test")
-async def cmd_test(message: types.Message):
-    await message.answer("Hello, <b>world</b>!", parse_mode=types.ParseMode.HTML)
-    # Вместо Enum-а можно задать parse_mode в виде обычной строки:
+@dp.message(commands=["test"])
+async def any_message(message: types.Message):
+    await message.answer("Hello, <b>world</b>!", parse_mode="HTML")
     await message.answer("Hello, *world*\!", parse_mode="MarkdownV2")
-
-
-@dp.message_handler(commands="test2")
-async def cmd_test2(message: types.Message):
     await message.answer("Сообщение с <u>HTML-разметкой</u>")
-    await message.answer("Сообщение без <s>какой-либо разметки</s>", parse_mode="")
+    await message.answer("Сообщение без <s>какой-либо разметки</s>", parse_mode=None)
 
 
-@dp.message_handler(commands="test3")
-async def show_dynamic_formatting(message: types.Message):
-    print("OK")
+@dp.message(commands=["name"])
+async def cmd_name(message: types.Message, command: CommandObject):
+    if command.args:
+        await message.answer(f"Привет, {html.bold(html.quote(command.args))}")
+    else:
+        await message.answer("Пожалуйста, укажи своё имя после команды /name!")
+
+
+@dp.message(commands=["hidden_link"])
+async def cmd_hidden_link(message: types.Message):
     await message.answer(
-        fmt.text(
-            fmt.text(fmt.hunderline("Яблоки"), ", вес 1 кг."),
-            fmt.text("Старая цена:", fmt.hstrikethrough(50), "рублей"),
-            fmt.text("Новая цена:", fmt.hbold(25), "рублей"),
-            sep="\n"
-        ), parse_mode="HTML"
+        f"{hide_link('https://telegra.ph/file/562a512448876923e28c3.png')}"
+        f"Документация Telegram: *существует*\n"
+        f"Пользователи: *не читают документацию*\n"
+        f"Груша:"
     )
 
 
-@dp.message_handler(commands="test4")
-async def with_hidden_link(message: types.Message):
-    await message.answer(f"{fmt.hide_link('https://telegram.org/blog/video-calls/ru')}Кто бы мог подумать, что "
-                         f"в 2020 году в Telegram появятся видеозвонки!\n\nОбычные голосовые вызовы "
-                         f"возникли в Telegram лишь в 2017, заметно позже своих конкурентов. А спустя три года, "
-                         f"когда огромное количество людей на планете приучились работать из дома из-за эпидемии "
-                         f"коронавируса, команда Павла Дурова не растерялась и сделала качественные "
-                         f"видеозвонки на WebRTC!\n\nP.S. а ещё ходят слухи про демонстрацию своего экрана :)",
-                         parse_mode=types.ParseMode.HTML)
+@dp.message(content_types="text")
+async def extract_data(message: types.Message):
+    data = {
+        "url": "<N/A>",
+        "email": "<N/A>",
+        "code": "<N/A>"
+    }
+    entities = message.entities or []
+    for item in entities:
+        if item.type in data.keys():
+            # Неправильно
+            # data[item.type] = message.text[item.offset : item.offset+item.length]
+            # Правильно
+            data[item.type] = item.extract(message.text)
+    await message.reply(
+        "Вот что я нашёл:\n"
+        f"URL: {html.quote(data['url'])}\n"
+        f"E-mail: {html.quote(data['email'])}\n"
+        f"Пароль: {html.quote(data['code'])}"
+    )
 
 
-@dp.message_handler(content_types=[types.ContentType.DOCUMENT])
-async def download_doc(message: types.Message):
-    # Скачивание в каталог с ботом с созданием подкаталогов по типу файла
-    await message.document.download()
+# Этот хэндлер перекрывается вышестоящим хэндлером,
+# закомментируйте тот, чтобы заработал этот
+@dp.message(content_types="text")
+async def echo_with_time(message: types.Message):
+    # Получаем текущее время в часовом поясе ПК
+    time_now = datetime.now().strftime('%H:%M')
+    # Создаём подчёркнутый текст
+    added_text = html.underline(f"Создано в {time_now}")
+    # Отправляем новое сообщение с добавленным текстом
+    await message.answer(f"{message.html_text}\n\n{added_text}")
 
 
-# Типы содержимого тоже можно указывать по-разному.
-@dp.message_handler(content_types=["photo"])
-async def download_photo(message: types.Message):
-    # Убедитесь, что каталог /tmp/somedir существует!
-    await message.photo[-1].download(destination="/tmp/somedir/")
-
-
-@dp.message_handler(content_types=[types.ContentType.ANIMATION])
-async def echo_document(message: types.Message):
+@dp.message(content_types=[types.ContentType.ANIMATION])
+async def echo_gif(message: types.Message):
     await message.reply_animation(message.animation.file_id)
 
 
-@dp.message_handler()
-async def any_text_message(message: types.Message):
-    await message.answer(message.text)
-    await message.answer(message.md_text)
-    await message.answer(message.html_text)
-    await message.answer(f"<u>Ваш текст</u>:\n\n{message.html_text}", parse_mode="HTML")
+@dp.message(content_types="photo")
+async def download_photo(message: types.Message, bot: Bot):
+    await bot.download(
+        message.photo[-1],
+        destination=f"/tmp/{message.photo[-1].file_id}.jpg"
+    )
 
 
-# Этот хэндлер не будет вызван, если хэндлер функции any_text_message() определён выше!
-@dp.message_handler()
-async def any_text_message2(message: types.Message):
-    await message.answer(f"Привет, <b>{fmt.quote_html(message.text)}</b>", parse_mode=types.ParseMode.HTML)
-    # А можно и так:
-    await message.answer(fmt.text("Привет,", fmt.hbold(message.text)), parse_mode=types.ParseMode.HTML)
+@dp.message(content_types=types.ContentType.STICKER)
+async def download_sticker(message: types.Message, bot: Bot):
+    await bot.download(
+        message.sticker,
+        destination=f"/tmp/{message.sticker.file_id}.webp"
+    )
+
+
+@dp.message(content_types=types.ContentType.NEW_CHAT_MEMBERS)
+async def somebody_added(message: types.Message):
+    for user in message.new_chat_members:
+        await message.reply(f"Привет, {user.full_name}")
+
+
+async def main():
+    # Запускаем бота и пропускаем все накопленные входящие
+    # Да, этот метод можно вызвать даже если у вас поллинг
+    await bot.delete_webhook(drop_pending_updates=True)
+    await dp.start_polling(bot)
 
 
 if __name__ == "__main__":
-    # Запускаем бота и пропускаем все накопленые входящие
-    executor.start_polling(dp, skip_updates=True)
+    asyncio.run(main())

@@ -3,11 +3,14 @@ title: Конечные автоматы (FSM)
 description: Конечные автоматы (FSM)
 ---
 
-# Конечные автоматы (FSM)
+# Конечные автоматы (FSM) {: id="fsm-start" }
 
-## Теория
+!!! warning "О совместимости версий"
+    Код в главах сейчас использует aiogram 3.0 beta3. Возможна несовместимость с другими версиями.
 
-В этой главе мы поговорим о, пожалуй, самой важной возможности ботов: о **системе диалогов**. К сожалению, далеко не все 
+## Теория {: id="theory" }
+
+В этой главе мы поговорим о ещё одной важной возможности ботов: о **системе диалогов**. К сожалению, далеко не все 
 действия в боте можно выполнить за одно сообщение или команду. Предположим, есть бот для знакомств, где при регистрации нужно 
 указать имя, возраст и отправить фотографию с лицом. Можно, конечно, попросить пользователя отправить фотографию, а в подписи 
 к ней указать все данные, но это неудобно для обработки и запроса повторного ввода.  
@@ -24,78 +27,54 @@ description: Конечные автоматы (FSM)
 Процесс со схемы выше в теории алгоритмов называется **конечным автоматом** (или FSM — Finite State Machine). Подробнее об этом можно 
 прочесть [здесь](https://tproger.ru/translations/finite-state-machines-theory-and-implementation/).
 
-## Практика
+!!! info "Конструктор диалогов"
+    После того, как попрактикуетесь с FSM в этой главе, вы наверняка ощутите, как много всего придётся сделать, чтобы 
+    получить сложноразветвлённую цепочку действий. К счастью, существует библиотека 
+    [**aiogram-dialog**](https://github.com/Tishka17/aiogram_dialog) от **Tishka17**, упрощающая работу с машиной состояний.
 
-В aiogram механизм конечных автоматов реализован гораздо лучше, чем в том же 
-[pyTelegramBotAPI](https://mastergroosha.github.io/telegram-tutorial/docs/lesson_11/). Во фреймворк уже встроена поддержка 
-различных бэкендов для хранения состояний между перезапусками бота (впрочем, никто не мешает написать свой), а помимо, 
-собственно, состояний можно хранить произвольные данные, например, вышеописанные имя и возраст для последующего использования 
+## Практика {: id="practice" }
+
+В механизм конечных автоматов в aiogram уже встроена поддержка различных бэкендов для хранения состояний 
+между перезапусками бота (впрочем, никто не мешает написать свой), а помимо, собственно, состояний 
+можно хранить произвольные данные, например, вышеописанные имя и возраст для последующего использования 
 где-либо. Список имеющихся хранилищ FSM можно найти 
-[в репозитории aiogram](https://github.com/aiogram/aiogram/tree/dev-2.x/aiogram/contrib/fsm_storage), а в этой главе мы 
-будем пользоваться самым простейшим бэкендом 
+[в репозитории aiogram](https://github.com/aiogram/aiogram/tree/dev-3.x/aiogram/dispatcher/fsm/storage), 
+а в этой главе мы будем пользоваться самым простым бэкендом 
 [MemoryStorage](https://github.com/aiogram/aiogram/blob/dev-2.x/aiogram/contrib/fsm_storage/memory.py), который 
 хранит все данные в оперативной памяти. Он идеально подходит для примеров, но **не рекомендуется** использовать его в реальных 
 проектах, т.к. MemoryStorage хранит все данные в оперативной памяти без сброса на диск. Также стоит отметить, что конечные 
 автоматы можно использовать не только с обработчиками сообщений (`message_handler`, `edited_message_handler`), но также 
 с колбэками и инлайн-режимом.
 
-В качестве примера мы напишем имитатор заказа еды и напитков в кафе, а заодно научимся хранить логически разные хэндлеры 
-в разных файлах. 
+В качестве примера мы напишем имитатор заказа еды и напитков в кафе. 
 
-!!! warning "Примечание об исходных текстах к главе"
-    В тексте будет рассмотрен не весь код бота, некоторые импорты и обработчики специально 
-    пропущены для улучшения читабельности. Полный набор исходников можно найти [на GitLab](https://gitlab.com/groosha/telegram-tutorial-2) 
-    или в зеркале [на GitHub](https://github.com/MasterGroosha/telegram-tutorial-2).
+### Создание шагов {: id="define-states" }
 
-!!! info "Благодарность"
-    За основу структуры файлов и каталогов взят репозиторий [tgbot_template](https://github.com/Tishka17/tgbot_template) 
-    от пользователя **Tishka17**. В этой главе будет рассмотрен сильно упрощённый вариант его примера, а далее по мере 
-    усложнения бота структура файлов будет расширяться.  
-    Спасибо!
+Прежде, чем приступим непосредственно к FSM, опишем по-быстрому простую функцию, которая будет генерировать 
+обычную клавиатуру с кнопками в один ряд, она пригодится нам в дальнейшем:
 
-### Структура файлов и каталогов
+```python title="keyboards/simple_row.py"
+from aiogram.utils.keyboard import ReplyKeyboardMarkup, KeyboardButton
 
-Точкой входа будет являться файл `bot.py`, рядом с ним каталог "config" с файлом конфигурации `bot.ini`. В прошлых главах была всего 
-одна переменная, которую передавали через environment variables, но когда настроек становится много, хорошей идеей становится 
-использование отдельного файла конфигурации и его парсинг стандартным питоновским 
-[Configparser](https://docs.python.org/3/library/configparser.html)-ом. Здесь же будет расположен пакет `app`, внутри которого 
-расположен файл `config.py`, отвечающий за разбор файла конфигурации, а также пакет `handlers` с различными хэндлерами для 
-логически разных наборов шагов. Схематично всё вышеперечисленное выглядит как-то так:
 
-```
-├── app/
-│ ├── config.py
-│ ├── handlers/
-│ │ ├── common.py
-│ │ ├── drinks.py
-│ │ ├── food.py
-│ │ └── __init__.py
-│ └── __init__.py
-├── config/
-│ └── bot.ini
-├── bot.py
-└── requirements.txt
+def make_row_keyboard(items: list[str]) -> ReplyKeyboardMarkup:
+    """
+    Создаёт реплай-клавиатуру с кнопками в один ряд
+    :param items: список текстов для кнопок
+    :return: объект реплай-клавиатуры
+    """
+    row = [KeyboardButton(text=item) for item in items]
+    return ReplyKeyboardMarkup(keyboard=[row], resize_keyboard=True)
 ```
 
-!!! info "О модулях, пакетах и каталогах"
-    Модули в Python — это файлы с расширением `*.py`. Для структурирования файлов их можно объединять в каталоги. Если в 
-    таком каталоге создать файл `__init__.py`, то каталог превращается в пакет. Подробнее обо всём этом (с примерами) 
-    можно прочесть на сайте [devpractice.ru](https://devpractice.ru/python-lesson-13-modules-and-packages/).
-
-### Создание шагов
-
-Рассмотрим описание шагов для «заказа» еды. Для начала в файле `app/handlers/food.py` импортируем необходимые объекты и 
-приведём списки блюд и их размеров (в реальной жизни эта информация может динамически подгружаться из какой-либо БД):
+Рассмотрим описание шагов для «заказа» еды. Создадим файл `handlers/ordering_food.py`, где опишем списки блюд и их размеров 
+(в реальной жизни эта информация может динамически подгружаться из какой-либо БД):
 
 ```python
-from aiogram import Dispatcher, types
-from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters.state import State, StatesGroup
-
 # Эти значения далее будут подставляться в итоговый текст, отсюда 
 # такая на первый взгляд странная форма прилагательных
-available_food_names = ["суши", "спагетти", "хачапури"]
-available_food_sizes = ["маленькую", "среднюю", "большую"]
+available_food_names = ["Суши", "Спагетти", "Хачапури"]
+available_food_sizes = ["Маленькую", "Среднюю", "Большую"]
 ```
 
 Теперь опишем все возможные «состояния» конкретного процесса (выбор еды). На словах можно описать так: пользователь вызывает 
@@ -105,184 +84,313 @@ available_food_sizes = ["маленькую", "среднюю", "большую"
 и здесь вводит корректные данные, бот отображает итоговый результат (содержимое заказа) и сбрасывает состояние. Позднее 
 в этой главе мы научимся делать принудительный сброс состояния на любом этапе командой `/cancel`.
 
-Итак, перейдём непосредственно к описанию состояний. Желательно их указывать именно в том порядке, в котором предполагается 
-переход пользователя, это позволит немного упростить код. Для хранения состояний необходимо создать класс, наследующийся 
+### Обработка шага 1 {: id="step-1" }
+
+Итак, перейдём непосредственно к описанию состояний. Для хранения состояний необходимо создать класс, наследующийся 
 от класса `StatesGroup`, внутри него нужно создать переменные, присвоив им экземпляры класса `State`:
 
 ```python
 class OrderFood(StatesGroup):
-    waiting_for_food_name = State()
-    waiting_for_food_size = State()
+    choosing_food_name = State()
+    choosing_food_size = State()
 ```
 
-Напишем обработчик первого шага, реагирующий на команду `/food` (регистрировать его будем позднее):
+Напишем обработчик первого шага, реагирующий на команду `/food`:
 
-```python
-async def food_start(message: types.Message):
-    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    for name in available_food_names:
-        keyboard.add(name)
-    await message.answer("Выберите блюдо:", reply_markup=keyboard)
-    await OrderFood.waiting_for_food_name.set()
+```python hl_lines="4 10"
+from aiogram.dispatcher.fsm.context import FSMContext 
+
+@router.message(Command(commands=["food"]))
+async def cmd_food(message: Message, state: FSMContext):
+    await message.answer(
+        text="Выберите блюдо:",
+        reply_markup=make_row_keyboard(available_food_names)
+    )
+    # Устанавливаем пользователю состояние "выбирает название"
+    await state.set_state(OrderFood.choosing_food_name)
 ```
 
-В последней строке мы явно говорим боту встать в состояние `waiting_for_food_name` из группы `OrderFood`. Следующая функция 
-будет вызываться только из указанного состояния, сохранять полученный от пользователя текст (если он валидный) и переходить 
-к следующему шагу:
+Чтобы работать с механизмом FSM, в хэндлер необходимо прокинуть аргумент с именем `state`, который будет иметь 
+тип `FSMContext`. А в последней строке мы явно говорим боту встать в состояние `choosing_food_name` из группы `OrderFood`. 
+
+!!! warning "Отличие от aiogram 2.x"
+    В aiogram 2.x отсутствие фильтра на state означало «только при отсутствии явно выставленного состояния» 
+    (иными словами, `state=None`). В aiogram 3.x отсутствие фильтра означает «при любом стейте». Напомню, что аналогичный 
+    подход в «тройке» используется с контент-тайпами сообщений.
+
+Далее напишем хэндлер, который ловит один из вариантов блюд из нашего списка:
 
 ```python linenums="1"
-# Обратите внимание: есть второй аргумент
-async def food_chosen(message: types.Message, state: FSMContext):
-    if message.text.lower() not in available_food_names:
-        await message.answer("Пожалуйста, выберите блюдо, используя клавиатуру ниже.")
-        return
+@router.message(
+    OrderFood.choosing_food_name, 
+    F.text.in_(available_food_names)
+)
+async def food_chosen(message: Message, state: FSMContext):
     await state.update_data(chosen_food=message.text.lower())
-
-    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    for size in available_food_sizes:
-        keyboard.add(size)
-    # Для последовательных шагов можно не указывать название состояния, обходясь next()
-    await OrderFood.next()
-    await message.answer("Теперь выберите размер порции:", reply_markup=keyboard)
+    await message.answer(
+        text="Спасибо. Теперь, пожалуйста, выберите размер порции:",
+        reply_markup=make_row_keyboard(available_food_sizes)
+    )
+    await state.set_state(OrderFood.choosing_food_size)
 ```
 
-Разберём некоторые строки из блока выше отдельно. В определении функции `food_chosen` (строка 2) появился второй аргумент 
-`state` типа `FSMContext`. Через него можно получить данные от FSM-бэкенда. В предыдущей функции `food_start()` никакие 
-такие данные не требовались, поэтому аргумент был пропущен. В строке 3 производится проверка текста от пользователя. Если 
-он ввёл произвольный текст, а не использовал кнопки, то необходимо сообщить об ошибке и досрочно завершить выполнение 
-функции. При этом состояние пользователя останется тем же и бот снова будет ожидать выбор блюда.  
-К моменту перехода к строке 6 мы уже уверены, что пользователь указал корректное название блюда, поэтому можно спокойно 
-сохранить полученный текст в хранилище данных FSM. Концептуально это словарь, поэтому воспользуемся функцией 
-`update_data()` и сохраним текст сообщения под ключом `chosen_food` и со значением `message.text.lower()`.  
-В строке 12 мы готовый продвинуть пользователя на следующий шаг, поэтому просто вызываем метод `next()` у класса `OrderFood`. 
-Именно для использования `next()` ранее предлагалось объявлять шаги в нужном порядке. В противном случае пришлось бы 
-указывать целиком `await OrderFood.waiting_for_food_size.set()`.
+Рассмотрим подробнее некоторые элементы хэндлера. Фильтры (строки 2-3) сообщают, что нижестоящая функция сработает 
+тогда и только тогда, когда пользователь будет в состоянии `OrderFood.choosing_food_name` и текст сообщения будет 
+совпадать с одним из элементов списка `available_food_names`. В строке 6 мы пишем данные (текст сообщения) 
+в хранилище FSM, и эти данные уникальны для пары `(chat_id, user_id)` (есть нюанс, о нём позже). Наконец, 
+в строке 11 мы переводим пользователя в состояние `OrderFood.choosing_food_size`.
 
-Осталось реализовать последнюю функцию, которая отвечает за получение размера порции (с аналогичной проверкой ввода) и 
-вывод результатов пользователю:
+А если пользователь решит ввести что-то самостоятельно, без клавиатуры? В этом случае, надо сообщить пользователю 
+об ошибке и дать ему ещё попытку. Очень часто начинающие разработчки ботов на этом моменте задают вопрос: 
+«а как оставить юзера в том же состоянии?». Ответ простой: чтобы оставить пользователя в текущем состоянии, достаточно 
+его \[состояние\] не менять, т.е. буквально _ничего не делать_. 
+
+Напишем дополнительный хэндлер, у которого будет фильтр только на состояние `OrderFood.choosing_food_name`, а фильтра 
+на текст не будет. Если расположить его под функцией `food_chosen()`, 
+то получится «реагируй в состоянии choosing_food_name, на все тексты, кроме тех, что ловит предыдущий хэндлер» 
+(иными словами, «лови все неправильные варианты»).
 
 ```python
-async def food_size_chosen(message: types.Message, state: FSMContext):
-    if message.text.lower() not in available_food_sizes:
-        await message.answer("Пожалуйста, выберите размер порции, используя клавиатуру ниже.")
-        return
+@router.message(OrderFood.choosing_food_name)
+async def food_chosen_incorrectly(message: Message):
+    await message.answer(
+        text="Я не знаю такого блюда.\n\n"
+             "Пожалуйста, выберите одно из названий из списка ниже:",
+        reply_markup=make_row_keyboard(available_food_names)
+    )
+```
+
+### Обработка шага 2 {: id="step-2" }
+
+Второй и последний этап — обработать ввод размера порции юзером. Аналогично предыдущему этапу сделаем два хэндлера 
+(на верный и неверный ответы), но в первом из них добавим выбор сводной информации о заказе:
+
+```python hl_lines="3 9"
+@router.message(OrderFood.choosing_food_size, F.text.in_(available_food_sizes))
+async def food_size_chosen(message: Message, state: FSMContext):
     user_data = await state.get_data()
-    await message.answer(f"Вы заказали {message.text.lower()} порцию {user_data['chosen_food']}.\n"
-                         f"Попробуйте теперь заказать напитки: /drinks", reply_markup=types.ReplyKeyboardRemove())
-    await state.finish()
+    await message.answer(
+        text=f"Вы выбрали {message.text.lower()} порцию {user_data['chosen_food']}.\n"
+             f"Попробуйте теперь заказать напитки: /drinks",
+        reply_markup=ReplyKeyboardRemove()
+    )
+    await state.clear()
+
+
+@router.message(OrderFood.choosing_food_size)
+async def food_size_chosen_incorrectly(message: Message):
+    await message.answer(
+        text="Я не знаю такого размера порции.\n\n"
+             "Пожалуйста, выберите один из вариантов из списка ниже:",
+        reply_markup=make_row_keyboard(available_food_sizes)
+    )
 ```
 
-На что стоит обратить внимание: во-первых, получить хранимые данные из FSM можно методом `get_data()` у `state`. Во-вторых, 
-т.к. это словарь, то и извлечение содержимого аналогично (`user_data['chosen_food']`, не забудьте, что в общем случае 
-какого-то ключа может не быть, что приведёт к `KeyError`, пользуйтесь методом `get()`). В-третьих, вызов метода `finish()` 
-сбрасывает не только состояние, но и хранящиеся данные. Если надо сбросить **только** состояние, воспользуйтесь 
-`await state.reset_state(with_data=False)`
-
-Наконец, напишем обычную функцию для регистрации вышестоящих обработчиков, на вход она будет принимать диспетчер. Значение 
-состояния "*" при регистрации `food_start()` означает срабатывание при любом состоянии. Грубо говоря, если пользователь находится 
-на шаге \*выбор размера порции\*, но решает начать заново и вводит `/food`, бот вызовет `food_start()` и начнёт весь процесс 
-заново.
+Вызов `get_data()` в строке №3 возвращает объект хранилища для конкретного пользователя в конкретном чате. Из него 
+\[хранилища\] мы достаём сохранённое значение название блюда и подставляем в сообщение. Метод `clear()` у стейта 
+возвращает пользователя в «пустое» состояние и удаляет все сохранённые данные. Что делать, если нужно только очистить 
+состояние или только затереть данные? Для этого провалимся в определение функции `clear()` в исходниках aiogram 3.x:
 
 ```python
-def register_handlers_food(dp: Dispatcher):
-    dp.register_message_handler(food_start, commands="food", state="*")
-    dp.register_message_handler(food_chosen, state=OrderFood.waiting_for_food_name)
-    dp.register_message_handler(food_size_chosen, state=OrderFood.waiting_for_food_size)
+class FSMContext:
+    # Часть кода пропущена
+
+    async def clear(self) -> None:
+        await self.set_state(state=None)
+        await self.set_data({})
 ```
+
+Теперь вы знаете, как очистить что-то одно :)
 
 Шаги для выбора напитков делаются совершенно аналогично. Попробуйте сделать самостоятельно или загляните в исходные тексты 
 к этой главе.
 
-### Общие команды
+Полный текст файла с хэндлерами для заказа еды:
 
-Раз уж заговорили о сбросе состояний, давайте в файле `app/handlers/common.py` реализуем обработчики команды `/start` и 
-действия «отмены». Первая должна показывать некий приветственный/справочный текст, а вторая просто пишет "действие отменено". 
-Обе функции сбрасывают состояние и данные и убирают обычную клавиатуру, если вдруг она есть:
+```python title="handlers/ordering_food.py"
+from aiogram import Router, F
+from aiogram.dispatcher.filters.command import Command
+from aiogram.dispatcher.fsm.context import FSMContext
+from aiogram.dispatcher.fsm.state import StatesGroup, State
+from aiogram.types import Message, ReplyKeyboardRemove
 
-```python
-async def cmd_start(message: types.Message, state: FSMContext):
-    await state.finish()
+from keyboards.simple_row import make_row_keyboard
+
+router = Router()
+
+# Эти значения далее будут подставляться в итоговый текст, отсюда
+# такая на первый взгляд странная форма прилагательных
+available_food_names = ["Суши", "Спагетти", "Хачапури"]
+available_food_sizes = ["Маленькую", "Среднюю", "Большую"]
+
+
+class OrderFood(StatesGroup):
+    choosing_food_name = State()
+    choosing_food_size = State()
+
+
+@router.message(Command(commands=["food"]))
+async def cmd_food(message: Message, state: FSMContext):
     await message.answer(
-        "Выберите, что хотите заказать: напитки (/drinks) или блюда (/food).",
-        reply_markup=types.ReplyKeyboardRemove()
+        text="Выберите блюдо:",
+        reply_markup=make_row_keyboard(available_food_names)
+    )
+    # Устанавливаем пользователю состояние "выбирает название"
+    await state.set_state(OrderFood.choosing_food_name)
+
+# Этап выбора блюда #
+
+
+@router.message(OrderFood.choosing_food_name, F.text.in_(available_food_names))
+async def food_chosen(message: Message, state: FSMContext):
+    await state.update_data(chosen_food=message.text.lower())
+    await message.answer(
+        text="Спасибо. Теперь, пожалуйста, выберите размер порции:",
+        reply_markup=make_row_keyboard(available_food_sizes)
+    )
+    await state.set_state(OrderFood.choosing_food_size)
+
+
+@router.message(OrderFood.choosing_food_name)
+async def food_chosen_incorrectly(message: Message):
+    await message.answer(
+        text="Я не знаю такого блюда.\n\n"
+             "Пожалуйста, выберите одно из названий из списка ниже:",
+        reply_markup=make_row_keyboard(available_food_names)
     )
 
-async def cmd_cancel(message: types.Message, state: FSMContext):
-    await state.finish()
-    await message.answer("Действие отменено", reply_markup=types.ReplyKeyboardRemove())
+# Этап выбора размера порции и отображение сводной информации #
+
+
+@router.message(OrderFood.choosing_food_size, F.text.in_(available_food_sizes))
+async def food_size_chosen(message: Message, state: FSMContext):
+    user_data = await state.get_data()
+    await message.answer(
+        text=f"Вы выбрали {message.text.lower()} порцию {user_data['chosen_food']}.\n"
+             f"Попробуйте теперь заказать напитки: /drinks",
+        reply_markup=ReplyKeyboardRemove()
+    )
+    # Сброс состояния и сохранённых данных у пользователя
+    await state.clear()
+
+
+@router.message(OrderFood.choosing_food_size)
+async def food_size_chosen_incorrectly(message: Message):
+    await message.answer(
+        text="Я не знаю такого размера порции.\n\n"
+             "Пожалуйста, выберите один из вариантов из списка ниже:",
+        reply_markup=make_row_keyboard(available_food_sizes)
+    )
 ```
 
-Зарегистрируем эти два обработчика:
+### Общие команды {: id="common-commands" }
 
-```python
-def register_handlers_common(dp: Dispatcher):
-    dp.register_message_handler(cmd_start, commands="start", state="*")
-    dp.register_message_handler(cmd_cancel, commands="cancel", state="*")
-    dp.register_message_handler(cmd_cancel, Text(equals="отмена", ignore_case=True), state="*")
+Раз уж заговорили о сбросе состояний, давайте в файле `handlers/common.py` реализуем обработчики команды `/start` и 
+действия «отмены». Первая должна показывать некий приветственный/справочный текст, а вторая просто пишет "действие отменено". 
+Обе функции сбрасывают состояние и данные, и убирают обычную клавиатуру, если вдруг она есть:
+
+```python title="handlers/common.py"
+from aiogram import Router
+from aiogram.dispatcher.filters.command import Command
+from aiogram.dispatcher.filters.text import Text
+from aiogram.dispatcher.fsm.context import FSMContext
+from aiogram.types import Message, ReplyKeyboardRemove
+
+router = Router()
+
+
+@router.message(Command(commands=["start"]))
+async def cmd_start(message: Message, state: FSMContext):
+    await state.clear()
+    await message.answer(
+        text="Выберите, что хотите заказать: "
+             "блюда (/food) или напитки (/drinks).",
+        reply_markup=ReplyKeyboardRemove()
+    )
+
+
+@router.message(Command(commands=["cancel"]))
+@router.message(Text(text="отмена", text_ignore_case=True))
+async def cmd_cancel(message: Message, state: FSMContext):
+    await state.clear()
+    await message.answer(
+        text="Действие отменено",
+        reply_markup=ReplyKeyboardRemove()
+    )
+
 ```
 
-Почему строк три, а не две? Дело в том, что один и тот же обработчик можно вызвать по разным событиям. Вот мы и 
-зарегистрируем функцию `cmd_cancel()` для вызова как по команде `/cancel`, так и по отправке сообщения "Отмена" (в любом регистре). 
-К слову, если вы навешиваете декораторы напрямую на функцию, то выглядеть это будет следующим образом:
+### Файл bot.py {: id="entrypoint" }
 
-```python
-@dp.message_handler(commands="cancel", state="*")
-@dp.message_handler(Text(equals="отмена", ignore_case=True), state="*")
-async def cmd_cancel(message: types.Message, state: FSMContext):
-    ...
-```
+Напоследок рассмотрим точку входа — файл `bot.py` со всеми импортами и подключенными роутерами:
 
-### Точка входа
+```python title="bot.py"
+import asyncio
+import logging
 
-Вернёмся к файлу `bot.py` и реализуем две функции: `set_commands()` и `main()`. В первой зафиксируем список команд, доступных 
-в интерфейсе Telegram при нажатии на кнопку `[ / ]`, а во второй проведём необходимые действия по запуску бота: настроим логирование, 
-загрузим и распарсим файл конфигурации, объявим объекты `Bot` и `Dispatcher`, зарегистрируем хэндлеры и команды и, наконец, 
-запустим бота в режиме поллинга:
+from aiogram import Bot, Dispatcher
+from aiogram.dispatcher.fsm.storage.memory import MemoryStorage
 
-```python
-# Не забудьте про импорты
-
-logger = logging.getLogger(__name__)
-
-# Регистрация команд, отображаемых в интерфейсе Telegram
-async def set_commands(bot: Bot):
-    commands = [
-        BotCommand(command="/drinks", description="Заказать напитки"),
-        BotCommand(command="/food", description="Заказать блюда"),
-        BotCommand(command="/cancel", description="Отменить текущее действие")
-    ]
-    await bot.set_my_commands(commands)
+# файл config_reader.py можно взять из репозитория
+# пример — в первой главе
+from config_reader import config
+from handlers import common, ordering_food
 
 
 async def main():
-    # Настройка логирования в stdout
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
     )
-    logger.error("Starting bot")
 
-    # Парсинг файла конфигурации
-    config = load_config("config/bot.ini")
+    # Если не указать storage, то по умолчанию всё равно будет MemoryStorage
+    # Но явное лучше неявного =]
+    dp = Dispatcher(storage=MemoryStorage())
+    bot = Bot(config.bot_token.get_secret_value())
 
-    # Объявление и инициализация объектов бота и диспетчера
-    bot = Bot(token=config.tg_bot.token)
-    dp = Dispatcher(bot, storage=MemoryStorage())
+    dp.include_router(common.router)
+    dp.include_router(ordering_food.router)
+    # сюда импортируйте ваш собственный роутер для напитков
 
-    # Регистрация хэндлеров
-    register_handlers_common(dp)
-    register_handlers_drinks(dp)
-    register_handlers_food(dp)
+    await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
 
-    # Установка команд бота
-    await set_commands(bot)
-
-    # Запуск поллинга
-    # await dp.skip_updates()  # пропуск накопившихся апдейтов (необязательно)
-    await dp.start_polling()
 
 if __name__ == '__main__':
     asyncio.run(main())
 ```
+
+### Различные стратегии FSM {: id="strategies" }
+
+Aiogram 3.x привнёс необычное, но интересное нововведение в механизм конечных автоматов — стратегии FSM. Они позволяют 
+переопределить логику формирования пар для стейтов и данных. Всего стратегий три, вот они:
+
+* **USER_IN_CHAT** — стратегия по умолчанию. Стейт и данные разные у каждого юзера в каждом чате. То есть, у юзера будут 
+разные состояния и данные в разных группах, а также в ЛС с ботом.
+* **CHAT** — стейт и данные общие для всего чата целиком. В ЛС разница незаметна, но в группе у всех участников будет 
+один стейт и общие данные.
+* **GLOBAL_USER** — во всех чатах у одного и того же юзера будет один и тот же стейт и данные.
+
+Честно говоря, я не могу придумать хороший use-case для **GLOBAL_USER**, однако **CHAT** может пригодиться для ботов, 
+которые реализуют различные игры в группах. Если вы знаете интересные применения, пожалуйста, расскажите о них 
+в нашем чатике!
+
+В качестве примера рассмотрим ситуацию, когда бот для заказа еды почему-то оказался в группе и имеет стратегию **CHAT**. 
+А чтобы это случилось, необходимо внести небольшие правки в файл `bot.py`:
+
+```python
+# новый импорт
+from aiogram.dispatcher.fsm.strategy import FSMStrategy
+
+async def main():
+    # тут код
+    dp = Dispatcher(storage=MemoryStorage(), fsm_strategy=FSMStrategy.CHAT)
+    # тут тоже код
+```
+
+После запуска бота попросим людей в группе повзаимодействовать с ним:
+
+![Все пользователи для бота на одно лицо](images/fsm/fsm_chat_strategy.png)
+
+Выглядит странно, не правда ли?
 
 Теперь, вооружившись знаниями о конечных автоматах, вы можете безбоязненно писать ботов с системой диалогов.
