@@ -55,7 +55,7 @@ async def cmd_start(message: types.Message):
 когда активна обычная клавиатура:
 
 ```python
-@dp.message(commands="start")
+@dp.message(Command(commands="start"))
 async def cmd_start(message: types.Message):
     kb = [
         [
@@ -81,7 +81,7 @@ async def cmd_start(message: types.Message):
 
 ```python
 # новый импорт!
-from aiogram.dispatcher.filters import Text
+from aiogram.filters import Text
 
 @dp.message(Text(text="С пюрешкой"))
 async def with_puree(message: types.Message):
