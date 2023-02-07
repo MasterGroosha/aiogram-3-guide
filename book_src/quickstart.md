@@ -5,9 +5,6 @@ description: Знакомство с aiogram
 
 # Знакомство с aiogram
 
-!!! warning "О совместимости версий"
-    Код в главах сейчас использует aiogram 3.0 beta3. Возможна несовместимость с другими версиями.
-
 !!! warning "Некоторые детали сознательно упрощены!"
     Автор этой книги убеждён, что помимо теории должна быть и практика. Чтобы максимально упростить повторение 
     приведённого далее кода, пришлось пойти на использование подходов, пригодных только для локальной разработки 
@@ -68,8 +65,8 @@ Type "help", "copyright", "credits" or "license" for more information.
 
 ```plain
 [groosha@main 01_quickstart]$ python3.9 -m venv venv
-[groosha@main 01_quickstart]$ echo "aiogram==3.0.0b3" > requirements.txt
-[groosha@main 01_quickstart]$ echo "python-dotenv==0.20.0" >> requirements.txt
+[groosha@main 01_quickstart]$ echo "aiogram==3.0.0b6" > requirements.txt
+[groosha@main 01_quickstart]$ echo "python-dotenv==0.21.1" >> requirements.txt
 [groosha@main 01_quickstart]$ source venv/bin/activate
 (venv) [groosha@main 01_quickstart]$ pip install -r requirements.txt 
 # ...здесь куча строк про установку...
@@ -98,6 +95,7 @@ Type "help", "copyright", "credits" or "license" for more information.
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher, types
+from aiogram.filters.command import Command
 
 # Включаем логирование, чтобы не пропустить важные сообщения
 logging.basicConfig(level=logging.INFO)
@@ -107,7 +105,7 @@ bot = Bot(token="12345678:AaBbCcDdEeFfGgHh")
 dp = Dispatcher()
 
 # Хэндлер на команду /start
-@dp.message(commands=["start"])
+@dp.message(Command("start"))
 async def cmd_start(message: types.Message):
     await message.answer("Hello!")
 
@@ -141,7 +139,7 @@ if __name__ == "__main__":
 Рассмотрим следующий код: 
 ```python
 # Хэндлер на команду /test1
-@dp.message(commands=["test1"])
+@dp.message(Command("test1"))
 async def cmd_test1(message: types.Message):
     await message.reply("Test 1")
 
@@ -161,7 +159,7 @@ async def cmd_test2(message: types.Message):
     await message.reply("Test 2")
 
 # Где-то в другом месте, например, в функции main():
-dp.message.register(cmd_test2, commands=["test2"])
+dp.message.register(cmd_test2, Command("test2"))
 ```
 
 Снова запустим бота:  
@@ -175,12 +173,12 @@ dp.message.register(cmd_test2, commands=["test2"])
 Разница между `answer` и `reply` простая: первый метод просто отправляет сообщение в тот же чат, второй делает "ответ" на 
 сообщение из `message`:
 ```python
-@dp.message(commands=["answer"])
+@dp.message(Command("answer"))
 async def cmd_answer(message: types.Message):
     await message.answer("Это простой ответ")
 
 
-@dp.message(commands=["reply"])
+@dp.message(Command("reply"))
 async def cmd_reply(message: types.Message):
     await message.reply('Это ответ с "ответом"')
 ```
@@ -189,7 +187,7 @@ async def cmd_reply(message: types.Message):
 Более того, для большинства типов сообщений есть вспомогательные методы вида 
 "answer_{type}" или "reply_{type}", например:
 ```python
-@dp.message(commands=["dice"])
+@dp.message(Command("dice"))
 async def cmd_dice(message: types.Message):
     await message.answer_dice(emoji="🎲")
 ```
@@ -210,7 +208,7 @@ async def cmd_dice(message: types.Message):
 отправлять кубик не в тот же чат, а в канал с ID -100123456789. Перепишем предыдущую функцию:
 
 ```python
-@dp.message(commands=["dice"])
+@dp.message(Command("dice"))
 async def cmd_dice(message: types.Message, bot: Bot):
     await bot.send_dice(-100123456789, emoji="🎲")
 ```
@@ -224,13 +222,13 @@ async def cmd_dice(message: types.Message, bot: Bot):
 объектов в одних хэндлерах влияют на их содержимое в других. Рассмотрим на примере:
 
 ```python
-@dp.message(commands=["add_to_list"])
+@dp.message(Command("add_to_list"))
 async def cmd_add_to_list(message: types.Message, mylist: list[int]):
     mylist.append(7)
     await message.answer("Добавлено число 7")
 
 
-@dp.message(commands=["show_list"])
+@dp.message(Command("show_list"))
 async def cmd_show_list(message: types.Message, mylist: list[int]):
     await message.answer(f"Ваш список: {mylist}")
 ```
