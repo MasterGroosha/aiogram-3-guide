@@ -5,9 +5,6 @@ description: Роутеры, многофайловость и структур�
 
 # Роутеры, многофайловость и структура бота
 
-!!! warning "О совместимости версий"
-    Код в главах сейчас использует aiogram 3.0 beta3. Возможна несовместимость с другими версиями.
-
 В этой главе мы познакомимся с новой фичей aiogram 3.x — роутерами, научимся разбивать наш код на отдельные 
 компоненты, а также сформируем базовую структуру бота, которая пригодится в следующих главах и вообще по жизни.
 
@@ -86,32 +83,31 @@ def get_yes_no_kb() -> ReplyKeyboardMarkup:
 Ничего сложного, тем более, что мы клавиатуры подробно разбирали [ранее](buttons.md). 
 Теперь рядом с файлом `bot.py` создадим другой каталог `handlers`, а внутри него файл `questions.py`.
 
-```python title="handlers/questions.py" hl_lines="6 9"
+```python title="handlers/questions.py" hl_lines="8 10"
 from aiogram import Router
-from aiogram.dispatcher.filters.text import Text
+from aiogram.filters import Command
+from aiogram.filters.text import Text
 from aiogram.types import Message, ReplyKeyboardRemove
+
 from keyboards.for_questions import get_yes_no_kb
 
 router = Router()  # [1]
 
-
-@router.message(commands=["start"])  # [2]
+@router.message(Command("start"))  # [2]
 async def cmd_start(message: Message):
     await message.answer(
         "Вы довольны своей работой?",
         reply_markup=get_yes_no_kb()
     )
 
-
-@router.message(Text(text="да", text_ignore_case=True))
+@router.message(Text(text="да", ignore_case=True))
 async def answer_yes(message: Message):
     await message.answer(
         "Это здорово!",
         reply_markup=ReplyKeyboardRemove()
     )
 
-
-@router.message(Text(text="нет", text_ignore_case=True))
+@router.message(Text(text="нет", ignore_case=True))
 async def answer_no(message: Message):
     await message.answer(
         "Жаль...",
@@ -125,24 +121,23 @@ async def answer_no(message: Message):
 Аналогичным образом сделаем второй файл с хэндлерами `different_types.py`, где просто будем выводить тип сообщения:
 
 ```python title="handlers/different_types.py"
-from aiogram import Router
+from aiogram import Router, F
 from aiogram.types import Message
 
 router = Router()
 
-@router.message(content_types="text")
+@router.message(F.text)
 async def message_with_text(message: Message):
     await message.answer("Это текстовое сообщение!")
 
-
-@router.message(content_types="sticker")
+@router.message(F.sticker)
 async def message_with_sticker(message: Message):
     await message.answer("Это стикер!")
 
-
-@router.message(content_types="animation")
+@router.message(F.animation)
 async def message_with_gif(message: Message):
     await message.answer("Это GIF!")
+
 ```
 
 Наконец, вернёмся к нашему `bot.py`, импортируем файлы с роутерами и хэндлерами, и подключим их к диспетчеру:
