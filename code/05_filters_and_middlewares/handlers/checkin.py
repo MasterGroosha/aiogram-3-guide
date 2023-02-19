@@ -1,6 +1,5 @@
-from aiogram import F
-from aiogram import Router
-from aiogram.dispatcher.filters import Command
+from aiogram import Router, F
+from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery
 
 from keyboards.checkin import get_checkin_kb
@@ -11,9 +10,7 @@ router.message.filter(F.chat.type == "private")
 router.message.middleware(WeekendMessageMiddleware())
 
 
-@router.message(
-    Command(commands=["checkin"])
-)
+@router.message(Command("checkin"))
 async def cmd_checkin(message: Message):
     await message.answer(
         "Пожалуйста, нажмите на кнопку ниже:",
@@ -21,9 +18,7 @@ async def cmd_checkin(message: Message):
     )
 
 
-@router.callback_query(
-    text="confirm"
-)
+@router.callback_query(F.text == "confirm")
 async def checkin_confirm(callback: CallbackQuery):
     await callback.answer(
         "Спасибо, подтверждено!",
