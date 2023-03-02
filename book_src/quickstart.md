@@ -208,9 +208,14 @@ async def cmd_dice(message: types.Message):
 отправлять кубик не в тот же чат, а в канал с ID -100123456789. Перепишем предыдущую функцию:
 
 ```python
+# не забудьте про импорт
+from aiogram.types.dice import DiceEmoji
+# в aiogram 3.0b7 и выше путь другой:
+# from aiogram.enums.dice_emoji import DiceEmoji
+
 @dp.message(Command("dice"))
 async def cmd_dice(message: types.Message, bot: Bot):
-    await bot.send_dice(-100123456789, emoji="🎲")
+    await bot.send_dice(-100123456789, emoji=DiceEmoji.DICE)
 ```
 
 ## Передача доп. параметров {: id="pass-extras" }

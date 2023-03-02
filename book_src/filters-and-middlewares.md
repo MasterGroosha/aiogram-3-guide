@@ -222,6 +222,9 @@ if __name__ == "__main__":
 from aiogram import Router
 from aiogram.types import Message
 from aiogram.filters import Command
+from aiogram.types.dice import DiceEmoji
+# в aiogram 3.0b7 и выше путь другой:
+# from aiogram.enums.dice_emoji import DiceEmoji
 
 from filters.chat_type import ChatTypeFilter
 
@@ -233,12 +236,12 @@ router.message.filter(
 
 @router.message(Command("dice"))
 async def cmd_dice_in_group(message: Message):
-    await message.answer_dice(emoji="🎲")
+    await message.answer_dice(emoji=DiceEmoji.DICE)
 
 
 @router.message(Command("basketball"))
 async def cmd_basketball_in_group(message: Message):
-    await message.answer_dice(emoji="🏀")
+    await message.answer_dice(emoji=DiceEmoji.BASKETBALL)
 ```
 
 !!! info ""

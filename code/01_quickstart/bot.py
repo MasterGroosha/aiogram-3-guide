@@ -3,6 +3,9 @@ import logging
 
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters.command import Command
+from aiogram.types.dice import DiceEmoji
+# в aiogram 3.0b7 и выше путь другой:
+# from aiogram.enums.dice_emoji import DiceEmoji
 
 from config_reader import config
 
@@ -41,7 +44,7 @@ async def cmd_reply(message: types.Message):
 
 @dp.message(Command("dice"))
 async def cmd_dice(message: types.Message):
-    await message.answer_dice(emoji="🎲")
+    await message.answer_dice(emoji=DiceEmoji.DICE)
 
 
 @dp.message(Command("add_to_list"))
