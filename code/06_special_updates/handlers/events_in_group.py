@@ -1,5 +1,5 @@
 from aiogram import Router, Bot
-from aiogram.dispatcher.filters.command import Command
+from aiogram.filters.command import Command
 from aiogram.types import Message
 
 router = Router()
@@ -11,7 +11,7 @@ router = Router()
 # Но для примера сделаем через if-else, чтобы было нагляднее
 
 
-@router.message(Command(commands=["ban"]))
+@router.message(Command("ban"))
 async def cmd_ban(message: Message, admins: set[int], bot: Bot):
     if message.from_user.id not in admins:
         await message.answer("У вас недостаточно прав для совершения этого действия")

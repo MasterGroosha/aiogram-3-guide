@@ -1,5 +1,5 @@
 from aiogram import F, Router, Bot
-from aiogram.dispatcher.filters.chat_member_updated import \
+from aiogram.filters.chat_member_updated import \
     ChatMemberUpdatedFilter, KICKED, LEFT, \
     RESTRICTED, MEMBER, ADMINISTRATOR, CREATOR
 from aiogram.types import ChatMemberUpdated

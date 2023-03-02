@@ -5,8 +5,8 @@ description: Апдейты my_chat_member и chat_member
 
 # Особые апдейты {: id="special-updates" }
 
-!!! warning "О совместимости версий"
-    Код в главах сейчас использует aiogram 3.0 beta3. Возможна несовместимость с другими версиями.
+!!! info ""
+    Используемая версия aiogram: 3.0 beta 6
 
 ## Введение {: id="intro" }
 
@@ -25,11 +25,11 @@ description: Апдейты my_chat_member и chat_member
 ожидая, что бот не обрабатывает такую ошибку и сломается. А уж с отправкой в личку вообще весело: не зная точно, какая 
 активная аудитория бота, разработчику приходилось либо отправлять какое-нибудь сообщение по списку пользователей в 
 своей базе, либо, что чуть гуманнее, отправлять этим юзерам какой-нибудь ChatAction, типа «_печатает_…»; как выяснилось, 
-тем, кто заблокировал бота, это самое «_печатает_…» не прийдёт, вернув ошибку от Bot API.
+тем, кто заблокировал бота, это самое «_печатает_…» не придёт, вернув ошибку от Bot API.
 
 В марте 2021 года ситуация кардинально изменилась в лучшую сторону с релизом 
-[обновления Bot API v5.1](https://core.telegram.org/bots/api-changelog#march-9-2021), в котором, помимо всего прочего, 
-добавилось два новых типа апдейтов, которые бот может получить: `my_chat_member` и `chat_member`. Оба апдейта внутри 
+[обновления Bot API v5.1](https://core.telegram.org/bots/api-changelog#march-9-2021), в котором 
+добавилось два новых типа апдейтов: `my_chat_member` и `chat_member`. Оба апдейта внутри 
 содержат объект одного и того же типа [ChatMemberUpdated](https://core.telegram.org/bots/api#chatmemberupdated). 
 Разница между этими двумя событиями следующая:
 
@@ -140,9 +140,9 @@ Telegram после разблокировки:
 
 ```python title="handlers/in_pm.py"
 from aiogram import F, Router
-from aiogram.dispatcher.filters.chat_member_updated import \
+from aiogram.filters.chat_member_updated import \
     ChatMemberUpdatedFilter, MEMBER, KICKED
-from aiogram.dispatcher.filters.command import \
+from aiogram.filters.command import \
     CommandStart, Command
 from aiogram.types import ChatMemberUpdated, Message
 
@@ -176,7 +176,7 @@ async def cmd_start(message: Message):
     users.add(message.from_user.id)
 
 
-@router.message(Command(commands="users"))
+@router.message(Command("users"))
 async def cmd_users(message: Message):
     await message.answer("\n".join(f"• {user_id}" for user_id in users))
 
@@ -219,7 +219,7 @@ API-метод [getChat](https://core.telegram.org/bots/api#getchat) и посм
 
 ```python
 # Не забываем импорты:
-from aiogram.dispatcher.filters.chat_member_updated import \
+from aiogram.filters.chat_member_updated import \
     ChatMemberUpdatedFilter, KICKED, LEFT, MEMBER, \
     RESTRICTED, ADMINISTRATOR, CREATOR
 
@@ -413,7 +413,7 @@ async def main():
 
 ```python title="handlers/admin_changes_in_group.py"
 from aiogram import F, Router, Bot
-from aiogram.dispatcher.filters.chat_member_updated import \
+from aiogram.filters.chat_member_updated import \
     ChatMemberUpdatedFilter, KICKED, LEFT, \
     RESTRICTED, MEMBER, ADMINISTRATOR, CREATOR
 from aiogram.types import ChatMemberUpdated
@@ -465,7 +465,7 @@ async def admin_demoted(event: ChatMemberUpdated, admins: set[int], bot: Bot):
 
 ```python title="handlers/events_in_group.py"
 from aiogram import Router, Bot
-from aiogram.dispatcher.filters.command import Command
+from aiogram.filters.command import Command
 from aiogram.types import Message
 
 router = Router()
@@ -477,7 +477,7 @@ router = Router()
 # Но для примера сделаем через if-else, чтобы было нагляднее
 
 
-@router.message(Command(commands=["ban"]))
+@router.message(Command("ban"))
 async def cmd_ban(message: Message, admins: set[int], bot: Bot):
     if message.from_user.id not in admins:
         await message.answer(
