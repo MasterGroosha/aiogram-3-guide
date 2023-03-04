@@ -1,5 +1,5 @@
 from aiogram import Router, F
-from aiogram.dispatcher.fsm.context import FSMContext
+from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
 from filters import HasLinkFilter, ViaBotFilter

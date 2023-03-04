@@ -5,8 +5,8 @@ description: Инлайн-режим
 
 # Инлайн-режим
 
-!!! warning "О совместимости версий"
-    Код в главах сейчас использует aiogram 3.0 beta3. Возможна несовместимость с другими версиями.
+!!! info ""
+    Используемая версия aiogram: 3.0 beta 6
 
 ## Теория {: id="theory" }
 
@@ -251,7 +251,7 @@ def delete_image(telegram_id: int, photo_file_unique_id: str):
 `states.py` и реализуем класс `SaveCommon`, где будет одно состояние «ожидает ввод»:
 
 ```python title="states.py"
-from aiogram.dispatcher.fsm.state import StatesGroup, State
+from aiogram.fsm.state import StatesGroup, State
 
 class SaveCommon(StatesGroup):
     waiting_for_save_start = State()
@@ -283,7 +283,7 @@ class TextSave(StatesGroup):
 ```python title="filters/text_has_link.py"
 from typing import Union, Dict, Any
 
-from aiogram.dispatcher.filters import BaseFilter
+from aiogram.filters import BaseFilter
 from aiogram.types import Message
 
 
@@ -296,7 +296,7 @@ class HasLinkFilter(BaseFilter):
         # Если есть хотя бы одна ссылка, возвращаем её
         for entity in entities:
             if entity.type == "url":
-                return {"link": entity.extract(message.text)}
+                return {"link": entity.extract_from(message.text)}
 
         # Если ничего не нашли, возвращаем None
         return False
@@ -360,7 +360,10 @@ async def too_long_title(message: Message):
 
 Обратите внимание на код `F.text.func(len) <= 30`. Magic filter позволяет передать на вход какую-либо функцию, которая 
 выполнится над тем, что указано до `.func`. Т.е. `F.text.func(len)` -> `len(F.text)` и только если атрибут `.text` 
-не является None (иными словами, здесь ещё и проверка на контент-тайп).
+не является None (иными словами, здесь ещё и проверка на контент-тайп). Но вообще конкретно для `len()` 
+есть поддержка прям в 
+[magic-filter](https://github.com/aiogram/magic-filter/blob/3c5e38fd5cd359fd961e26bab17e65201b02c1c6/magic_filter/magic.py#L227-L228): 
+`F.text.len() <= 30`
 
 На очереди хэндлер на описание. Здесь можно снова разбить на два хэндлера... постойте, но ведь функция `too_long_title()`, 
 по сути, может так же подходить и для шага с описанием, раз уж у нас одинаковые лимиты на текст! Переименуем её и 
@@ -381,7 +384,7 @@ async def text_too_long(message: Message):  # бывш. too_long_title()
 ```python title="handlers/save_text.py"
 # Эта функция должна быть ПЕРЕД text_too_long() !
 @router.message(TextSave.waiting_for_description, F.text.func(len) <= 30)
-@router.message(TextSave.waiting_for_description, Command(commands=["skip"]))
+@router.message(TextSave.waiting_for_description, Command("skip"))
 async def last_step(
         message: Message,
         state: FSMContext,
@@ -403,9 +406,9 @@ async def last_step(
 from typing import Optional
 
 from aiogram import Router, F
-from aiogram.dispatcher.filters.command import Command, CommandObject
-from aiogram.dispatcher.fsm.context import FSMContext
-from aiogram.types import Message
+from aiogram.filters.command import Command, CommandObject
+from aiogram.fsm.context import FSMContext
+from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 
 from filters import HasLinkFilter
 from states import SaveCommon, TextSave
@@ -440,7 +443,7 @@ async def title_entered_ok(message: Message, state: FSMContext):
     )
 
 @router.message(TextSave.waiting_for_description, F.text.func(len) <= 30)
-@router.message(TextSave.waiting_for_description, Command(commands=["skip"]))
+@router.message(TextSave.waiting_for_description, Command("skip"))
 async def last_step(
         message: Message,
         state: FSMContext,
@@ -451,9 +454,15 @@ async def last_step(
     # Сохраняем данные в нашу ненастоящую БД
     data = await state.get_data()
     add_link(message.from_user.id, data["link"], data["title"], data["description"])
-
-    await message.answer("Ссылка сохранена!")
     await state.clear()
+    kb = [[InlineKeyboardButton(
+        text="Попробовать",
+        switch_inline_query="links"
+    )]]
+    await message.answer(
+        text="Ссылка сохранена!",
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=kb)
+    )
 
 @router.message(TextSave.waiting_for_title, F.text)
 @router.message(TextSave.waiting_for_description, F.text)
@@ -469,7 +478,7 @@ async def text_too_long(message: Message):
 
 ```python title="handlers/save_images.py"
 from aiogram import Router, F
-from aiogram.dispatcher.fsm.context import FSMContext
+from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, PhotoSize
 from states import SaveCommon
 from storage import add_photo
@@ -595,7 +604,10 @@ class DeleteCommon(StatesGroup):
 Теперь сделаем хэндлер на команду `/delete`:
 
 ```python title="handlers/common.py" hl_lines="7 13"
-@router.message(Command(commands=["delete"]), state=None)
+# новый импорт
+from aiogram.filters.state import StateFilter
+
+@router.message(Command("delete"), StateFilter(None))
 async def cmd_delete(message: Message, state: FSMContext):
     kb = []
     kb.append([
@@ -687,10 +699,10 @@ await inline_query.answer(
 
 ```python title="handlers/common.py" hl_lines="4"
 # новый импорт:
-from aiogram.dispatcher.filters.command import CommandStart
+from aiogram.filters.command import CommandStart
 
-@router.message(CommandStart(command_magic=F.args == "add"))
-@router.message(Command(commands=["save"]), state=None)
+@router.message(CommandStart(magic=F.args == "add"))
+@router.message(Command("save"), StateFilter(None))
 async def cmd_save(message: Message, state: FSMContext):
     ...
 
@@ -706,7 +718,7 @@ async def cmd_start(message: Message, state: FSMContext):
 ```python
 # файл handlers/save_text.py
 @router.message(TextSave.waiting_for_description, F.text.func(len) <= 30)
-@router.message(TextSave.waiting_for_description, Command(commands=["skip"]))
+@router.message(TextSave.waiting_for_description, Command("skip"))
 async def last_step(...):
     # тут остальной код функции
     kb = [[InlineKeyboardButton(

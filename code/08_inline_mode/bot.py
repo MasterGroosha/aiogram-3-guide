@@ -2,7 +2,7 @@ import asyncio
 import logging
 
 from aiogram import Bot, Dispatcher
-from aiogram.dispatcher.fsm.storage.memory import MemoryStorage
+from aiogram.fsm.storage.memory import MemoryStorage
 
 # файл config_reader.py можно взять из репозитория
 # пример — в первой главе
