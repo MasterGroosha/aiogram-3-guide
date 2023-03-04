@@ -5,8 +5,8 @@ description: Конечные автоматы (FSM)
 
 # Конечные автоматы (FSM) {: id="fsm-start" }
 
-!!! warning "О совместимости версий"
-    Код в главах сейчас использует aiogram 3.0 beta3. Возможна несовместимость с другими версиями.
+!!! info ""
+    Используемая версия aiogram: 3.0 beta 6
 
 ## Теория {: id="theory" }
 
@@ -98,9 +98,10 @@ class OrderFood(StatesGroup):
 Напишем обработчик первого шага, реагирующий на команду `/food`:
 
 ```python hl_lines="4 10"
-from aiogram.dispatcher.fsm.context import FSMContext 
+from aiogram.filters.command import Command
+from aiogram.fsm.context import FSMContext
 
-@router.message(Command(commands=["food"]))
+@router.message(Command("food"))
 async def cmd_food(message: Message, state: FSMContext):
     await message.answer(
         text="Выберите блюдо:",
@@ -209,9 +210,9 @@ class FSMContext:
 
 ```python title="handlers/ordering_food.py"
 from aiogram import Router, F
-from aiogram.dispatcher.filters.command import Command
-from aiogram.dispatcher.fsm.context import FSMContext
-from aiogram.dispatcher.fsm.state import StatesGroup, State
+from aiogram.filters.command import Command
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, ReplyKeyboardRemove
 
 from keyboards.simple_row import make_row_keyboard
@@ -229,7 +230,7 @@ class OrderFood(StatesGroup):
     choosing_food_size = State()
 
 
-@router.message(Command(commands=["food"]))
+@router.message(Command("food"))
 async def cmd_food(message: Message, state: FSMContext):
     await message.answer(
         text="Выберите блюдо:",
@@ -329,7 +330,7 @@ import asyncio
 import logging
 
 from aiogram import Bot, Dispatcher
-from aiogram.dispatcher.fsm.storage.memory import MemoryStorage
+from aiogram.fsm.storage.memory import MemoryStorage
 
 # файл config_reader.py можно взять из репозитория
 # пример — в первой главе
@@ -379,7 +380,7 @@ Aiogram 3.x привнёс необычное, но интересное нов�
 
 ```python
 # новый импорт
-from aiogram.dispatcher.fsm.strategy import FSMStrategy
+from aiogram.fsm.strategy import FSMStrategy
 
 async def main():
     # тут код

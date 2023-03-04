@@ -1,7 +1,7 @@
 from aiogram import F, Router
-from aiogram.dispatcher.filters.chat_member_updated import \
+from aiogram.filters.chat_member_updated import \
     ChatMemberUpdatedFilter, MEMBER, KICKED
-from aiogram.dispatcher.filters.command import \
+from aiogram.filters.command import \
     CommandStart, Command
 from aiogram.types import ChatMemberUpdated, Message
 
@@ -35,6 +35,6 @@ async def cmd_start(message: Message):
     users.add(message.from_user.id)
 
 
-@router.message(Command(commands="users"))
+@router.message(Command("users"))
 async def cmd_users(message: Message):
     await message.answer("\n".join(f"• {user_id}" for user_id in users))

@@ -1,5 +1,5 @@
 from aiogram import F, Router, Bot
-from aiogram.dispatcher.filters.chat_member_updated import \
+from aiogram.filters.chat_member_updated import \
     ChatMemberUpdatedFilter, IS_NOT_MEMBER, MEMBER, ADMINISTRATOR
 from aiogram.types import ChatMemberUpdated
 
@@ -50,17 +50,3 @@ async def bot_added_as_member(event: ChatMemberUpdated, bot: Bot):
         )
     else:
         print("Как-нибудь логируем эту ситуацию")
-
-# @router.my_chat_member(
-#     # ChatMemberUpdatedFilter(
-#     #     member_status_changed=JOIN_TRANSITION
-#     # )
-# )
-# async def user_blocked_bot(event: ChatMemberUpdated):
-#     print("1")
-#     print(
-#         f"Status change: "
-#         f"[{event.old_chat_member.status}] "
-#         f"-> "
-#         f"[{event.new_chat_member.status}]"
-#     )

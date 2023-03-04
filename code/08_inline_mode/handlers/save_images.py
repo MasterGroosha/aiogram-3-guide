@@ -1,5 +1,5 @@
 from aiogram import Router, F
-from aiogram.dispatcher.fsm.context import FSMContext
+from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, PhotoSize, \
     InlineKeyboardMarkup, InlineKeyboardButton
 
@@ -21,4 +21,3 @@ async def save_image(message: Message, photo: PhotoSize, state: FSMContext):
         text="Изображение сохранено!",
         reply_markup=InlineKeyboardMarkup(inline_keyboard=kb)
     )
-

@@ -5,10 +5,10 @@ description: Кнопки
 
 # Кнопки
 
-!!! warning "О совместимости версий"
-    Код в главах сейчас использует aiogram 3.0 beta3. Возможна несовместимость с другими версиями.
+!!! info ""
+    Используемая версия aiogram: 3.0 beta 6
 
-В этой главе мы познакомимся с такой замечательной фичей Telegram-ботов, как кнопки. Прежде всего, чтобы избежать 
+В этой главе мы познакомимся с такой замечательной фичей Telegram-ботов как кнопки. Прежде всего, чтобы избежать 
 путаницы, определимся с названиями. То, что цепляется к низу экрана вашего устройства, будем называть **обычными** 
 кнопками, а то, что цепляется непосредственно к сообщениям, назовём **инлайн**-кнопками. Ещё раз картинкой:  
 
@@ -24,7 +24,7 @@ description: Кнопки
 Напишем хэндлер, который будет при нажатии на команду `/start` отправлять сообщение с двумя кнопками:
 
 ```python
-@dp.message(commands="start")
+@dp.message(Command("start"))
 async def cmd_start(message: types.Message):
     kb = [
         [types.KeyboardButton(text="С пюрешкой")],
@@ -55,7 +55,7 @@ async def cmd_start(message: types.Message):
 когда активна обычная клавиатура:
 
 ```python
-@dp.message(commands="start")
+@dp.message(Command("start"))
 async def cmd_start(message: types.Message):
     kb = [
         [
@@ -81,9 +81,9 @@ async def cmd_start(message: types.Message):
 
 ```python
 # новый импорт!
-from aiogram.dispatcher.filters import Text
+from aiogram.filters import Text
 
-@dp.message(Text(text="С пюрешкой"))
+@dp.message(Text("С пюрешкой"))
 async def with_puree(message: types.Message):
     await message.reply("Отличный выбор!")
 
@@ -113,7 +113,7 @@ async def without_puree(message: types.Message):
 # новый импорт!
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
-@dp.message(commands="reply_builder")
+@dp.message(Command("reply_builder"))
 async def reply_builder(message: types.Message):
     builder = ReplyKeyboardBuilder()
     for i in range(1, 17):
@@ -148,7 +148,7 @@ async def reply_builder(message: types.Message):
 
 Впрочем, проще один раз увидеть код:
 ```python
-@dp.message(commands=["special_buttons"])
+@dp.message(Command("special_buttons"))
 async def cmd_special_buttons(message: types.Message):
     builder = ReplyKeyboardBuilder()
     # метод row позволяет явным образом сформировать ряд
@@ -187,7 +187,7 @@ async def cmd_special_buttons(message: types.Message):
 Самые простые инлайн-кнопки относятся к типу URL, т.е. «ссылка». Поддерживаются только протоколы HTTP(S) и tg://
 
 ```python
-@dp.message(commands=["inline_url"])
+@dp.message(Command("inline_url"))
 async def cmd_inline_url(message: types.Message, bot: Bot):
     builder = InlineKeyboardBuilder()
     builder.row(types.InlineKeyboardButton(
@@ -232,7 +232,7 @@ async def cmd_inline_url(message: types.Message, bot: Bot):
 
 Напишем хэндлер, который по команде `/random` будет отправлять сообщение с колбэк-кнопкой:
 ```python
-@dp.message(commands=["random"])
+@dp.message(Command("random"))
 async def cmd_random(message: types.Message):
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
@@ -250,7 +250,7 @@ async def cmd_random(message: types.Message):
 её data:
 
 ```python
-@dp.callback_query(text="random_value")
+@dp.callback_query(Text("random_value"))
 async def send_random_value(callback: types.CallbackQuery):
     await callback.message.answer(str(randint(1, 10)))
 ```
@@ -267,7 +267,7 @@ async def send_random_value(callback: types.CallbackQuery):
 специальное окошко (всплывающее сверху или поверх экрана):
 
 ```python
-@dp.callback_query(text="random_value")
+@dp.callback_query(Text("random_value"))
 async def send_random_value(callback: types.CallbackQuery):
     await callback.message.answer(str(randint(1, 10)))
     await callback.answer(
@@ -322,13 +322,13 @@ async def update_num_text(message: types.Message, new_value: int):
     )
 
         
-@dp.message(commands=["numbers"])
+@dp.message(Command("numbers"))
 async def cmd_numbers(message: types.Message):
     user_data[message.from_user.id] = 0
     await message.answer("Укажите число: 0", reply_markup=get_keyboard())
 
     
-@dp.callback_query(Text(text_startswith="num_"))
+@dp.callback_query(Text(startswith="num_"))
 async def callbacks_num(callback: types.CallbackQuery):
     user_value = user_data.get(callback.from_user.id, 0)
     action = callback.data.split("_")[1]
@@ -400,7 +400,7 @@ async def update_num_text(message: types.Message, new_value: int):
 ```python
 # новые импорты!
 from typing import Optional
-from aiogram.dispatcher.filters.callback_data import CallbackData
+from aiogram.filters.callback_data import CallbackData
 
 class NumbersCallbackFactory(CallbackData, prefix="fabnum"):
     action: str
@@ -448,7 +448,7 @@ async def update_num_text_fab(message: types.Message, new_value: int):
             reply_markup=get_keyboard_fab()
         )
 
-@dp.message(commands=["numbers_fab"])
+@dp.message(Command("numbers_fab"))
 async def cmd_numbers_fab(message: types.Message):
     user_data[message.from_user.id] = 0
     await message.answer("Укажите число: 0", reply_markup=get_keyboard_fab())

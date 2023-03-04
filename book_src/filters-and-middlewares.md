@@ -5,8 +5,8 @@ description: Фильтры и мидлвари
 
 # Фильтры и мидлвари
 
-!!! warning "О совместимости версий"
-    Код в главах сейчас использует aiogram 3.0 beta3. Возможна несовместимость с другими версиями.
+!!! info ""
+    Используемая версия aiogram: 3.0 beta 6
 
 Настало время разобраться, как устроены фильтры и мидлвари в aiogram 3.x, а также познакомиться с 
 «убийцей лямбда-выражений» фреймворка — _магическими фильтрами_.
@@ -16,7 +16,7 @@ description: Фильтры и мидлвари
 ### Зачем нужны фильтры? {: id="why-filters" }
 
 Если вы написали своего [первого бота](quickstart.md#hello-world), то могу поздравить: вы уже пользовались фильтрами, 
-просто встроенными, а не собственными. Да-да, то самое `commands=["start"]` и есть фильтр. Они нужны для того, 
+просто встроенными, а не собственными. Да-да, то самое `Command("start")` и есть фильтр. Они нужны для того, 
 чтобы очередной апдейт от телеги попал в нужный обработчик, т.е. туда, где его [апдейт] ждут. 
 
 Рассмотрим самый простой пример, чтобы понять важность фильтров. Пусть у нас есть пользователи Алиса с ID 111 
@@ -26,7 +26,7 @@ description: Фильтры и мидлвари
 ```python
 from random import choice
 
-@router.message(content_types="text")
+@router.message(F.text)
 async def my_text_handler(message: Message):
     phrases = [
         "Привет! Отлично выглядишь :)",
@@ -43,7 +43,7 @@ async def my_text_handler(message: Message):
 а для этого разбиваем наш хэндлер на три: для Алисы, для Боба и для всех остальных:
 
 ```python
-@router.message(content_types="text")
+@router.message(F.text)
 async def greet_alice(message: Message):
     # print("Хэндлер для Алисы")
     phrases = [
@@ -55,7 +55,7 @@ async def greet_alice(message: Message):
             choice(phrases).format(name="Алиса")
         )
 
-@router.message(content_types="text")
+@router.message(F.text)
 async def greet_bob(message: Message):
     phrases = [
         "Привет, {name}. Ты самый сильный!",
@@ -66,7 +66,7 @@ async def greet_bob(message: Message):
             choice(phrases).format(name="Боб")
         )
 
-@router.message(content_types="text")
+@router.message(F.text)
 async def stranger_go_away(message: Message):
     if message.from_user.id not in (111, 777):
         await message.answer("Я с тобой не разговариваю!")
@@ -76,7 +76,7 @@ async def stranger_go_away(message: Message):
 код будет всегда попадать в функцию `greet_alice()`, и не проходить по условию `if message.from_user.id == 111`. 
 В этом легко убедиться, раскомментировав вызов `print()`. 
 
-Но почему так? Ответ прост: любое текстовое сообщение сначала попадёт в проверку `content_types="text"` над функцией 
+Но почему так? Ответ прост: любое текстовое сообщение сначала попадёт в проверку `F.text` над функцией 
 `greet_alice()`, эта проверка вернёт `True` и апдейт попадёт именно в эту функцию, откуда, не пройдя по внутреннему 
 условию `if`, выйдет и канет в Лету. 
 
@@ -88,7 +88,7 @@ async def stranger_go_away(message: Message):
 
 ### Фильтры как классы {: id="filters-as-classes" }
 
-В aiogram версии **3.0.0b2** нет встроенного фильтра на тип чата (личка, группа, супергруппа или канал). 
+В aiogram версии **3.0.0b6** нет встроенного фильтра на тип чата (личка, группа, супергруппа или канал). 
 Так давайте его напишем сами! Пусть у юзера будет возможность указать тип чата либо строкой, либо списком (list). 
 Последнее пригодится для групп, которые бывают ещё и супергруппами.
 
@@ -120,7 +120,7 @@ if __name__ == "__main__":
 ```python title="filters/chat_type.py" hl_lines="7 8 10"
 from typing import Union
 
-from aiogram.dispatcher.filters import BaseFilter
+from aiogram.filters import BaseFilter
 from aiogram.types import Message
 
 
@@ -151,7 +151,7 @@ class ChatTypeFilter(BaseFilter):  # [1]
 ```python title="handlers/group_games.py" hl_lines="3 5 11 19 20"
 from aiogram import Router
 from aiogram.types import Message
-from aiogram.dispatcher.filters import Command
+from aiogram.filters import Command
 
 from filters.chat_type import ChatTypeFilter
 
@@ -179,10 +179,9 @@ async def cmd_basketball_in_group(message: Message):
 `ChatTypeFilter`.  
 Во-вторых, мы передали наш фильтр как позиционный аргумент в декоратор, указав 
 в качестве его собственный именованных (обязательно!) аргументов желаемые типы чатов.  
-В-третьих, вы наверняка 
-привыкли фильтровать команды как `commands=...`, однако где-то в районе **aiogram 3.2** подобная фича исчезнет, 
+В-третьих, в aiogram 2.x вы привыкли фильтровать команды как `commands=...`, однако в **aiogram 3** этого больше нет, 
 и правильно будет использовать встроенные фильтры так же, как и свои, через импорт и вызов соответствующих классов. 
-Ровно это мы видим во втором декораторе с вызовом `Command(commands="...")`
+Ровно это мы видим во втором декораторе с вызовом `Command(commands="somecommand")` или кратко: `Command("somecommand")`
 
 Осталось импортировать файл с хэндлерами в точку входа и подключить новый роутер к диспетчеру (выделены новые строки):
 
@@ -222,10 +221,13 @@ if __name__ == "__main__":
 
 Так выглядит наш файл с хэндлерами для дайсов в окончательном виде:
 
-```python title="handlers/group_games.py" hl_lines="8 9 10 13 14 15 20 21 22"
+```python title="handlers/group_games.py"
 from aiogram import Router
 from aiogram.types import Message
-from aiogram.dispatcher.filters import Command
+from aiogram.filters import Command
+from aiogram.types.dice import DiceEmoji
+# в aiogram 3.0b7 и выше путь другой:
+# from aiogram.enums.dice_emoji import DiceEmoji
 
 from filters.chat_type import ChatTypeFilter
 
@@ -235,18 +237,14 @@ router.message.filter(
 )
 
 
-@router.message(
-    commands=["dice"]
-)
+@router.message(Command("dice"))
 async def cmd_dice_in_group(message: Message):
-    await message.answer_dice(emoji="🎲")
+    await message.answer_dice(emoji=DiceEmoji.DICE)
 
 
-@router.message(
-    Command(commands=["basketball"])
-)
+@router.message(Command("basketball"))
 async def cmd_basketball_in_group(message: Message):
-    await message.answer_dice(emoji="🏀")
+    await message.answer_dice(emoji=DiceEmoji.BASKETBALL)
 ```
 
 !!! info ""
@@ -268,7 +266,7 @@ async def cmd_basketball_in_group(message: Message):
 ```python title="filters/find_usernames.py" hl_lines="24 26"
 from typing import Union, Dict, Any
 
-from aiogram.dispatcher.filters import BaseFilter
+from aiogram.filters import BaseFilter
 from aiogram.types import Message
 
 
@@ -282,7 +280,7 @@ class HasUsernamesFilter(BaseFilter):
         # методом extract(). Подробнее см. главу
         # про работу с сообщениями
         found_usernames = [
-            item.extract(message.text) for item in entities
+            item.extract_from(message.text) for item in entities
             if item.type == "mention"
         ]
 
@@ -296,11 +294,10 @@ class HasUsernamesFilter(BaseFilter):
 
 И создаём новый файл с хэндлером:
 
-```python title="handlers/usernames.py" hl_lines="7 14 18 22"
+```python title="handlers/usernames.py" hl_lines="6 13 17 21"
 from typing import List
 
-from aiogram import Router
-from aiogram.dispatcher.filters import ContentTypesFilter
+from aiogram import Router, F
 from aiogram.types import Message
 
 from filters.find_usernames import HasUsernamesFilter
@@ -309,14 +306,14 @@ router = Router()
 
 
 @router.message(
-    ContentTypesFilter(content_types="text"),
-    HasUsernamesFilter(),
+    F.text,
+    HasUsernamesFilter()
 )
 async def message_with_usernames(
         message: Message,
         usernames: List[str]
 ):
-    await message.answer(
+    await message.reply(
         f'Спасибо! Обязательно подпишусь на '
         f'{", ".join(usernames)}'
     )
@@ -356,7 +353,7 @@ async def message_with_usernames(
 есть и в pyTelegramBotAPI, и в aiogram. Идея простая: если в объекте 
 [Message](https://core.telegram.org/bots/api#message) поле `photo` непустое (т.е. не равно `None` 
 в Python), значит, это сообщение содержит изображение, следовательно, считаем, что его 
-контент-тайп равен `photo`. И фильтр `content_types="photo"` будет ловить только такие сообщения, 
+контент-тайп равен `photo`. И тамошний фильтр `content_types="photo"` будет ловить только такие сообщения, 
 избавляя разработчика от необходимости проверять этот атрибут внутри хэндлера.
 
 Теперь нетрудно представить, что лямбда-выражение, которое на русском языке звучит как 
@@ -368,7 +365,6 @@ Magic-filter предлагает аналогичную вещь. Для это
 но мы его импортируем не по полному имени, а по однобуквенному алиасу `F`:
 
 ```python
-# новый импорт!
 from aiogram import F
 
 # Здесь F - это message
@@ -377,11 +373,11 @@ async def photo_msg(message: Message):
     await message.answer("Это точно какое-то изображение!")
 ```
 
-Итого мы заменили `ContentTypesFilter(content_types="photo")` на `F.photo`. Удобно! И теперь, 
+Вместо старого варианта `ContentTypesFilter(content_types="photo")` новый `F.photo`. Удобно! И теперь, 
 обладая таким сакральным знанием, мы легко можем заменить фильтр `ChatTypeFilter` на магию:  
 `router.message.filter(F.chat.type.in_({"group", "supergroup"}))`.  
 Более того, даже проверку на контент-тайпы можно представить в виде магического фильтра:  
-`F.content_type.in_({'text', 'sticker', 'photo'})`
+`F.content_type.in_({'text', 'sticker', 'photo'})` или `F.photo | F.text | F.sticker`.
 
 Также стоит помнить, что фильтры можно вешать не только на обработку **Message**, но и на любые другие 
 типы апдейтов: колбэки, инлайн-запросы, (my_)chat_member и другие.
@@ -534,7 +530,7 @@ class SomeMiddleware(BaseMiddleware):
 Разыграем следующую ситуацию: по команде `/checkin` в ЛС будем присылать сообщение с кнопкой, по нажатию на
 которую пользователю будет выводиться некоторое подтверждение. 
 Но мы хотим, чтобы по выходным дням конкретно эта команда вообще не работала, 
-а по нажатию любые инлайн-кнопки юзеру всплывало окно с надписью “бот не работает”. 
+а по нажатию на любые инлайн-кнопки юзеру всплывало окно с надписью “бот не работает”. 
 
 Создадим новый каталог **middlewares** и в нём файл **weekend.py**:
 
@@ -603,10 +599,9 @@ def get_checkin_kb() -> InlineKeyboardMarkup:
 
 И, наконец, создадим новый файл с роутером и хэндлерами:
 
-```python title="handlers/checkin.py" hl_lines="11"
-from aiogram import F
-from aiogram import Router
-from aiogram.dispatcher.filters import Command
+```python title="handlers/checkin.py" hl_lines="10"
+from aiogram import Router, F
+from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery
 
 from keyboards.checkin import get_checkin_kb
@@ -617,9 +612,7 @@ router.message.filter(F.chat.type == "private")
 router.message.middleware(WeekendMessageMiddleware())
 
 
-@router.message(
-    Command(commands=["checkin"])
-)
+@router.message(Command("checkin"))
 async def cmd_checkin(message: Message):
     await message.answer(
         "Пожалуйста, нажмите на кнопку ниже:",
@@ -627,9 +620,7 @@ async def cmd_checkin(message: Message):
     )
 
 
-@router.callback_query(
-    text="confirm"
-)
+@router.callback_query(F.text == "confirm")
 async def checkin_confirm(callback: CallbackQuery):
     await callback.answer(
         "Спасибо, подтверждено!",
@@ -668,7 +659,7 @@ async def checkin_confirm(callback: CallbackQuery):
 А вот и сама мидлварь:
 
 ```python
-from aiogram.dispatcher.flags.getter import get_flag
+from aiogram.dispatcher.flags import get_flag
 from aiogram.utils.chat_action import ChatActionSender
 
 class ChatActionMiddleware(BaseMiddleware):
@@ -698,4 +689,4 @@ class ChatActionMiddleware(BaseMiddleware):
 
 !!! info ""
     Пример throttling-мидлвари можно увидеть в моём 
-    [казино-боте](https://github.com/MasterGroosha/telegram-casino-bot/blob/8d4997bffb28b7710c91f58deebcbf6dd9fd0bf8/bot/middlewares/throttling.py).
+    [казино-боте](https://github.com/MasterGroosha/telegram-casino-bot/blob/09ef66cd9d1ff4709791126b058c7313c71c99c5/bot/middlewares/throttling.py).

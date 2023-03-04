@@ -1,6 +1,7 @@
 from aiogram import Router, F
-from aiogram.dispatcher.filters.command import Command, CommandStart
-from aiogram.dispatcher.fsm.context import FSMContext
+from aiogram.filters.command import Command, CommandStart
+from aiogram.filters.state import StateFilter
+from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, ReplyKeyboardRemove, \
     InlineKeyboardMarkup, InlineKeyboardButton
 
@@ -9,8 +10,8 @@ from states import SaveCommon, DeleteCommon
 router = Router()
 
 
-@router.message(CommandStart(command_magic=F.args == "add"))
-@router.message(Command(commands=["save"]), state=None)
+@router.message(CommandStart(magic=F.args == "add"))
+@router.message(Command("save"), StateFilter(None))
 async def cmd_save(message: Message, state: FSMContext):
     await message.answer(
         text="Давай что-нибудь сохраним. "
@@ -20,7 +21,7 @@ async def cmd_save(message: Message, state: FSMContext):
     await state.set_state(SaveCommon.waiting_for_save_start)
 
 
-@router.message(Command(commands=["start"]))
+@router.message(Command("start"))
 async def cmd_start(message: Message, state: FSMContext):
     await state.clear()
     await message.answer(
@@ -29,7 +30,7 @@ async def cmd_start(message: Message, state: FSMContext):
     )
 
 
-@router.message(Command(commands=["delete"]), state=None)
+@router.message(Command("delete"), StateFilter(None))
 async def cmd_delete(message: Message, state: FSMContext):
     kb = []
     kb.append([

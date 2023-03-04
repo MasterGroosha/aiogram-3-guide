@@ -1,6 +1,6 @@
 from typing import Union, Dict, Any
 
-from aiogram.dispatcher.filters import BaseFilter
+from aiogram.filters import BaseFilter
 from aiogram.types import Message
 
 
@@ -13,7 +13,7 @@ class HasLinkFilter(BaseFilter):
         # Если есть хотя бы одна ссылка, возвращаем её
         for entity in entities:
             if entity.type == "url":
-                return {"link": entity.extract(message.text)}
+                return {"link": entity.extract_from(message.text)}
 
         # Если ничего не нашли, возвращаем None
         return False

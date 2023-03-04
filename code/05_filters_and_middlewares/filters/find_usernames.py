@@ -1,6 +1,6 @@
 from typing import Union, Dict, Any
 
-from aiogram.dispatcher.filters import BaseFilter
+from aiogram.filters import BaseFilter
 from aiogram.types import Message
 
 
@@ -14,7 +14,7 @@ class HasUsernamesFilter(BaseFilter):
         # методом extract(). Подробнее см. главу
         # про работу с сообщениями
         found_usernames = [
-            item.extract(message.text) for item in entities
+            item.extract_from(message.text) for item in entities
             if item.type == "mention"
         ]
 

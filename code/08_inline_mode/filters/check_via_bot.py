@@ -1,7 +1,7 @@
 from typing import Union, Dict, Any
 
 from aiogram import Bot
-from aiogram.dispatcher.filters import BaseFilter
+from aiogram.filters import BaseFilter
 from aiogram.types import Message
 
 

@@ -5,9 +5,9 @@ from random import randint
 from typing import Optional
 
 from aiogram import Bot, Dispatcher, types, F
-from aiogram.dispatcher.filters import Text
-from aiogram.dispatcher.filters.callback_data import CallbackData
 from aiogram.exceptions import TelegramBadRequest
+from aiogram.filters import Text, Command
+from aiogram.filters.callback_data import CallbackData
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 
 from config_reader import config
@@ -19,7 +19,7 @@ logging.basicConfig(level=logging.INFO)
 user_data = {}
 
 
-@dp.message(commands=["start"])
+@dp.message(Command("start"))
 async def cmd_start(message: types.Message):
     kb = [
         [
@@ -35,7 +35,7 @@ async def cmd_start(message: types.Message):
     await message.answer("Как подавать котлеты?", reply_markup=keyboard)
 
 
-@dp.message(Text(text="С пюрешкой"))
+@dp.message(Text("С пюрешкой"))
 async def with_puree(message: types.Message):
     await message.reply("Отличный выбор!", reply_markup=types.ReplyKeyboardRemove())
 
@@ -45,7 +45,7 @@ async def without_puree(message: types.Message):
     await message.reply("Так невкусно!")
 
 
-@dp.message(commands=["reply_builder"])
+@dp.message(Command("reply_builder"))
 async def reply_builder(message: types.Message):
     builder = ReplyKeyboardBuilder()
     for i in range(1, 17):
@@ -57,7 +57,7 @@ async def reply_builder(message: types.Message):
     )
 
 
-@dp.message(commands=["special_buttons"])
+@dp.message(Command("special_buttons"))
 async def cmd_special_buttons(message: types.Message):
     builder = ReplyKeyboardBuilder()
     # метод row позволяет явным образом сформировать ряд
@@ -78,7 +78,7 @@ async def cmd_special_buttons(message: types.Message):
     )
 
 
-@dp.message(commands=["inline_url"])
+@dp.message(Command("inline_url"))
 async def cmd_inline_url(message: types.Message, bot: Bot):
     builder = InlineKeyboardBuilder()
     builder.row(types.InlineKeyboardButton(
@@ -104,7 +104,7 @@ async def cmd_inline_url(message: types.Message, bot: Bot):
     )
 
 
-@dp.message(commands=["random"])
+@dp.message(Command("random"))
 async def cmd_random(message: types.Message):
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
@@ -117,7 +117,7 @@ async def cmd_random(message: types.Message):
     )
 
 
-@dp.callback_query(text="random_value")
+@dp.callback_query(Text("random_value"))
 async def send_random_value(callback: types.CallbackQuery):
     await callback.message.answer(str(randint(1, 10)))
     await callback.answer(
@@ -150,13 +150,13 @@ async def update_num_text(message: types.Message, new_value: int):
         )
 
 
-@dp.message(commands=["numbers"])
+@dp.message(Command("numbers"))
 async def cmd_numbers(message: types.Message):
     user_data[message.from_user.id] = 0
     await message.answer("Укажите число: 0", reply_markup=get_keyboard())
 
 
-@dp.callback_query(Text(text_startswith="num_"))
+@dp.callback_query(Text(startswith="num_"))
 async def callbacks_num(callback: types.CallbackQuery):
     user_value = user_data.get(callback.from_user.id, 0)
     action = callback.data.split("_")[1]
@@ -200,7 +200,7 @@ async def update_num_text_fab(message: types.Message, new_value: int):
         )
 
 
-@dp.message(commands=["numbers_fab"])
+@dp.message(Command("numbers_fab"))
 async def cmd_numbers_fab(message: types.Message):
     user_data[message.from_user.id] = 0
     await message.answer("Укажите число: 0", reply_markup=get_keyboard_fab())

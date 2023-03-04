@@ -1,8 +1,8 @@
 from typing import Optional
 
 from aiogram import Router, F
-from aiogram.dispatcher.filters.command import Command, CommandObject
-from aiogram.dispatcher.fsm.context import FSMContext
+from aiogram.filters.command import Command, CommandObject
+from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 
 from filters import HasLinkFilter
@@ -42,7 +42,7 @@ async def title_entered_ok(message: Message, state: FSMContext):
 
 
 @router.message(TextSave.waiting_for_description, F.text.func(len) <= 30)
-@router.message(TextSave.waiting_for_description, Command(commands=["skip"]))
+@router.message(TextSave.waiting_for_description, Command("skip"))
 async def last_step(
         message: Message,
         state: FSMContext,

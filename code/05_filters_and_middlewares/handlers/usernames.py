@@ -1,7 +1,6 @@
 from typing import List
 
-from aiogram import Router
-from aiogram.dispatcher.filters import ContentTypesFilter
+from aiogram import Router, F
 from aiogram.types import Message
 
 from filters.find_usernames import HasUsernamesFilter
@@ -10,7 +9,7 @@ router = Router()
 
 
 @router.message(
-    ContentTypesFilter(content_types="text"),
+    F.text,
     HasUsernamesFilter()
 )
 async def message_with_usernames(

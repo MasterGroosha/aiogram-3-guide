@@ -5,10 +5,10 @@ description: Работа с сообщениями
 
 # Работа с сообщениями
 
-!!! warning "О совместимости версий"
-    Код в главах сейчас использует aiogram 3.0 beta3. Возможна несовместимость с другими версиями.
+!!! info ""
+    Используемая версия aiogram: 3.0 beta 6
 
-В этой главе мы разберёмся, как применять различные типы форматирования к сообщениям и работать с медиафайлами. 
+В этой главе мы разберёмся, как применять различные типы форматирования к сообщениям и работать с медиафайлами.
 
 ## Текст {: id="text" }
 Обработка текстовых сообщений — это, пожалуй, одно из важнейших действий у большинства ботов. Текстом можно выразить 
@@ -30,25 +30,27 @@ async def func_name(...)
 dp.register_message_handler(func_name)
 
 # стало (декоратором)
-@dp.message(content_types=types.ContentType.TEXT)
-# или 
-@dp.message(content_types="text")
+from aiogram import F
+@dp.message(F.text)
 async def func_name(...)
 
 # стало (функцией-регистратором)
-dp.message.register(func_name, content_types=types.ContentType.TEXT) # или "text"
+dp.message.register(func_name, F.text)
 ```
+
+Про «магический фильтр» **F** мы поговорим в [другой главе](filters-and-middlewares.md).
 
 ### Форматированный вывод {: id="formatting-options" }
 
 За выбор форматирования при отправке сообщений отвечает аргумент `parse_mode`, например:
 ```python
 from aiogram import types
+from aiogram.filters import Command
 
-# Если не указать фильтр content_types, 
+# Если не указать фильтр F.text, 
 # то хэндлер сработает даже на картинку с подписью /test,
 # но пока нам это не важно и рассматриваем только текстовые сообщения
-@dp.message(commands=["test"])
+@dp.message(Command("test"))
 async def any_message(message: types.Message):
     await message.answer("Hello, <b>world</b>!", parse_mode="HTML")
     await message.answer("Hello, *world*\!", parse_mode="MarkdownV2")
@@ -77,9 +79,9 @@ await message.answer("Сообщение без <s>какой-либо разм�
 указанным после команды, например, `/name Иван Иванов`:
 
 ```python
-from aiogram.dispatcher.filters import CommandObject
+from aiogram.filters import CommandObject
 
-@dp.message(commands=["name"])
+@dp.message(Command("name"))
 async def cmd_name(message: types.Message, command: CommandObject):
     if command.args:
         await message.answer(f"Привет, <b>{command.args}</b>")
@@ -131,7 +133,7 @@ await message.answer(f"Привет, {html.bold(html.quote(command.args))}", par
 # новый импорт!
 from datetime import datetime
 
-@dp.message(content_types="text")
+@dp.message(F.text)
 async def echo_with_time(message: types.Message):
     # Получаем текущее время в часовом поясе ПК
     time_now = datetime.now().strftime('%H:%M')
@@ -168,7 +170,7 @@ Telegram, на самом деле, очень много обработки д�
 а второй — результат применения аиограмного метода `extract()` над entity. На вход ему передаётся весь исходный текст:
 
 ```python
-@dp.message(content_types="text")
+@dp.message(F.text)
 async def extract_data(message: types.Message):
     data = {
         "url": "<N/A>",
@@ -181,7 +183,7 @@ async def extract_data(message: types.Message):
             # Неправильно
             # data[item.type] = message.text[item.offset : item.offset+item.length]
             # Правильно
-            data[item.type] = item.extract(message.text)
+            data[item.type] = item.extract_from(message.text)
     await message.reply(
         "Вот что я нашёл:\n"
         f"URL: {html.quote(data['url'])}\n"
@@ -201,7 +203,7 @@ async def extract_data(message: types.Message):
 К примеру, следующий код заставит бота моментально ответить пользователю той же гифкой, что была прислана: 
 
 ```python
-@dp.message(content_types=[types.ContentType.ANIMATION])
+@dp.message(F.animation)
 async def echo_gif(message: types.Message):
     await message.reply_animation(message.animation.file_id)
 ```
@@ -224,7 +226,7 @@ async def echo_gif(message: types.Message):
 (например, pillow). 
 
 ```python
-@dp.message(content_types="photo")
+@dp.message(F.photo)
 async def download_photo(message: types.Message, bot: Bot):
     await bot.download(
         message.photo[-1],
@@ -232,10 +234,11 @@ async def download_photo(message: types.Message, bot: Bot):
     )
 
 
-@dp.message(content_types=types.ContentType.STICKER)
+@dp.message(F.sticker)
 async def download_sticker(message: types.Message, bot: Bot):
     await bot.download(
         message.sticker,
+        # для Windows пути надо подправить
         destination=f"/tmp/{message.sticker.file_id}.webp"
     )
 ```
@@ -248,7 +251,8 @@ async def download_sticker(message: types.Message, bot: Bot):
 !!! info "Скачивание больших файлов"
     Боты, использующие Telegram Bot API, могут скачивать файлы размером не более [20 мегабайт](https://core.telegram.org/bots/api#getfile). 
     Если вы планируете скачивать/заливать большие файлы, лучше рассмотрите библиотеки, взаимодействующие с 
-    Telegram Client API, а не с Telegram Bot API, например, [Telethon](https://docs.telethon.dev/en/latest/index.html). 
+    Telegram Client API, а не с Telegram Bot API, например, [Telethon](https://docs.telethon.dev/en/latest/index.html) 
+    или [Pyrogram](https://docs.pyrogram.org/).  
     Немногие знают, но Client API могут использовать не только обычные аккаунты, но ещё и 
     [боты](https://docs.telethon.dev/en/latest/concepts/botapi-vs-mtproto.html).
     
@@ -274,7 +278,7 @@ async def download_sticker(message: types.Message, bot: Bot):
 равный "new_chat_members", но вообще это объект Message, у которого заполнено одноимённое поле. 
 
 ```python
-@dp.message(content_types=types.ContentType.NEW_CHAT_MEMBERS)
+@dp.message(F.new_chat_members)
 async def somebody_added(message: types.Message):
     for user in message.new_chat_members:
         # проперти full_name берёт сразу имя И фамилию 
@@ -300,7 +304,8 @@ async def somebody_added(message: types.Message):
     при выходе другого человека).
 
     С выходом Bot API 5.0 у разработчиков появился гораздо более надёжный способ видеть входы/выходы 
-    участников в группах любого размера, **а также в каналах**. Но об этом поговорим в другой раз.
+    участников в группах любого размера, **а также в каналах**. Но об этом поговорим 
+    [в другой раз](special-updates.md).
 
 ## Бонус: прячем ссылку в тексте {: id="bonus" }
 
@@ -317,7 +322,7 @@ async def somebody_added(message: types.Message):
 # новый импорт!
 from aiogram.utils.markdown import hide_link
 
-@dp.message(commands=["hidden_link"])
+@dp.message(Command("hidden_link"))
 async def cmd_hidden_link(message: types.Message):
     await message.answer(
         f"{hide_link('https://telegra.ph/file/562a512448876923e28c3.png')}"

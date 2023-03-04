@@ -1,13 +1,13 @@
 from aiogram import Router
-from aiogram.dispatcher.filters.command import Command
-from aiogram.dispatcher.filters.text import Text
-from aiogram.dispatcher.fsm.context import FSMContext
+from aiogram.filters.command import Command
+from aiogram.filters.text import Text
+from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, ReplyKeyboardRemove
 
 router = Router()
 
 
-@router.message(Command(commands=["start"]))
+@router.message(Command("start"))
 async def cmd_start(message: Message, state: FSMContext):
     await state.clear()
     await message.answer(
@@ -17,8 +17,8 @@ async def cmd_start(message: Message, state: FSMContext):
     )
 
 
-@router.message(Command(commands=["cancel"]))
-@router.message(Text(text="отмена", text_ignore_case=True))
+@router.message(Command("cancel"))
+@router.message(Text(text="отмена", ignore_case=True))
 async def cmd_cancel(message: Message, state: FSMContext):
     await state.clear()
     await message.answer(
