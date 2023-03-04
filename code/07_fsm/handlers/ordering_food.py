@@ -1,7 +1,7 @@
 from aiogram import Router, F
-from aiogram.dispatcher.filters.command import Command
-from aiogram.dispatcher.fsm.context import FSMContext
-from aiogram.dispatcher.fsm.state import StatesGroup, State
+from aiogram.filters.command import Command
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, ReplyKeyboardRemove
 
 from keyboards.simple_row import make_row_keyboard
@@ -19,7 +19,7 @@ class OrderFood(StatesGroup):
     choosing_food_size = State()
 
 
-@router.message(Command(commands=["food"]))
+@router.message(Command("food"))
 async def cmd_food(message: Message, state: FSMContext):
     await message.answer(
         text="Выберите блюдо:",
