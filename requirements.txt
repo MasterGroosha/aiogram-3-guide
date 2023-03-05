@@ -1,2 +1,2 @@
-mkdocs-material==9.0.11
+mkdocs-material==9.1.0
 mkdocs-video==1.4.0
