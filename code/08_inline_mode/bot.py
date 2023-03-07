@@ -21,13 +21,12 @@ async def main():
     dp = Dispatcher(storage=MemoryStorage())
     bot = Bot(config.bot_token.get_secret_value())
 
-    dp.include_router(common.router)
-    dp.include_router(save_text.router)
-    dp.include_router(save_images.router)
-    dp.include_router(delete_data.router)
-    dp.include_router(inline_mode.router)
-    dp.include_router(inline_pagination_demo.router)
-    dp.include_router(inline_chosen_result_demo.router)
+    dp.include_routers(
+        common.router,
+        save_text.router, save_images.router, delete_data.router,
+        inline_mode.router, inline_pagination_demo.router,
+        inline_chosen_result_demo.router
+    )
 
     await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
 
