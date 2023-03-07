@@ -6,7 +6,7 @@ description: Знакомство с aiogram
 # Знакомство с aiogram
 
 !!! info ""
-    Используемая версия aiogram: 3.0 beta 6
+    Используемая версия aiogram: 3.0 beta 7
 
 !!! warning "Некоторые детали сознательно упрощены!"
     Автор этой книги убеждён, что помимо теории должна быть и практика. Чтобы максимально упростить повторение 
@@ -68,7 +68,7 @@ Type "help", "copyright", "credits" or "license" for more information.
 
 ```plain
 [groosha@main 01_quickstart]$ python3.9 -m venv venv
-[groosha@main 01_quickstart]$ echo "aiogram==3.0.0b6" > requirements.txt
+[groosha@main 01_quickstart]$ echo "aiogram==3.0.0b7" > requirements.txt
 [groosha@main 01_quickstart]$ echo "python-dotenv==0.21.1" >> requirements.txt
 [groosha@main 01_quickstart]$ source venv/bin/activate
 (venv) [groosha@main 01_quickstart]$ pip install -r requirements.txt 
@@ -90,6 +90,11 @@ Type "help", "copyright", "credits" or "license" for more information.
 ```
 
 Последней командой `deactivate` мы вышли из venv, чтобы он нам не мешал. 
+
+!!! info ""
+    Если для написания ботов вы используете PyCharm, рекомендую также установить сторонний плагин 
+    [Pydantic](https://plugins.jetbrains.com/plugin/12861-pydantic) для поддержки автодополнения кода 
+    в телеграмных объектах.
 
 ## Первый бот {: id="hello-world" }
 
@@ -212,9 +217,7 @@ async def cmd_dice(message: types.Message):
 
 ```python
 # не забудьте про импорт
-from aiogram.types.dice import DiceEmoji
-# в aiogram 3.0b7 и выше путь другой:
-# from aiogram.enums.dice_emoji import DiceEmoji
+from aiogram.enums.dice_emoji import DiceEmoji
 
 @dp.message(Command("dice"))
 async def cmd_dice(message: types.Message, bot: Bot):

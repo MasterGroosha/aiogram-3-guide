@@ -2,10 +2,8 @@ import asyncio
 import logging
 
 from aiogram import Bot, Dispatcher, types
+from aiogram.enums.dice_emoji import DiceEmoji
 from aiogram.filters.command import Command
-from aiogram.types.dice import DiceEmoji
-# в aiogram 3.0b7 и выше путь другой:
-# from aiogram.enums.dice_emoji import DiceEmoji
 
 from config_reader import config
 

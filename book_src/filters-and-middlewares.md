@@ -6,7 +6,7 @@ description: Фильтры и мидлвари
 # Фильтры и мидлвари
 
 !!! info ""
-    Используемая версия aiogram: 3.0 beta 6
+    Используемая версия aiogram: 3.0 beta 7
 
 Настало время разобраться, как устроены фильтры и мидлвари в aiogram 3.x, а также познакомиться с 
 «убийцей лямбда-выражений» фреймворка — _магическими фильтрами_.
@@ -88,7 +88,7 @@ async def stranger_go_away(message: Message):
 
 ### Фильтры как классы {: id="filters-as-classes" }
 
-В aiogram версии **3.0.0b6** нет встроенного фильтра на тип чата (личка, группа, супергруппа или канал). 
+В aiogram версии **3.0.0b7** нет встроенного фильтра-класса на тип чата (личка, группа, супергруппа или канал). 
 Так давайте его напишем сами! Пусть у юзера будет возможность указать тип чата либо строкой, либо списком (list). 
 Последнее пригодится для групп, которые бывают ещё и супергруппами.
 
@@ -223,11 +223,9 @@ if __name__ == "__main__":
 
 ```python title="handlers/group_games.py"
 from aiogram import Router
-from aiogram.types import Message
+from aiogram.enums.dice_emoji import DiceEmoji
 from aiogram.filters import Command
-from aiogram.types.dice import DiceEmoji
-# в aiogram 3.0b7 и выше путь другой:
-# from aiogram.enums.dice_emoji import DiceEmoji
+from aiogram.types import Message
 
 from filters.chat_type import ChatTypeFilter
 

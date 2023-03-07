@@ -30,7 +30,7 @@ async def save_text_no_link(message: Message):
     )
 
 
-@router.message(TextSave.waiting_for_title, F.text.func(len) <= 30)
+@router.message(TextSave.waiting_for_title, F.text.len() <= 30)
 async def title_entered_ok(message: Message, state: FSMContext):
     await state.update_data(title=message.text, description=None)
     await state.set_state(TextSave.waiting_for_description)
@@ -41,7 +41,7 @@ async def title_entered_ok(message: Message, state: FSMContext):
     )
 
 
-@router.message(TextSave.waiting_for_description, F.text.func(len) <= 30)
+@router.message(TextSave.waiting_for_description, F.text.len() <= 30)
 @router.message(TextSave.waiting_for_description, Command("skip"))
 async def last_step(
         message: Message,

@@ -6,7 +6,7 @@ description: Конечные автоматы (FSM)
 # Конечные автоматы (FSM) {: id="fsm-start" }
 
 !!! info ""
-    Используемая версия aiogram: 3.0 beta 6
+    Используемая версия aiogram: 3.0 beta 7
 
 ## Теория {: id="theory" }
 

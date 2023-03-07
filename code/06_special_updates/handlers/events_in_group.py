@@ -1,4 +1,4 @@
-from aiogram import Router, Bot
+from aiogram import Router, F
 from aiogram.filters.command import Command
 from aiogram.types import Message
 
@@ -11,13 +11,12 @@ router = Router()
 # Но для примера сделаем через if-else, чтобы было нагляднее
 
 
-@router.message(Command("ban"))
-async def cmd_ban(message: Message, admins: set[int], bot: Bot):
+@router.message(Command("ban"), F.reply_to_message)
+async def cmd_ban(message: Message, admins: set[int]):
     if message.from_user.id not in admins:
         await message.answer("У вас недостаточно прав для совершения этого действия")
     else:
-        await bot.ban_chat_member(
-            chat_id=message.chat.id,
+        await message.chat.ban(
             user_id=message.reply_to_message.from_user.id
         )
         await message.answer("Нарушитель заблокирован")
