@@ -91,6 +91,11 @@ Type "help", "copyright", "credits" or "license" for more information.
 
 Последней командой `deactivate` мы вышли из venv, чтобы он нам не мешал. 
 
+!!! info ""
+    Если для написания ботов вы используете PyCharm, рекомендую также установить сторонний плагин 
+    [Pydantic](https://plugins.jetbrains.com/plugin/12861-pydantic) для поддержки автодополнения кода 
+    в телеграмных объектах.
+
 ## Первый бот {: id="hello-world" }
 
 Давайте создадим файл `bot.py` с базовым шаблоном бота на aiogram:
