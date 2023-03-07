@@ -6,7 +6,7 @@ description: Апдейты my_chat_member и chat_member
 # Особые апдейты {: id="special-updates" }
 
 !!! info ""
-    Используемая версия aiogram: 3.0 beta 6
+    Используемая версия aiogram: 3.0 beta 7
 
 ## Введение {: id="intro" }
 
@@ -464,7 +464,7 @@ async def admin_demoted(event: ChatMemberUpdated, admins: set[int], bot: Bot):
 вызывающего во множестве `admins` и исходя из этого разрешать или запрещать бан:
 
 ```python title="handlers/events_in_group.py"
-from aiogram import Router, Bot
+from aiogram import Router, F
 from aiogram.filters.command import Command
 from aiogram.types import Message
 
@@ -477,15 +477,14 @@ router = Router()
 # Но для примера сделаем через if-else, чтобы было нагляднее
 
 
-@router.message(Command("ban"))
-async def cmd_ban(message: Message, admins: set[int], bot: Bot):
+@router.message(Command("ban"), F.reply_to_message)
+async def cmd_ban(message: Message, admins: set[int]):
     if message.from_user.id not in admins:
         await message.answer(
             "У вас недостаточно прав для совершения этого действия"
         )
     else:
-        await bot.ban_chat_member(
-            chat_id=message.chat.id,
+        await message.chat.ban(
             user_id=message.reply_to_message.from_user.id
         )
         await message.answer("Нарушитель заблокирован")
@@ -512,10 +511,10 @@ async def main():
 
     dp = Dispatcher()
     bot = Bot(config.bot_token.get_secret_value(), parse_mode="HTML")
-    dp.include_router(in_pm.router)
-    dp.include_router(events_in_group.router)
-    dp.include_router(bot_in_group.router)
-    dp.include_router(admin_changes_in_group.router)
+    dp.include_routers(
+        in_pm.router, events_in_group.router,
+        bot_in_group.router, admin_changes_in_group.router
+    )
 
     # Подгрузка списка админов
     admins = await bot.get_chat_administrators(config.main_chat_id)

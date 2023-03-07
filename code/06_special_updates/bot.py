@@ -15,10 +15,10 @@ async def main():
 
     dp = Dispatcher()
     bot = Bot(config.bot_token.get_secret_value(), parse_mode="HTML")
-    dp.include_router(in_pm.router)
-    dp.include_router(events_in_group.router)
-    dp.include_router(bot_in_group.router)
-    dp.include_router(admin_changes_in_group.router)
+    dp.include_routers(
+        in_pm.router, events_in_group.router,
+        bot_in_group.router, admin_changes_in_group.router
+    )
 
     admins = await bot.get_chat_administrators(config.main_chat_id)
     admin_ids = {admin.user.id for admin in admins}
