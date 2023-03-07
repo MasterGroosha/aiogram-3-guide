@@ -1,10 +1,8 @@
 from aiogram import F
 from aiogram import Router
+from aiogram.enums.dice_emoji import DiceEmoji
 from aiogram.filters import Command
 from aiogram.types import Message
-from aiogram.types.dice import DiceEmoji
-# в aiogram 3.0b7 и выше путь другой:
-# from aiogram.enums.dice_emoji import DiceEmoji
 
 router = Router()
 router.message.filter(F.chat.type.in_({"group", "supergroup"}))
