@@ -6,7 +6,7 @@ description: Кнопки
 # Кнопки
 
 !!! info ""
-    Используемая версия aiogram: 3.0 beta 6
+    Используемая версия aiogram: 3.0 beta 7
 
 В этой главе мы познакомимся с такой замечательной фичей Telegram-ботов как кнопки. Прежде всего, чтобы избежать 
 путаницы, определимся с названиями. То, что цепляется к низу экрана вашего устройства, будем называть **обычными** 
@@ -135,16 +135,47 @@ async def reply_builder(message: types.Message):
 
 ### Специальные обычные кнопки {: id="reply-special" }
 
-На момент написания этой главы в Telegram существует три специальных вида обычных кнопок, не являющихся 
-обычными шаблонами сообщений. Это кнопки для:
+На момент написания этой главы в Telegram существует шесть специальных видов обычных кнопок, не являющихся 
+обычными шаблонами сообщений. Они предназначены для:
 
-- отправки текущей геолокации (флаг `request_location`); 
-- отправки своего контакта с номером телефона (флаг `request_contact`); 
-- создания опроса/викторины (объект [KeyboardButtonPollType](https://core.telegram.org/bots/api#keyboardbuttonpolltype)). 
+- отправки текущей геолокации; 
+- отправки своего контакта с номером телефона; 
+- создания опроса/викторины; 
+- выбора и отправки боту данных пользователя с нужными критериями;
+- выбора и отправки боту данных (супер)группы или канала с нужными критериями;
+- запуска веб-приложения (WebApp).
 
-Для первых двух 
-типов достаточно установить булевый флаг, а для опросов и викторин нужно передать специальный тип `KeyboardButtonPollType` 
-и, по желанию, указать тип создаваемого объекта.
+Поговорим про них подробнее.
+
+**Отправка текущей геолокации**. Здесь всё просто: где пользователь находится, те координаты и отправляет. 
+Это будет статическое гео, а не Live Location, который обновляется автоматически. Разумеется, хитрые юзеры 
+могут подменить своё местонахождение, иногда даже на уровне всей системы (Android).  
+
+**Отправка своего контакта с номером телефона**. При нажатии на кнопку (с предварительным подтверждением) 
+пользователь отправляет свой контакт с номером телефона боту. Те же хитрые юзеры могут проигнорировать кнопку 
+и отправить любой контакт, но в этом случае на них можно найти управу: достаточно проверить в хэндлере или 
+в фильтре равенство `message.contact.user_id == message.from_user.id`.
+
+**Создание опроса/викторины**. По нажатию на кнопку пользователю предлагается создать опрос или викторину, которые 
+потом отправятся в текущий чат. Необходимо передать 
+объект [KeyboardButtonPollType](https://core.telegram.org/bots/api#keyboardbuttonpolltype), 
+необязательный аргумент `type` служит для уточнения типа опроса (опрос или викторина).
+
+**Выбор и отправка боту данных пользователя с нужными критериями**. Показывает окно выбора пользователя из списка чатов 
+юзера, нажавшего на кнопку. Необходимо передать объект 
+[KeyboardButtonRequestUser](https://core.telegram.org/bots/api#keyboardbuttonrequestuser), в котором надо указать 
+сгенерированный любым способом айди запроса и критерии, например, "бот", "есть подписка Telegram Premium" и т.д. 
+После выбора юзера бот получит сервисное сообщение с типом [UserShared](https://core.telegram.org/bots/api#usershared).
+
+**Выбор и отправка боту чата с нужными критериями**. Показывает окно выбора пользователя из списка чатов 
+юзера, нажавшего на кнопку. Необходимо передать объект 
+[KeyboardButtonRequestChat](https://core.telegram.org/bots/api#keyboardbuttonrequestchat), в котором надо указать 
+сгенерированный любым способом айди запроса и критерии, например, "группа или канал", "юзер — создатель чата" и т.д.
+После выбора юзера бот получит сервисное сообщение с типом [ChatShared](https://core.telegram.org/bots/api#chatshared).
+
+**Запуск веб-приложения (WebApp)**. При нажатии на кнопку открывает [WebApp](https://core.telegram.org/bots/webapps). 
+Необходимо передать объект [WebAppInfo](https://core.telegram.org/bots/api#webappinfo). 
+В этой книге веб-аппы пока рассматриваться не будут.
 
 Впрочем, проще один раз увидеть код:
 ```python
@@ -158,11 +189,31 @@ async def cmd_special_buttons(message: types.Message):
         types.KeyboardButton(text="Запросить геолокацию", request_location=True),
         types.KeyboardButton(text="Запросить контакт", request_contact=True)
     )
-    # ... а второй из одной
+    # ... второй из одной ...
     builder.row(types.KeyboardButton(
         text="Создать викторину",
         request_poll=types.KeyboardButtonPollType(type="quiz"))
     )
+    # ... а третий снова из двух
+    builder.row(
+        types.KeyboardButton(
+            text="Выбрать премиум пользователя",
+            request_user=types.KeyboardButtonRequestUser(
+                request_id=1,
+                user_is_premium=True
+            )
+        ),
+        types.KeyboardButton(
+            text="Выбрать супергруппу с форумами",
+            request_chat=types.KeyboardButtonRequestChat(
+                request_id=2,
+                chat_is_channel=False,
+                chat_is_forum=True
+            )
+        )
+    )
+    # WebApp-ов пока нет, сорри :(
+
     await message.answer(
         "Выберите действие:",
         reply_markup=builder.as_markup(resize_keyboard=True),
@@ -170,6 +221,25 @@ async def cmd_special_buttons(message: types.Message):
 ```
 
 ![Специальные обычные кнопки](images/buttons/special_buttons.png)
+
+Напоследок, две заготовки хэндлеров на приём нажатий от нижних двух кнопок:
+
+```python
+@dp.message(F.user_shared)
+async def on_user_shared(message: types.Message):
+    print(
+        f"Request {message.user_shared.request_id}. "
+        f"User ID: {message.user_shared.user_id}"
+    )
+
+
+@dp.message(F.chat_shared)
+async def on_user_shared(message: types.Message):
+    print(
+        f"Request {message.chat_shared.request_id}. "
+        f"User ID: {message.chat_shared.chat_id}"
+    )
+```
 
 
 ## Инлайн-кнопки {: id="inline-buttons" }
@@ -257,7 +327,8 @@ async def send_random_value(callback: types.CallbackQuery):
 
 !!! warning "Важно"
     Несмотря на то, что параметр кнопки `callback_data`, а значение `data` лежит в одноимённом поле `data` 
-    объекта [CallbackQuery](https://core.telegram.org/bots/api#callbackquery), собственный фильтр aiogram называется `text`.
+    объекта [CallbackQuery](https://core.telegram.org/bots/api#callbackquery), 
+    мы используем aiogram-ный фильтр с именем `Text`.
  
 ![Реакция на нажатие колбэк-кнопки](images/buttons/l03_5.png)
 
@@ -516,4 +587,69 @@ async def callbacks_num_finish_fab(callback: types.CallbackQuery):
 на практике вы можете в [боте для игры в «Сапёра»](https://github.com/MasterGroosha/telegram-bombsweeper-bot), 
 написанным вашим любимым автором :)
 
-А с кнопками мы пока завершаем знакомство.
+### Автоответ на колбэки {: id="callback-autoreply" }
+
+Если у вас очень много колбэк-хэндлеров, на которые нужно либо просто отвечать, либо отвечать однотипно, можно 
+немного упростить себе жизнь, воспользовавшись специальной мидлварью. В целом про такое мы поговорим 
+[отдельно](filters-and-middlewares.md#middlewares), а сейчас просто познакомимся.
+
+Итак, самый простой вариант — это добавить вот такую строчку после создания диспетчера:
+
+```python
+# не забываем про новый импорт
+from aiogram.utils.callback_answer import CallbackAnswerMiddleware
+
+dp = Dispatcher()
+dp.callback_query.middleware(CallbackAnswerMiddleware())
+```
+
+В этом случае после выполнения хэндлера aiogram будет автоматически отвечать на колбэк. 
+Можно переопределить 
+[стандартные настройки](https://github.com/aiogram/aiogram/blob/5adaf7a567e976da64e418eee5df31682ad2496c/aiogram/utils/callback_answer.py#L133-L137) 
+и указать свои, например: 
+
+```python
+dp.callback_query.middleware(
+    CallbackAnswerMiddleware(
+        pre=True, text="Готово!", show_alert=True
+    )
+)
+```
+
+Увы, ситуации, когда на все колбэк-хэндлеры одинаковый ответ, довольно редки. К счастью, переопределить 
+поведение мидлвари в конкретном обработчике довольно просто: достаточно пробросить аргумент `callback_answer` 
+и выставить ему новые значения:
+
+```python
+# новый импорт!
+from aiogram.utils.callback_answer import CallbackAnswer
+
+@dp.callback_query()
+async def my_handler(callback: CallbackQuery, callback_answer: CallbackAnswer):
+    ... # тут какой-то код
+    if <everything is ok>:
+        callback_answer.text = "Отлично!"
+    else:
+        callback_answer.text = "Что-то пошло не так. Попробуйте позже"
+        callback_answer.cache_time = 10
+    ... # тут какой-то код
+```
+
+**Важно**: этот способ не будет работать, если у мидлвари выставлен флаг `pre=True`. В этом случае надо полностью 
+переопределять набор параметров мидлвари через флаги, с которыми мы подробнее познакомимся 
+[позже](filters-and-middlewares.md#flags):
+
+```python
+from aiogram import flags
+from aiogram.utils.callback_answer import CallbackAnswer
+
+@dp.callback_query()
+@flags.callback_answer(pre=False)  # переопределяем флаг pre
+async def my_handler(callback: CallbackQuery, callback_answer: CallbackAnswer):
+    ... # тут какой-то код
+    if <everything is ok>:
+        callback_answer.text = "Теперь этот текст будет видно!"
+    ... # тут какой-то код
+```
+
+На этом мы пока завершим знакомство с кнопками.
