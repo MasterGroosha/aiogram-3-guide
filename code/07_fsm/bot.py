@@ -25,8 +25,7 @@ async def main():
     # dp = Dispatcher(storage=MemoryStorage(), fsm_strategy=FSMStrategy.CHAT)
     bot = Bot(config.bot_token.get_secret_value())
 
-    dp.include_router(common.router)
-    dp.include_router(ordering_food.router)
+    dp.include_routers(common.router, ordering_food.router)
     # сюда импортируйте ваш собственный роутер для напитков
 
     await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
