@@ -5,7 +5,8 @@ from aiogram.types import Message
 
 
 class ChatTypeFilter(BaseFilter):
-    chat_type: Union[str, list]
+    def __init__(self, chat_type: Union[str, list]):
+        self.chat_type = chat_type
 
     async def __call__(self, message: Message) -> bool:
         if isinstance(self.chat_type, str):

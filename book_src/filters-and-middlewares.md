@@ -125,7 +125,8 @@ from aiogram.types import Message
 
 
 class ChatTypeFilter(BaseFilter):  # [1]
-    chat_type: Union[str, list]    # [2]
+    def __init__(self, chat_type: Union[str, list]): # [2]
+        self.chat_type = chat_type
 
     async def __call__(self, message: Message) -> bool:  # [3]
         if isinstance(self.chat_type, str):
@@ -137,7 +138,7 @@ class ChatTypeFilter(BaseFilter):  # [1]
 Обратим внимание на помеченные строки:
 
 1. Наши фильтры наследуются от базового класса `BaseFilter`
-2. Поля класса — будущие аргументы фильтра. В данном случае мы заявляем о наличии одного
+2. В конструкторе класса можно задать будущие аргументы фильтра. В данном случае мы заявляем о наличии одного
 аргумента `chat_type`, который может быть как строкой (`str`), так и списком (`list`).
 3. Всё действо происходит в методе `__call__()`, который срабатывает, когда сам класс 
 `ChatTypeFilter()` вызывают [как функцию](https://docs.python.org/3/reference/datamodel.html?highlight=__call__#object.__call__). 
