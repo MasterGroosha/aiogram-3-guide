@@ -151,6 +151,7 @@ class ChatTypeFilter(BaseFilter):  # [1]
 
 ```python title="handlers/group_games.py" hl_lines="3 5 11 19 20"
 from aiogram import Router
+from aiogram.enums.dice_emoji import DiceEmoji
 from aiogram.types import Message
 from aiogram.filters import Command
 
@@ -164,7 +165,7 @@ router = Router()
     commands=["dice"],
 )
 async def cmd_dice_in_group(message: Message):
-    await message.answer_dice(emoji="🎲")
+    await message.answer_dice(emoji=DiceEmoji.DICE)
 
 
 @router.message(
@@ -172,7 +173,7 @@ async def cmd_dice_in_group(message: Message):
     Command(commands=["basketball"]),
 )
 async def cmd_basketball_in_group(message: Message):
-    await message.answer_dice(emoji="🏀")
+    await message.answer_dice(emoji=DiceEmoji.BASKETBALL)
 ```
 
 Что ж, давайте разбираться.  

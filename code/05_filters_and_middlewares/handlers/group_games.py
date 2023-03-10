@@ -1,5 +1,4 @@
-from aiogram import F
-from aiogram import Router
+from aiogram import F, Router
 from aiogram.enums.dice_emoji import DiceEmoji
 from aiogram.filters import Command
 from aiogram.types import Message
