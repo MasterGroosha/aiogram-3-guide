@@ -241,7 +241,7 @@ from aiogram.filters.chat_member_updated import \
 
 ```python
 # Немного другие импорты
-from aiogram.dispatcher.filters.chat_member_updated import \
+from aiogram.filters.chat_member_updated import \
     ChatMemberUpdatedFilter, IS_NOT_MEMBER, IS_MEMBER
 
 @router.my_chat_member(
@@ -257,7 +257,7 @@ from aiogram.dispatcher.filters.chat_member_updated import \
 
 ```python
 # И ещё меньше импортов
-from aiogram.dispatcher.filters.chat_member_updated import \
+from aiogram.filters.chat_member_updated import \
     ChatMemberUpdatedFilter, JOIN_TRANSITION
 
 @router.my_chat_member(
@@ -277,7 +277,7 @@ from aiogram.dispatcher.filters.chat_member_updated import \
 
 ```python title="handlers/bot_in_group.py"
 from aiogram import F, Router, Bot
-from aiogram.dispatcher.filters.chat_member_updated import \
+from aiogram.filters.chat_member_updated import \
     ChatMemberUpdatedFilter, IS_NOT_MEMBER, MEMBER, ADMINISTRATOR
 from aiogram.types import ChatMemberUpdated
 
