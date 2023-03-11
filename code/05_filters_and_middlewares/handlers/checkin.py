@@ -18,7 +18,7 @@ async def cmd_checkin(message: Message):
     )
 
 
-@router.callback_query(F.text == "confirm")
+@router.callback_query(F.data == "confirm")
 async def checkin_confirm(callback: CallbackQuery):
     await callback.answer(
         "Спасибо, подтверждено!",
