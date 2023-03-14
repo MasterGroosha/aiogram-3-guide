@@ -54,7 +54,7 @@ description: Конечные автоматы (FSM)
 обычную клавиатуру с кнопками в один ряд, она пригодится нам в дальнейшем:
 
 ```python title="keyboards/simple_row.py"
-from aiogram.utils.keyboard import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 
 def make_row_keyboard(items: list[str]) -> ReplyKeyboardMarkup:
@@ -98,7 +98,7 @@ class OrderFood(StatesGroup):
 Напишем обработчик первого шага, реагирующий на команду `/food`:
 
 ```python hl_lines="4 10"
-from aiogram.filters.command import Command
+from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 
 @router.message(Command("food"))
@@ -210,7 +210,7 @@ class FSMContext:
 
 ```python title="handlers/ordering_food.py"
 from aiogram import Router, F
-from aiogram.filters.command import Command
+from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, ReplyKeyboardRemove
@@ -292,9 +292,8 @@ async def food_size_chosen_incorrectly(message: Message):
 
 ```python title="handlers/common.py"
 from aiogram import Router
-from aiogram.dispatcher.filters.command import Command
-from aiogram.dispatcher.filters.text import Text
-from aiogram.dispatcher.fsm.context import FSMContext
+from aiogram.filters import Command, Text
+from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, ReplyKeyboardRemove
 
 router = Router()

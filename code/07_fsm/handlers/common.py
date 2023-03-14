@@ -1,6 +1,5 @@
 from aiogram import Router
-from aiogram.filters.command import Command
-from aiogram.filters.text import Text
+from aiogram.filters import Command, Text
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, ReplyKeyboardRemove
 

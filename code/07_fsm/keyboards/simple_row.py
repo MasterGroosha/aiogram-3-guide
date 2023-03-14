@@ -1,4 +1,4 @@
-from aiogram.utils.keyboard import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 
 def make_row_keyboard(items: list[str]) -> ReplyKeyboardMarkup:
