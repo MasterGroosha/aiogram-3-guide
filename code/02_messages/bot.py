@@ -40,6 +40,12 @@ async def cmd_hidden_link(message: types.Message):
     )
 
 
+@dp.message(Command('image'))
+async def upload_photo(message: types.Message):
+    image = FSInputFile("image.png")
+    await message.answer_photo(image, caption='Изображение')
+
+
 @dp.message(F.text)
 async def extract_data(message: types.Message):
     data = {
@@ -93,12 +99,6 @@ async def download_sticker(message: types.Message, bot: Bot):
         message.sticker,
         destination=f"/tmp/{message.sticker.file_id}.webp"
     )
-
-
-@dp.message(Command('image'))
-async def upload_photo(message: types.Message):
-    image = FSInputFile("image.png")
-    await message.answer_photo(image, caption='Изображение')
 
 
 @dp.message(F.new_chat_members)
