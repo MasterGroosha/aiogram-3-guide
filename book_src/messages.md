@@ -275,7 +275,7 @@ async def download_sticker(message: types.Message, bot: Bot):
 ```python
 from aiogram.types import FSInputFile
 
-@dp.message(F.text == '/image')
+@dp.message(Command('image'))
 async def upload_photo(message: types.Message):
     image = FSInputFile("image.png")
     await message.answer_photo(image, caption='Изображение')
