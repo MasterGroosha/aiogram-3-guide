@@ -5,6 +5,7 @@ from datetime import datetime
 from aiogram import Bot, Dispatcher, types, html, F
 from aiogram.filters import Command, CommandObject
 from aiogram.utils.markdown import hide_link
+from aiogram.types import FSInputFile
 
 from config_reader import config
 
@@ -92,6 +93,12 @@ async def download_sticker(message: types.Message, bot: Bot):
         message.sticker,
         destination=f"/tmp/{message.sticker.file_id}.webp"
     )
+
+
+@dp.message(Command('image'))
+async def upload_photo(message: types.Message):
+    image = FSInputFile("image.png")
+    await message.answer_photo(image, caption='Изображение')
 
 
 @dp.message(F.new_chat_members)

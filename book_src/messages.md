@@ -261,6 +261,29 @@ async def download_sticker(message: types.Message, bot: Bot):
     большими файлами.
 
 
+!!! warning "Загрузка локальных файлов (**нерекомендуемый способ**)"
+    **Загрузку файлов на сервера Telegram правильнее производить один раз, а в дальнейшем использовать `file_id`, 
+    который будет доступен после первой загрузки медиа. 
+    Выбор способа хранения file_id оставим за разработчиком**
+
+С переходом на aiogram 3 были добавленны классы для загрузки изображений - `FSInputFile`, `BufferedInputFile`, 
+`URLInputFile`, с ними можно ознакомится 
+в [документации aiogram](https://docs.aiogram.dev/en/dev-3.x/api/upload_file.html).
+
+Рассмотрим самый простой пример с файлом находящимся на нашем жестком диске в директории с приложением.
+Бот ответит на команду `/image` изображением
+```python
+from aiogram.types import FSInputFile
+
+@dp.message(F.text == '/image')
+async def upload_photo(message: types.Message):
+    image = FSInputFile("image.png")
+    await message.answer_photo(image, caption='Изображение')
+```
+
+![Загрузка файла](images/messages/upload.png)
+
+
 ## Сервисные (служебные) сообщения {: id="service" }
 
 Сообщения в Telegram делятся на текстовые, медиафайлы и служебные (они же — сервисные). 
