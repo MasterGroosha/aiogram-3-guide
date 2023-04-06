@@ -345,7 +345,7 @@ async def send_random_value(callback: types.CallbackQuery):
         text="Спасибо, что воспользовались ботом!",
         show_alert=True
     )
-    # или просто await call.answer()
+    # или просто await callback.answer()
 ```
 
 ![Всплывающее окно при нажатии на колбэк-кнопку](images/buttons/l03_6.png)
