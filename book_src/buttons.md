@@ -225,6 +225,9 @@ async def cmd_special_buttons(message: types.Message):
 Напоследок, две заготовки хэндлеров на приём нажатий от нижних двух кнопок:
 
 ```python
+# новый импорт
+from aiogram import F
+
 @dp.message(F.user_shared)
 async def on_user_shared(message: types.Message):
     print(
