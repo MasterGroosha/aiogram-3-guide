@@ -310,7 +310,7 @@ async def cmd_start(message: Message, state: FSMContext):
 
 
 @router.message(Command(commands=["cancel"]))
-@router.message(Text(text="отмена", text_ignore_case=True))
+@router.message(Text(text="отмена", ignore_case=True))
 async def cmd_cancel(message: Message, state: FSMContext):
     await state.clear()
     await message.answer(
