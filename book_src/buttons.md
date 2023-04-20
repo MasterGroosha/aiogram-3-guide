@@ -260,6 +260,9 @@ async def on_user_shared(message: types.Message):
 Самые простые инлайн-кнопки относятся к типу URL, т.е. «ссылка». Поддерживаются только протоколы HTTP(S) и tg://
 
 ```python
+# новый импорт
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+
 @dp.message(Command("inline_url"))
 async def cmd_inline_url(message: types.Message, bot: Bot):
     builder = InlineKeyboardBuilder()
