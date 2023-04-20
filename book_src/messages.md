@@ -196,6 +196,8 @@ async def extract_data(message: types.Message):
 
 ## Медиафайлы {: id="media" }
 
+### Отправка файлов {: id="uploading-media" }
+
 Помимо обычных текстовых сообщений Telegram позволяет обмениваться медиафайлами различных типов: фото, видео, гифки, 
 геолокации, стикеры и т.д. У большинства медиафайлов есть свойства `file_id` и `file_unique_id`. Первый можно использовать 
 для повторной отправки одного и того же файла много раз, причём отправка будет мгновенной, т.к. сам файл уже лежит 
@@ -219,6 +221,59 @@ async def echo_gif(message: types.Message):
 или скачивания медиафайла, но зато он одинаковый у всех ботов для конкретного медиа. 
 Нужен `file_unique_id` обычно тогда, когда нескольким ботам требуется знать, что их собственные `file_id` односятся 
 к одному и тому же файлу.
+
+Если файл ещё не существует на сервере Telegram, бот может загрузить его тремя различными 
+способами: как файл в файловой системе, по ссылке и напрямую набор байтов. 
+Для ускорения отправки и в целом для более бережного отношения к серверам мессенджера,
+загрузку (upload) файлов Telegram правильнее производить один раз, а в дальнейшем использовать `file_id`, 
+который будет доступен после первой загрузки медиа. 
+
+В aiogram 3.x присутствуют 3 класса для отправки изображений - `FSInputFile`, `BufferedInputFile`, 
+`URLInputFile`, с ними можно ознакомится 
+в [документации](https://docs.aiogram.dev/en/dev-3.x/api/upload_file.html).
+
+Рассмотрим простой пример отправки изображений всеми различными способами:
+```python
+from aiogram.types import FSInputFile, URLInputFile, BufferedInputFile
+
+@dp.message(Command('images'))
+async def upload_photo(message: types.Message):
+    # Сюда будем помещать file_id отправленных файлов, чтобы потом ими воспользоваться
+    file_ids = []
+
+    # Чтобы продемонстрировать BufferedInputFile, воспользуемся "классическим"
+    # открытием файла через `open()`. Но, вообще говоря, этот способ
+    # лучше всего подходит для отправки байтов из оперативной памяти
+    # после проведения каких-либо манипуляций, например, редактированием через Pillow
+    with open("buffer_emulation.jpg", "rb") as image_from_buffer:
+        result = await message.answer_photo(
+            BufferedInputFile(
+                image_from_buffer.read(),
+                filename="image from buffer.jpg"
+            ),
+            caption="Изображение из буфера"
+        )
+        file_ids.append(result.photo[-1].file_id)
+
+    # Отправка файла из файловой системы
+    image_from_pc = FSInputFile("image_from_pc.jpg")
+    result = await message.answer_photo(
+        image_from_pc,
+        caption="Изображение из файла на компьютере"
+    )
+    file_ids.append(result.photo[-1].file_id)
+
+    # Отправка файла по ссылке
+    image_from_url = URLInputFile("https://picsum.photos/seed/groosha/400/300")
+    result = await message.answer_photo(
+        image_from_url,
+        caption="Изображение по ссылке"
+    )
+    file_ids.append(result.photo[-1].file_id)
+    await message.answer("Отправленные файлы:\n"+"\n".join(file_ids))
+```
+
+### Скачивание файлов {: id="downloading-media" }
 
 Помимо переиспользования для отправки, бот может скачать медиа к себе на компьютер/сервер. Для этого у объекта типа `Bot` 
 есть метод `download()`. В примерах ниже файлы скачиваются сразу в файловую систему, но никто не мешает 
@@ -259,29 +314,6 @@ async def download_sticker(message: types.Message, bot: Bot):
     А начиная с Bot API версии 5.0, можно использовать 
     [собственный сервер Bot API](https://core.telegram.org/bots/api#using-a-local-bot-api-server) для работы с 
     большими файлами.
-
-
-!!! warning "Загрузка локальных файлов (**нерекомендуемый способ**)"
-    **Загрузку файлов на сервера Telegram правильнее производить один раз, а в дальнейшем использовать `file_id`, 
-    который будет доступен после первой загрузки медиа. 
-    Выбор способа хранения file_id оставим за разработчиком**
-
-С переходом на aiogram 3 были добавленны классы для загрузки изображений - `FSInputFile`, `BufferedInputFile`, 
-`URLInputFile`, с ними можно ознакомится 
-в [документации aiogram](https://docs.aiogram.dev/en/dev-3.x/api/upload_file.html).
-
-Рассмотрим самый простой пример с файлом находящимся на нашем жестком диске в директории с приложением.
-Бот ответит на команду `/image` изображением
-```python
-from aiogram.types import FSInputFile
-
-@dp.message(Command('image'))
-async def upload_photo(message: types.Message):
-    image = FSInputFile("image.png")
-    await message.answer_photo(image, caption='Изображение')
-```
-
-![Загрузка файла](images/messages/upload.png)
 
 
 ## Сервисные (служебные) сообщения {: id="service" }
