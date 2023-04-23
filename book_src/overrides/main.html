@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block site_meta %}
+  <script type="text/javascript">
+      //<![CDATA[
+      const queryString = window.location.search;
+      const urlParams = new URLSearchParams(queryString);
+      const prefix = '/aiogram-3-guide'
+      let test = 'buttons';
+      if (urlParams.has('tgWebAppStartParam')) {
+          switch (urlParams.get('tgWebAppStartParam')) {
+            case 'buttons':
+              window.location.replace(`${prefix}/buttons`);
+              break;
+          }
+      }
+      //]]>
+  </script>
+
+  {{ super() }}
+{% endblock %}
