@@ -498,19 +498,19 @@ class NumbersCallbackFactory(CallbackData, prefix="fabnum"):
 def get_keyboard_fab():
     builder = InlineKeyboardBuilder()
     builder.button(
-        text="-2", callback_data=NumbersCallbackFactory(action="change", value=-2)
+        text="-2", callback_data=NumbersCallbackFactory(action="change", value=-2).pack()
     )
     builder.button(
-        text="-1", callback_data=NumbersCallbackFactory(action="change", value=-1)
+        text="-1", callback_data=NumbersCallbackFactory(action="change", value=-1).pack()
     )
     builder.button(
-        text="+1", callback_data=NumbersCallbackFactory(action="change", value=1)
+        text="+1", callback_data=NumbersCallbackFactory(action="change", value=1).pack()
     )
     builder.button(
-        text="+2", callback_data=NumbersCallbackFactory(action="change", value=2)
+        text="+2", callback_data=NumbersCallbackFactory(action="change", value=2).pack()
     )
     builder.button(
-        text="Подтвердить", callback_data=NumbersCallbackFactory(action="finish")
+        text="Подтвердить", callback_data=NumbersCallbackFactory(action="finish").pack()
     )
     # Выравниваем кнопки по 4 в ряд, чтобы получилось 4 + 1
     builder.adjust(4)
