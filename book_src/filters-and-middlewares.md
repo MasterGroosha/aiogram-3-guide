@@ -277,7 +277,7 @@ class HasUsernamesFilter(BaseFilter):
         entities = message.entities or []
 
         # Проверяем любые юзернеймы и извлекаем их из текста
-        # методом extract(). Подробнее см. главу
+        # методом extract_from(). Подробнее см. главу
         # про работу с сообщениями
         found_usernames = [
             item.extract_from(message.text) for item in entities
