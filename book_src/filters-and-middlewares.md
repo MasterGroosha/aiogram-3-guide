@@ -162,7 +162,7 @@ router = Router()
 
 @router.message(
     ChatTypeFilter(chat_type=["group", "supergroup"]),
-    commands=["dice"],
+    Command(commands=["dice"]),
 )
 async def cmd_dice_in_group(message: Message):
     await message.answer_dice(emoji=DiceEmoji.DICE)
