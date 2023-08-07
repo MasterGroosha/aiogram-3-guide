@@ -162,7 +162,7 @@ router = Router()
 
 @router.message(
     ChatTypeFilter(chat_type=["group", "supergroup"]),
-    commands=["dice"],
+    Command(commands=["dice"]),
 )
 async def cmd_dice_in_group(message: Message):
     await message.answer_dice(emoji=DiceEmoji.DICE)
@@ -444,7 +444,7 @@ async def forwarded_from_channel(message: Message, channel: Chat):
 ![«луковица» из мидлварей](https://docs.aiogram.dev/en/dev-3.x/_images/basics_middleware.png)
 
 Оказывается, мидлварей два вида: внешние (outer) и внутренние (inner или просто «мидлвари»). В чём разница? 
-Outer выполняются до начала проверки фильтрами, в inner — после. На практике это значит, что апдейт/сообщение/колбэк, 
+Outer выполняются до начала проверки фильтрами, а inner — после. На практике это значит, что апдейт/сообщение/колбэк, 
 проходящий через outer-мидлварь, может так ни в один хэндлер и не попасть, а если он попал в inner, то дальше 
 100% будет какой-то хэндлер.
 
