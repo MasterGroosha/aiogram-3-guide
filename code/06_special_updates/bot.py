@@ -23,7 +23,7 @@ async def main():
     admins = await bot.get_chat_administrators(config.main_chat_id)
     admin_ids = {admin.user.id for admin in admins}
 
-    await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types(), admins=admin_ids)
+    await dp.start_polling(bot, admins=admin_ids)
 
 
 if __name__ == '__main__':
