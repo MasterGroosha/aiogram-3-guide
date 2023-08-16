@@ -276,7 +276,7 @@ from aiogram.filters.chat_member_updated import \
 При добавлении будем отправлять в чат сводную информацию о том, куда добавили бота:
 
 ```python title="handlers/bot_in_group.py"
-from aiogram import F, Router, Bot
+from aiogram import F, Router
 from aiogram.filters.chat_member_updated import \
     ChatMemberUpdatedFilter, IS_NOT_MEMBER, MEMBER, ADMINISTRATOR
 from aiogram.types import ChatMemberUpdated
@@ -299,11 +299,10 @@ chats_variants = {
         member_status_changed=IS_NOT_MEMBER >> ADMINISTRATOR
     )
 )
-async def bot_added_as_admin(event: ChatMemberUpdated, bot: Bot):
+async def bot_added_as_admin(event: ChatMemberUpdated):
     # Самый простой случай: бот добавлен как админ.
     # Легко можем отправить сообщение
-    await bot.send_message(
-        chat_id=event.chat.id,
+    await event.answer(
         text=f"Привет! Спасибо, что добавили меня в "
              f'{chats_variants[event.chat.type]} "{event.chat.title}" '
              f"как администратора. ID чата: {event.chat.id}"
@@ -315,13 +314,12 @@ async def bot_added_as_admin(event: ChatMemberUpdated, bot: Bot):
         member_status_changed=IS_NOT_MEMBER >> MEMBER
     )
 )
-async def bot_added_as_member(event: ChatMemberUpdated, bot: Bot):
+async def bot_added_as_member(event: ChatMemberUpdated):
     # Вариант посложнее: бота добавили как обычного участника.
     # Но может отсутствовать право написания сообщений, поэтому заранее проверим.
     chat_info = await bot.get_chat(event.chat.id)
     if chat_info.permissions.can_send_messages:
-        await bot.send_message(
-            chat_id=event.chat.id,
+        await event.answer(
             text=f"Привет! Спасибо, что добавили меня в "
                  f'{chats_variants[event.chat.type]} "{event.chat.title}" '
                  f"как обычного участника. ID чата: {event.chat.id}"
@@ -412,7 +410,7 @@ async def main():
 (точнее, в терминах python это будет множество, оно же Set):
 
 ```python title="handlers/admin_changes_in_group.py"
-from aiogram import F, Router, Bot
+from aiogram import F, Router
 from aiogram.filters.chat_member_updated import \
     ChatMemberUpdatedFilter, KICKED, LEFT, \
     RESTRICTED, MEMBER, ADMINISTRATOR, CREATOR
@@ -432,10 +430,9 @@ router.chat_member.filter(F.chat.id == config.main_chat_id)
         (ADMINISTRATOR | CREATOR)
     )
 )
-async def admin_promoted(event: ChatMemberUpdated, admins: set[int], bot: Bot):
+async def admin_promoted(event: ChatMemberUpdated, admins: set[int]):
     admins.add(event.new_chat_member.user.id)
-    await bot.send_message(
-        event.chat.id,
+    await event.answer(
         f"{event.new_chat_member.user.first_name} "
         f"был(а) повышен(а) до Администратора!"
     )
@@ -451,10 +448,9 @@ async def admin_promoted(event: ChatMemberUpdated, admins: set[int], bot: Bot):
         (ADMINISTRATOR | CREATOR)
     )
 )
-async def admin_demoted(event: ChatMemberUpdated, admins: set[int], bot: Bot):
+async def admin_demoted(event: ChatMemberUpdated, admins: set[int]):
     admins.discard(event.new_chat_member.user.id)
-    await bot.send_message(
-        event.chat.id,
+    await event.answer(
         f"{event.new_chat_member.user.first_name} "
         f"был(а) понижен(а) до обычного юзера!"
     )
