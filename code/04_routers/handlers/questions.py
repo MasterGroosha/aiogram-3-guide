@@ -1,6 +1,5 @@
-from aiogram import Router
+from aiogram import Router, F
 from aiogram.filters import Command
-from aiogram.filters.text import Text
 from aiogram.types import Message, ReplyKeyboardRemove
 
 from keyboards.for_questions import get_yes_no_kb
@@ -16,7 +15,7 @@ async def cmd_start(message: Message):
     )
 
 
-@router.message(Text(text="да", ignore_case=True))
+@router.message(F.text.lower() == "да")
 async def answer_yes(message: Message):
     await message.answer(
         "Это здорово!",
@@ -24,7 +23,7 @@ async def answer_yes(message: Message):
     )
 
 
-@router.message(Text(text="нет", ignore_case=True))
+@router.message(F.text.lower() == "нет")
 async def answer_no(message: Message):
     await message.answer(
         "Жаль...",

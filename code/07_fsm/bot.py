@@ -28,7 +28,7 @@ async def main():
     dp.include_routers(common.router, ordering_food.router)
     # сюда импортируйте ваш собственный роутер для напитков
 
-    await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
+    await dp.start_polling(bot)
 
 
 if __name__ == '__main__':
