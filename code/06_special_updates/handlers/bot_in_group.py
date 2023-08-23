@@ -21,11 +21,10 @@ chats_variants = {
         member_status_changed=IS_NOT_MEMBER >> ADMINISTRATOR
     )
 )
-async def bot_added_as_admin(event: ChatMemberUpdated, bot: Bot):
+async def bot_added_as_admin(event: ChatMemberUpdated):
     # Самый простой случай: бот добавлен как админ.
     # Легко можем отправить сообщение
-    await bot.send_message(
-        chat_id=event.chat.id,
+    await event.answer(
         text=f"Привет! Спасибо, что добавили меня в "
              f'{chats_variants[event.chat.type]} "{event.chat.title}"'
              f"как администратора. ID чата: {event.chat.id}"
@@ -42,8 +41,7 @@ async def bot_added_as_member(event: ChatMemberUpdated, bot: Bot):
     # Но может отсутствовать право написания сообщений, поэтому заранее проверим.
     chat_info = await bot.get_chat(event.chat.id)
     if chat_info.permissions.can_send_messages:
-        await bot.send_message(
-            chat_id=event.chat.id,
+        await event.answer(
             text=f"Привет! Спасибо, что добавили меня в "
                  f'{chats_variants[event.chat.type]} "{event.chat.title}"'
                  f"как обычного участника. ID чата: {event.chat.id}"

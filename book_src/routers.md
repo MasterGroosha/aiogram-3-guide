@@ -6,7 +6,7 @@ description: Роутеры, многофайловость и структур�
 # Роутеры, многофайловость и структура бота
 
 !!! info ""
-    Используемая версия aiogram: 3.0 beta 7
+    Используемая версия aiogram: 3.0 RC 1
 
 В этой главе мы познакомимся с новой фичей aiogram 3.x — роутерами, научимся разбивать наш код на отдельные 
 компоненты, а также сформируем базовую структуру бота, которая пригодится в следующих главах и вообще по жизни.
@@ -86,10 +86,9 @@ def get_yes_no_kb() -> ReplyKeyboardMarkup:
 Ничего сложного, тем более, что мы клавиатуры подробно разбирали [ранее](buttons.md). 
 Теперь рядом с файлом `bot.py` создадим другой каталог `handlers`, а внутри него файл `questions.py`.
 
-```python title="handlers/questions.py" hl_lines="8 10"
-from aiogram import Router
+```python title="handlers/questions.py" hl_lines="7 9"
+from aiogram import Router, F
 from aiogram.filters import Command
-from aiogram.filters.text import Text
 from aiogram.types import Message, ReplyKeyboardRemove
 
 from keyboards.for_questions import get_yes_no_kb
@@ -103,14 +102,14 @@ async def cmd_start(message: Message):
         reply_markup=get_yes_no_kb()
     )
 
-@router.message(Text(text="да", ignore_case=True))
+@router.message(F.text.lower() == "да")
 async def answer_yes(message: Message):
     await message.answer(
         "Это здорово!",
         reply_markup=ReplyKeyboardRemove()
     )
 
-@router.message(Text(text="нет", ignore_case=True))
+@router.message(F.text.lower() == "нет")
 async def answer_no(message: Message):
     await message.answer(
         "Жаль...",

@@ -6,7 +6,7 @@ from typing import Optional
 
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.exceptions import TelegramBadRequest
-from aiogram.filters import Text, Command
+from aiogram.filters import Command
 from aiogram.filters.callback_data import CallbackData
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 
@@ -35,12 +35,12 @@ async def cmd_start(message: types.Message):
     await message.answer("Как подавать котлеты?", reply_markup=keyboard)
 
 
-@dp.message(Text("С пюрешкой"))
+@dp.message(F.text.lower() == "с пюрешкой")
 async def with_puree(message: types.Message):
     await message.reply("Отличный выбор!", reply_markup=types.ReplyKeyboardRemove())
 
 
-@dp.message(lambda message: message.text == "Без пюрешки")
+@dp.message(F.text.lower() == "без пюрешки")
 async def without_puree(message: types.Message):
     await message.reply("Так невкусно!")
 
@@ -153,7 +153,7 @@ async def cmd_random(message: types.Message):
     )
 
 
-@dp.callback_query(Text("random_value"))
+@dp.callback_query(F.data == "random_value")
 async def send_random_value(callback: types.CallbackQuery):
     await callback.message.answer(str(randint(1, 10)))
     await callback.answer(
@@ -192,7 +192,7 @@ async def cmd_numbers(message: types.Message):
     await message.answer("Укажите число: 0", reply_markup=get_keyboard())
 
 
-@dp.callback_query(Text(startswith="num_"))
+@dp.callback_query(F.data.startswith("num_"))
 async def callbacks_num(callback: types.CallbackQuery):
     user_value = user_data.get(callback.from_user.id, 0)
     action = callback.data.split("_")[1]
@@ -214,7 +214,7 @@ async def callbacks_num(callback: types.CallbackQuery):
 
 class NumbersCallbackFactory(CallbackData, prefix="fabnum"):
     action: str
-    value: Optional[int]
+    value: Optional[int] = None
 
 
 def get_keyboard_fab():

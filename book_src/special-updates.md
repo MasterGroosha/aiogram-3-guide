@@ -6,7 +6,7 @@ description: Апдейты my_chat_member и chat_member
 # Особые апдейты {: id="special-updates" }
 
 !!! info ""
-    Используемая версия aiogram: 3.0 beta 7
+    Используемая версия aiogram: 3.0 RC 1
 
 ## Введение {: id="intro" }
 
@@ -276,7 +276,7 @@ from aiogram.filters.chat_member_updated import \
 При добавлении будем отправлять в чат сводную информацию о том, куда добавили бота:
 
 ```python title="handlers/bot_in_group.py"
-from aiogram import F, Router, Bot
+from aiogram import F, Router
 from aiogram.filters.chat_member_updated import \
     ChatMemberUpdatedFilter, IS_NOT_MEMBER, MEMBER, ADMINISTRATOR
 from aiogram.types import ChatMemberUpdated
@@ -299,11 +299,10 @@ chats_variants = {
         member_status_changed=IS_NOT_MEMBER >> ADMINISTRATOR
     )
 )
-async def bot_added_as_admin(event: ChatMemberUpdated, bot: Bot):
+async def bot_added_as_admin(event: ChatMemberUpdated):
     # Самый простой случай: бот добавлен как админ.
     # Легко можем отправить сообщение
-    await bot.send_message(
-        chat_id=event.chat.id,
+    await event.answer(
         text=f"Привет! Спасибо, что добавили меня в "
              f'{chats_variants[event.chat.type]} "{event.chat.title}" '
              f"как администратора. ID чата: {event.chat.id}"
@@ -315,13 +314,12 @@ async def bot_added_as_admin(event: ChatMemberUpdated, bot: Bot):
         member_status_changed=IS_NOT_MEMBER >> MEMBER
     )
 )
-async def bot_added_as_member(event: ChatMemberUpdated, bot: Bot):
+async def bot_added_as_member(event: ChatMemberUpdated):
     # Вариант посложнее: бота добавили как обычного участника.
     # Но может отсутствовать право написания сообщений, поэтому заранее проверим.
     chat_info = await bot.get_chat(event.chat.id)
     if chat_info.permissions.can_send_messages:
-        await bot.send_message(
-            chat_id=event.chat.id,
+        await event.answer(
             text=f"Привет! Спасибо, что добавили меня в "
                  f'{chats_variants[event.chat.type]} "{event.chat.title}" '
                  f"как обычного участника. ID чата: {event.chat.id}"
@@ -363,39 +361,41 @@ async def bot_added_as_member(event: ChatMemberUpdated, bot: Bot):
 
 ## Апдейт chat_member {: id="chat-member" }
 
-Первая и самая частая проблема у новичков при работе с апдейтом `chat_member`: «как, блин, его получать в боте?». 
-Дело в том, что этот тип по умолчанию не отправляется Телеграмом, и чтобы Bot API его присылал, необходимо 
-явным образом об этом сообщить в аргументе `allowed_updates` при получении апдейтов поллингом (метод **getUpdates**) 
-или установке вебхука (метод **setWebhook**). Другими словами, Telegram хочет увидеть следующий кусок кода:
+Следующий особый тип апдейтов `chat_member` — хитрый. Дело в том, что он по умолчанию не отправляется Телеграмом, 
+и чтобы Bot API его присылал, необходимо при вызове **getUpdates** или **setWebhook** 
+передать список нужных типов событий. Например:
 
 ```python
-# импорты
+# тут импорты
 
 async def main():
     # тут код
     dp = Dispatcher()
     bot = Bot("токен")
-    await dp.start_polling(bot, allowed_updates=["message", "inline_query", "chat_member"])
+    await dp.start_polling(
+        bot, 
+        allowed_updates=["message", "inline_query", "chat_member"]
+    )
 ```
 
-После запуска бота телега начнёт присылать только три указанных типа апдейтов. 
-Пройдет некоторое время, вы в своём боте добавите обработку колбэков и будете долго гадать, 
-почему хэндлер на нажатие кнопок не срабатывает. Чтобы оградить себя от головной боли, в качестве allowed_updates 
-можно передать вызов метода `resolve_used_update_types()` от диспетчера, который пройдёт по всем роутерам, узнает, 
-хэндлеры на какие типы есть в коде, и попросит Telegram присылать только их.   
-Получается что-то вроде:
+Тогда после запуска бота телега начнёт присылать три указанных типа событий, но без всех остальных.
 
-```python
-# импорты
+Разработчики aiogram подошли к теме изящно: если явным образом не указывать `allowed_updates`, то 
+фреймворк рекурсивно пройдёт по всем роутерам, начиная с диспетчера, просмотрит хэндлеры и самостоятельно 
+соберёт список желаемых для получения апдейтов. Хотите переопределить это поведение? Передавайте `allowed_updates` явно.
 
-async def main():
-    # тут код
-    dp = Dispatcher()
-    bot = Bot("токен")
-    await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
-```
+!!! tip "Почему мне не приходит апдейт <XXX\> ???"
+    В профильных чатах регулярно спрашивают: «Мой код не работает, не реагирует на событие, почему?»
 
-Ура, теперь бот получает все нужные типы обновлений. Осталось понять, что можно с ними сделать.
+    Первое, что стоит сделать — убедиться, что нужный апдейт вообще приходит боту. Иными словами, проверить, 
+    с каким `allowed_updates` был вызван поллинг/вебхуки в последний раз. Проще всего это сделать прямо в браузере:
+
+    1. Взять токен бота, назовём его AAAAA
+    2. Сформировать ссылку вида `https://api.telegram.org/botAAAAA/getWebhookInfo`
+    3. Перейти по ней
+
+    Далее внимательно изучить JSON в ответе. Если ключ `allowed_updates` присутствует, то убедиться, что желаемый 
+    тип апдейтов есть в списке. Если ключа нет, это равнозначно «приходит всё, кроме `chat_member`»
 
 ### Актуализация списка админов в группах {: id="actualizing-admins" }
 
@@ -412,7 +412,7 @@ async def main():
 (точнее, в терминах python это будет множество, оно же Set):
 
 ```python title="handlers/admin_changes_in_group.py"
-from aiogram import F, Router, Bot
+from aiogram import F, Router
 from aiogram.filters.chat_member_updated import \
     ChatMemberUpdatedFilter, KICKED, LEFT, \
     RESTRICTED, MEMBER, ADMINISTRATOR, CREATOR
@@ -432,10 +432,9 @@ router.chat_member.filter(F.chat.id == config.main_chat_id)
         (ADMINISTRATOR | CREATOR)
     )
 )
-async def admin_promoted(event: ChatMemberUpdated, admins: set[int], bot: Bot):
+async def admin_promoted(event: ChatMemberUpdated, admins: set[int]):
     admins.add(event.new_chat_member.user.id)
-    await bot.send_message(
-        event.chat.id,
+    await event.answer(
         f"{event.new_chat_member.user.first_name} "
         f"был(а) повышен(а) до Администратора!"
     )
@@ -451,10 +450,9 @@ async def admin_promoted(event: ChatMemberUpdated, admins: set[int], bot: Bot):
         (ADMINISTRATOR | CREATOR)
     )
 )
-async def admin_demoted(event: ChatMemberUpdated, admins: set[int], bot: Bot):
+async def admin_demoted(event: ChatMemberUpdated, admins: set[int]):
     admins.discard(event.new_chat_member.user.id)
-    await bot.send_message(
-        event.chat.id,
+    await event.answer(
         f"{event.new_chat_member.user.first_name} "
         f"был(а) понижен(а) до обычного юзера!"
     )
@@ -520,7 +518,7 @@ async def main():
     admins = await bot.get_chat_administrators(config.main_chat_id)
     admin_ids = {admin.user.id for admin in admins}
 
-    await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types(), admins=admin_ids)
+    await dp.start_polling(bot, admins=admin_ids)
 
 
 if __name__ == '__main__':

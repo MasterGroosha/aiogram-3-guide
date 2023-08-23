@@ -6,7 +6,7 @@ description: Кнопки
 # Кнопки
 
 !!! info ""
-    Используемая версия aiogram: 3.0 beta 7
+    Используемая версия aiogram: 3.0 RC 1
 
 В этой главе мы познакомимся с такой замечательной фичей Telegram-ботов как кнопки. Прежде всего, чтобы избежать 
 путаницы, определимся с названиями. То, что цепляется к низу экрана вашего устройства, будем называть **обычными** 
@@ -76,18 +76,18 @@ async def cmd_start(message: types.Message):
 ![Кнопки в один ряд](images/buttons/l03_3.png)
 
 Осталось научить бота реагировать на нажатие таких кнопок. Как уже было сказано выше, необходимо делать проверку 
-на полное совпадение текста. Сделаем это двумя способами: через специальный фильтр `Text` и обычной лямбдой 
-(лямбду постараемся далее не использовать, в последующих главах её можно будет заменить на _немного магии_):
+на полное совпадение текста. Сделаем это при помощи _магического фильтра_ F, подробнее о котором 
+поговорим в [другой главе](filters-and-middlewares.md#magic-filters):
 
 ```python
 # новый импорт!
-from aiogram.filters import Text
+from aiogram import F
 
-@dp.message(Text("С пюрешкой"))
+@dp.message(F.text.lower() == "с пюрешкой")
 async def with_puree(message: types.Message):
     await message.reply("Отличный выбор!")
 
-@dp.message(lambda message: message.text == "Без пюрешки")
+@dp.message(F.text.lower() == "без пюрешки")
 async def without_puree(message: types.Message):
     await message.reply("Так невкусно!")
 ```
@@ -326,16 +326,11 @@ async def cmd_random(message: types.Message):
 её data:
 
 ```python
-@dp.callback_query(Text("random_value"))
+@dp.callback_query(F.data == "random_value")
 async def send_random_value(callback: types.CallbackQuery):
     await callback.message.answer(str(randint(1, 10)))
 ```
 
-!!! warning "Важно"
-    Несмотря на то, что параметр кнопки `callback_data`, а значение `data` лежит в одноимённом поле `data` 
-    объекта [CallbackQuery](https://core.telegram.org/bots/api#callbackquery), 
-    мы используем aiogram-ный фильтр с именем `Text`.
- 
 ![Реакция на нажатие колбэк-кнопки](images/buttons/l03_5.png)
 
 Ой, а что это за часики? Оказывается, сервер Telegram ждёт от нас подтверждения о доставке колбэка, иначе в течение 30 
@@ -344,7 +339,7 @@ async def send_random_value(callback: types.CallbackQuery):
 специальное окошко (всплывающее сверху или поверх экрана):
 
 ```python
-@dp.callback_query(Text("random_value"))
+@dp.callback_query(F.data == "random_value")
 async def send_random_value(callback: types.CallbackQuery):
     await callback.message.answer(str(randint(1, 10)))
     await callback.answer(
@@ -407,7 +402,7 @@ async def cmd_numbers(message: types.Message):
     await message.answer("Укажите число: 0", reply_markup=get_keyboard())
 
     
-@dp.callback_query(Text(startswith="num_"))
+@dp.callback_query(F.data.startswith("num_"))
 async def callbacks_num(callback: types.CallbackQuery):
     user_value = user_data.get(callback.from_user.id, 0)
     action = callback.data.split("_")[1]
@@ -435,7 +430,7 @@ async def callbacks_num(callback: types.CallbackQuery):
 `Bad Request: message is not modified: specified new message content and reply markup are exactly the same 
 as a current content and reply markup of the message`
 
-![Всё работает?](images/buttons/l03_8.png)
+![Ошибка BadRequest при определённых обстоятельствах](images/buttons/l03_8.png)
 
 С этой ошибкой вы, скорее всего, будете поначалу часто сталкиваться, пытаясь редактировать сообщения. 
 Вообще говоря, подобная ошибка часто говорит о проблемах с логикой генерации/обновления данных в сообщении, но иногда, 
@@ -474,7 +469,7 @@ async def update_num_text(message: types.Message, new_value: int):
 строку с данными колбэка и, что важнее, корректно разбирает входящее значение. Снова разберёмся на конкретном примере; 
 создадим класс `NumbersCallbackFactory` с префиксом `fabnum` и двумя полями `action` и `value`. Поле `action` определяет, 
 что делать, менять значение (change) или зафиксировать (finish), а поле `value` показывает, на сколько изменять 
-значение. Оно помечено как `Optional[int]`, т.к. если action равен "finish", то значение указывать бессмысленно. Код:
+значение. По умолчанию оно будет None, т.к. для действия "finish" дельта изменения не требуется. Код:
 
 ```python
 # новые импорты!
@@ -483,7 +478,7 @@ from aiogram.filters.callback_data import CallbackData
 
 class NumbersCallbackFactory(CallbackData, prefix="fabnum"):
     action: str
-    value: Optional[int]
+    value: Optional[int] = None
 ```
 
 Наш класс обязательно должен наследоваться от `CallbackData` и принимать значение префикса. Префикс — это 

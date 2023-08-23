@@ -6,7 +6,7 @@ description: Конечные автоматы (FSM)
 # Конечные автоматы (FSM) {: id="fsm-start" }
 
 !!! info ""
-    Используемая версия aiogram: 3.0 beta 7
+    Используемая версия aiogram: 3.0 RC 1
 
 ## Теория {: id="theory" }
 
@@ -291,8 +291,8 @@ async def food_size_chosen_incorrectly(message: Message):
 Обе функции сбрасывают состояние и данные, и убирают обычную клавиатуру, если вдруг она есть:
 
 ```python title="handlers/common.py"
-from aiogram import Router
-from aiogram.filters import Command, Text
+from aiogram import F, Router
+from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, ReplyKeyboardRemove
 
@@ -310,7 +310,7 @@ async def cmd_start(message: Message, state: FSMContext):
 
 
 @router.message(Command(commands=["cancel"]))
-@router.message(Text(text="отмена", ignore_case=True))
+@router.message(F.text.lower() == "отмена")
 async def cmd_cancel(message: Message, state: FSMContext):
     await state.clear()
     await message.answer(
@@ -352,7 +352,7 @@ async def main():
     dp.include_router(ordering_food.router)
     # сюда импортируйте ваш собственный роутер для напитков
 
-    await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
+    await dp.start_polling(bot)
 
 
 if __name__ == '__main__':
@@ -362,13 +362,15 @@ if __name__ == '__main__':
 ### Различные стратегии FSM {: id="strategies" }
 
 Aiogram 3.x привнёс необычное, но интересное нововведение в механизм конечных автоматов — стратегии FSM. Они позволяют 
-переопределить логику формирования пар для стейтов и данных. Всего стратегий три, вот они:
+переопределить логику формирования пар для стейтов и данных. Всего стратегий четыре, вот они:
 
 * **USER_IN_CHAT** — стратегия по умолчанию. Стейт и данные разные у каждого юзера в каждом чате. То есть, у юзера будут 
 разные состояния и данные в разных группах, а также в ЛС с ботом.
 * **CHAT** — стейт и данные общие для всего чата целиком. В ЛС разница незаметна, но в группе у всех участников будет 
 один стейт и общие данные.
 * **GLOBAL_USER** — во всех чатах у одного и того же юзера будет один и тот же стейт и данные.
+* **USER_IN_TOPIC** — у юзера могут быть разные стейты в зависимости от топика 
+в [супергруппе-форуме](https://telegram.org/blog/topics-in-groups-collectible-usernames#topics-in-groups).
 
 Честно говоря, я не могу придумать хороший use-case для **GLOBAL_USER**, однако **CHAT** может пригодиться для ботов, 
 которые реализуют различные игры в группах. Если вы знаете интересные применения, пожалуйста, расскажите о них 
