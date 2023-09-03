@@ -260,7 +260,8 @@ async def cmd_show_list(message: types.Message, mylist: list[int]):
 Итак, создадим рядом с `bot.py` отдельный файл `config_reader.py` со следующим содержимым
 
 ```python title="config_reader.py"
-from pydantic import BaseSettings, SecretStr
+from pydantic_settings import BaseSettings
+from pydantic import SecretStr
 
 
 class Settings(BaseSettings):
