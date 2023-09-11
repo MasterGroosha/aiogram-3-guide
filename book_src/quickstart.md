@@ -260,7 +260,7 @@ async def cmd_show_list(message: types.Message, mylist: list[int]):
 Итак, создадим рядом с `bot.py` отдельный файл `config_reader.py` со следующим содержимым
 
 ```python title="config_reader.py"
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import SecretStr
 
 
@@ -269,13 +269,11 @@ class Settings(BaseSettings):
     # для конфиденциальных данных, например, токена бота
     bot_token: SecretStr
 
-    # Вложенный класс с дополнительными указаниями для настроек
-    class Config:
-        # Имя файла, откуда будут прочитаны данные 
-        # (относительно текущей рабочей директории)
-        env_file = '.env'
-        # Кодировка читаемого файла
-        env_file_encoding = 'utf-8'
+    # Начиная со второй версии pydantic, настройки класса настроек задаются
+    # через model_config
+    # В данном случае будет использоваться файла .env, который будет прочитан
+    # с кодировкой UTF-8
+    model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
 
 
 # При импорте файла сразу создастся 
