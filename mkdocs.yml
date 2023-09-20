@@ -69,7 +69,7 @@ nav:
   - 'Фильтры и мидлвари': filters-and-middlewares.md
   - 'Особые апдейты': special-updates.md
   - 'Конечные автоматы': fsm.md
-  - 'Инлайн-режим': inline_mode.md
+  - 'Инлайн-режим': inline-mode.md
 #  - 'Дополнительное чтение':
 #    - 'Тест': extra/test.md
 
