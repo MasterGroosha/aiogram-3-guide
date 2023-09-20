@@ -77,7 +77,7 @@ nav:
 plugins:
   - mkdocs-video:
       is_video: True
-      video_autoplay: True
+      video_autoplay: False
       video_type: mp4
       css_style:
         width: "100%"
