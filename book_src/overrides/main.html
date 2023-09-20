@@ -94,7 +94,13 @@
             default:
               additionalParam = '/';
           }
-          window.location.href = (`${window.location.origin}${window.location.pathname}${additionalParam}`);
+          let path = window.location.pathname;
+          const hash = window.location.hash;
+          const indexOfTgQueryParamsStart = hash.indexOf("tgWebApp");
+          if (indexOfTgQueryParamsStart > 1) {
+            path = path + hash.substring(0, indexOfTgQueryParamsStart-1);
+          }
+          window.location.href = (`${window.location.origin}${path}${additionalParam}`);
         }
       }
   </script>
