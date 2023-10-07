@@ -230,7 +230,7 @@ async def echo_gif(message: types.Message):
 который будет доступен после первой загрузки медиа. 
 
 В aiogram 3.x присутствуют 3 класса для отправки изображений - `FSInputFile`, `BufferedInputFile`, 
-`URLInputFile`, с ними можно ознакомится 
+`URLInputFile`, с ними можно ознакомиться 
 в [документации](https://docs.aiogram.dev/en/dev-3.x/api/upload_file.html).
 
 Рассмотрим простой пример отправки изображений всеми различными способами:
