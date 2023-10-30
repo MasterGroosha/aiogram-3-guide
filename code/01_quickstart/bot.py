@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from datetime import datetime
 
 from aiogram import Bot, Dispatcher, types
 from aiogram.enums.dice_emoji import DiceEmoji
@@ -10,6 +11,7 @@ from config_reader import config
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=config.bot_token.get_secret_value())
 dp = Dispatcher()
+dp["started_at"] = datetime.now().strftime("%Y-%m-%d %H:%M")
 
 
 # Хэндлер на команду /start
@@ -54,6 +56,11 @@ async def cmd_add_to_list(message: types.Message, mylist: list[int]):
 @dp.message(Command("show_list"))
 async def cmd_show_list(message: types.Message, mylist: list[int]):
     await message.answer(f"Ваш список: {mylist}")
+
+
+@dp.message(Command("info"))
+async def cmd_info(message: types.Message, started_at: str):
+    await message.answer(f"Бот запущен {started_at}")
 
 
 async def main():
