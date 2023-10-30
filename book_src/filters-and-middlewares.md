@@ -337,7 +337,7 @@ async def message_with_usernames(
 
 Алекс, основатель и главный разработчик aiogram, написал библиотеку 
 [magic-filter](https://github.com/aiogram/magic-filter/), реализующую динамическое получение 
-значений атрибутов объектов. Более того, она уже поставляется вместе с **aiogram 3.x**. 
+значений атрибутов объектов (эдакий `getattr` на максималках). Более того, она уже поставляется вместе с **aiogram 3.x**. 
 Если вы установили себе «тройку», значит, у вас уже установлен **magic-filter**.
 
 !!! info ""
@@ -383,10 +383,10 @@ async def photo_msg(message: Message):
 Также стоит помнить, что фильтры можно вешать не только на обработку **Message**, но и на любые другие 
 типы апдейтов: колбэки, инлайн-запросы, (my_)chat_member и другие.
 
-Напоследок, посмотрим на ту самую «эксклюзивную» фичу magic-filter в составе **aiogram 3.x**. Речь про 
+Посмотрим на ту самую «эксклюзивную» фичу magic-filter в составе **aiogram 3.x**. Речь про 
 метод `as_(<some text>)`, позволяющий получить результат фильтра в качестве аргумента хэндлера. Короткий 
 пример, чтобы стало понятно: у сообщений с фото эти изображения прилетают массивом, который обычно 
-отсортирован в порядке увеличения качества. Соответсвенно, можно сразу в хэндлер получить объект фотки 
+отсортирован в порядке увеличения качества. Соответственно, можно сразу в хэндлер получить объект фотки 
 с максимальным размером:
 
 ```python
@@ -397,7 +397,7 @@ async def forward_from_channel_handler(message: Message, largest_photo: PhotoSiz
     print(largest_photo.width, largest_photo.height)
 ```
 
-Чуть более сложный пример. Если сообщение переслано от анонимных администраторов группы 
+Пример посложнее. Если сообщение переслано от анонимных администраторов группы 
 или из какого-либо канала, то в объекте `Message` будет непустым поле `forward_from_chat` с объектом 
 типа `Chat` внутри. Вот как будет выглядеть пример, который сработает только если поле `forward_from_chat` 
 непустое, а в объекте `Chat` поле `type` будет равно `channel` (другими словами, отсекаем форварды от анонимных 
@@ -412,9 +412,26 @@ async def forwarded_from_channel(message: Message, channel: Chat):
     await message.answer(f"This channel's ID is {channel.id}")
 ```
 
-!!! info ""
-    Ещё раз напомню ссылку на подробное описание magic-filter в aiogram: 
-    [документация](https://docs.aiogram.dev/en/dev-3.x/dispatcher/filters/magic_filters.html)
+Ещё более сложный пример. При помощи magic-filter можно проверить элементы списка на соответствие какому-нибудь признаку:
+
+```python
+from aiogram.enums import MessageEntityType
+
+@router.message(F.entities[:].type == MessageEntityType.EMAIL)
+async def all_emails(message: Message):
+    await message.answer("All entities are emails")
+
+
+@router.message(F.entities[...].type == MessageEntityType.EMAIL)
+async def any_emails(message: Message):
+    await message.answer("At least one email!")
+```
+
+!!! tip "Всего должно быть в меру"
+    Magic-filter предоставляет довольно мощный инструмент для фильтрации и порой позволяет компактно описать сложную логику, 
+    но это не панацея и не универсальное средство. Если вы не можете сходу написать красивый магический фильтр, 
+    не нужно переживать; просто сделайте [класс-фильтр](filters-and-middlewares.md/#filters-as-classes). 
+    Никто вас за это не осудит.
 
 
 ## Мидлвари {: id="middlewares" }
