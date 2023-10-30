@@ -18,7 +18,7 @@ async def save_text_has_link(message: Message, link: str, state: FSMContext):
     await state.set_state(TextSave.waiting_for_title)
     await message.answer(
         text=f"Окей, я нашёл в сообщении ссылку {link}. "
-             f"Теперь отправь мне описание (не больше 30 символов)"
+             f"Теперь отправь мне заголовок (не больше 30 символов)"
     )
 
 
