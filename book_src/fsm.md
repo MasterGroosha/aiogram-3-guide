@@ -95,13 +95,13 @@ class OrderFood(StatesGroup):
     choosing_food_size = State()
 ```
 
-Напишем обработчик первого шага, реагирующий на команду `/food`:
+Напишем обработчик первого шага, реагирующий на команду `/food` в случае, если у пользователя не установлен никакой стейт:
 
 ```python hl_lines="4 10"
-from aiogram.filters import Command
+from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 
-@router.message(Command("food"))
+@router.message(StateFilter(None), Command("food"))
 async def cmd_food(message: Message, state: FSMContext):
     await message.answer(
         text="Выберите блюдо:",
