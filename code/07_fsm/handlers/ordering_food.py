@@ -1,5 +1,5 @@
 from aiogram import Router, F
-from aiogram.filters import Command
+from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, ReplyKeyboardRemove
@@ -41,7 +41,10 @@ async def food_chosen(message: Message, state: FSMContext):
     await state.set_state(OrderFood.choosing_food_size)
 
 
-@router.message(OrderFood.choosing_food_name)
+# В целом, никто не мешает указывать стейты полностью строками
+# Это может пригодиться, если по какой-то причине
+# ваши названия стейтов генерируются в рантайме (но зачем?)
+@router.message(StateFilter("OrderFood:choosing_food_name"))
 async def food_chosen_incorrectly(message: Message):
     await message.answer(
         text="Я не знаю такого блюда.\n\n"
