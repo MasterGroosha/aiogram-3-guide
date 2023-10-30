@@ -19,7 +19,7 @@ class OrderFood(StatesGroup):
     choosing_food_size = State()
 
 
-@router.message(Command("food"))
+@router.message(StateFilter(None), Command("food"))
 async def cmd_food(message: Message, state: FSMContext):
     await message.answer(
         text="Выберите блюдо:",
