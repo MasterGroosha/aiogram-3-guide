@@ -459,7 +459,7 @@ async def any_emails(message: Message):
 [другом разделе](https://docs.aiogram.dev/en/dev-3.x/dispatcher/middlewares.html#basics) и посмотрим на 
 следующее изображение:
 
-![«луковица» из мидлварей](https://docs.aiogram.dev/en/dev-3.x/_images/basics_middleware.png)
+![«луковица» из мидлварей](images/filters-and-middlewares/middlewares_structure.png)
 
 Оказывается, мидлварей два вида: внешние (outer) и внутренние (inner или просто «мидлвари»). В чём разница? 
 Outer выполняются до начала проверки фильтрами, а inner — после. На практике это значит, что апдейт/сообщение/колбэк, 
