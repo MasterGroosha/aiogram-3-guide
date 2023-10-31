@@ -13,7 +13,6 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 
 from config_reader import config
 
-# bot = Bot(token="5913773239:AAG9j-CtD5_mH6xmuI56VEk_mm3vkLCKcRE")
 bot = Bot(token=config.bot_token.get_secret_value())
 dp = Dispatcher()
 logging.basicConfig(level=logging.INFO)
@@ -111,7 +110,7 @@ async def cmd_special_buttons(message: types.Message):
     await message.answer_invoice(title="Покупка через телеграм бота",
                                  description="Купите котлетки с пюрешкой",
                                  payload="Payment through tg bot",
-                                 provider_token="381764678:TEST:70192",
+                                 provider_token="your-token-to-payment-system",
                                  currency="rub",
                                  prices=[
                                      LabeledPrice(
