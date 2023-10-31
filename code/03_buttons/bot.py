@@ -6,12 +6,14 @@ from typing import Optional
 
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.exceptions import TelegramBadRequest
+from aiogram.types import WebAppInfo, LabeledPrice, PreCheckoutQuery
 from aiogram.filters import Command
 from aiogram.filters.callback_data import CallbackData
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 
 from config_reader import config
 
+# bot = Bot(token="5913773239:AAG9j-CtD5_mH6xmuI56VEk_mm3vkLCKcRE")
 bot = Bot(token=config.bot_token.get_secret_value())
 dp = Dispatcher()
 logging.basicConfig(level=logging.INFO)
@@ -90,12 +92,51 @@ async def cmd_special_buttons(message: types.Message):
             )
         )
     )
-    # WebApp-ов пока нет, сорри :(
+
+    builder.row(
+        types.KeyboardButton(
+            text="WebApp",
+            web_app=WebAppInfo(url="https://mastergroosha.github.io/aiogram-3-guide")
+        )
+    )
 
     await message.answer(
         "Выберите действие:",
         reply_markup=builder.as_markup(resize_keyboard=True),
     )
+
+
+@dp.message(Command("payments"))
+async def cmd_special_buttons(message: types.Message):
+    await message.answer_invoice(title="Покупка через телеграм бота",
+                                 description="Купите котлетки с пюрешкой",
+                                 payload="Payment through tg bot",
+                                 provider_token="381764678:TEST:70192",
+                                 currency="rub",
+                                 prices=[
+                                     LabeledPrice(
+                                         label='Пюрешка',
+                                         amount=10000
+                                     ),
+                                     LabeledPrice(
+                                         label='Котлетки',
+                                         amount=35000
+                                     )
+                                 ],
+                                 provider_data=None,
+                                 need_name=True,
+                                 need_phone_number=True
+                                 )
+
+@dp.pre_checkout_query()
+async def answer_pre_checkout_query(pre_checkout_query: PreCheckoutQuery, bot: Bot):
+    await bot.answer_pre_checkout_query(pre_checkout_query.id, ok=True)
+
+
+@dp.message(F.content_type.in_({'successful_payment'}))
+async def successful_payment(message: types.Message):
+    await message.answer(f'Спасибо за оплату')
+
 
 
 @dp.message(F.user_shared)
