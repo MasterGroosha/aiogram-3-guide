@@ -6,7 +6,7 @@ description: Работа с сообщениями
 # Работа с сообщениями
 
 !!! info ""
-    Используемая версия aiogram: 3.0
+    Используемая версия aiogram: 3.1.1
 
 В этой главе мы разберёмся, как применять различные типы форматирования к сообщениям и работать с медиафайлами.
 
@@ -44,16 +44,23 @@ dp.message.register(func_name, F.text)
 
 За выбор форматирования при отправке сообщений отвечает аргумент `parse_mode`, например:
 ```python
-from aiogram import types
+from aiogram import F
+from aiogram.types import Message
 from aiogram.filters import Command
+from aiogram.enums import ParseMode
 
 # Если не указать фильтр F.text, 
-# то хэндлер сработает даже на картинку с подписью /test,
-# но пока нам это не важно и рассматриваем только текстовые сообщения
-@dp.message(Command("test"))
-async def any_message(message: types.Message):
-    await message.answer("Hello, <b>world</b>!", parse_mode="HTML")
-    await message.answer("Hello, *world*\!", parse_mode="MarkdownV2")
+# то хэндлер сработает даже на картинку с подписью /test
+@dp.message(F.text, Command("test"))
+async def any_message(message: Message):
+    await message.answer(
+        "Hello, <b>world</b>!", 
+        parse_mode=ParseMode.HTML
+    )
+    await message.answer(
+        "Hello, *world*\!", 
+        parse_mode=ParseMode.MARKDOWN_V2
+    )
 ```
 
 ![Hello world с разным форматированием](images/messages/l02_1.png)
@@ -68,7 +75,10 @@ bot = Bot(token="123:abcxyz", parse_mode="HTML")
 
 # где-то в функции...
 await message.answer("Сообщение с <u>HTML-разметкой</u>")
-await message.answer("Сообщение без <s>какой-либо разметки</s>", parse_mode=None)
+await message.answer(
+    "Сообщение без <s>какой-либо разметки</s>", 
+    parse_mode=None
+)
 ```
 
 ![Настройка типа разметки по умолчанию](images/messages/l02_2.png)
@@ -77,19 +87,105 @@ await message.answer("Сообщение без <s>какой-либо разм�
 
 Нередко бывают ситуации, когда окончательный текст сообщения бота заранее неизвестен 
 и формируется исходя из каких-то внешних данных: имя пользователя, его ввод и т.д. 
-Напишем хэндлер на команду `/name`, который будет отвечать пользователю текстом, 
-указанным после команды, например, `/name Иван Иванов`:
+Напишем хэндлер на команду `/hello`, который будет приветствовать пользователя по его полному имени
+(`first_name + last_name`), например: «Hello, Иван Иванов»:
 
 ```python
-from aiogram.filters import CommandObject
+from aiogram.filters import Command
 
-@dp.message(Command("name"))
-async def cmd_name(message: types.Message, command: CommandObject):
-    if command.args:
-        await message.answer(f"Привет, <b>{command.args}</b>")
-    else:
-        await message.answer("Пожалуйста, укажи своё имя после команды /name!")
+@dp.message(Command("hello"))
+async def cmd_hello(message: Message):
+    await message.answer(
+        f"Hello, <b>{message.from_user.full_name}</b>",
+        parse_mode=ParseMode.HTML
+    )
 ```
+
+И вроде всё хорошо, бот приветствует пользователей:
+
+![Работа команды /hello](images/messages/cmd_hello_before.png)
+
+Но тут приходит юзер с именем <Cлавик777> и бот молчит! А в логах видно следующее:
+`aiogram.exceptions.TelegramBadRequest: Telegram server says - Bad Request: can't parse entities: 
+Unsupported start tag "Славик777" at byte offset 7`
+
+Упс, у нас стоит режим форматирования HTML, и Telegram пытается распарсить <Славик777> как HTML-тег. Непорядок. 
+Но у этой проблемы есть несколько решений. Первое: экранировать передаваемые значения.
+
+```python
+from aiogram import html
+from aiogram.filters import Command
+
+@dp.message(Command("hello"))
+async def cmd_hello(message: Message):
+    await message.answer(
+        f"Hello, {html.bold(html.quote(message.from_user.full_name))}",
+        parse_mode=ParseMode.HTML
+    )
+```
+
+Второе чуть сложнее, но более продвинутое: воспользоваться специальным инструментом, который будет 
+собирать отдельно текст и отдельно информацию о том, какие его куски должны быть отформатированы.
+
+```python
+from aiogram.filters import Command
+from aiogram.utils.formatting import Text, Bold
+
+@dp.message(Command("hello"))
+async def cmd_hello(message: Message):
+    content = Text(
+        "Hello, ",
+        Bold(message.from_user.full_name)
+    )
+    await message.answer(
+        **content.as_kwargs()
+    )
+```
+
+В примере выше конструкция `**content.as_kwargs()` вернёт аргументы `text`, `entities`, `parse_mode` и 
+подставит их в вызов `answer()`.
+
+![Работа команды /hello после фиксов](images/messages/cmd_hello_after.png)
+
+Упомянутый инструмент форматирования довольно комплексный, 
+[официальная документация](https://docs.aiogram.dev/en/latest/utils/formatting.html) демонстрирует удобное отображение 
+сложных конструкций, например:
+
+```python
+from aiogram.filters import Command
+from aiogram.utils.formatting import (
+    Bold, as_list, as_marked_section, as_key_value, HashTag
+)
+
+@dp.message(Command("advanced_example"))
+async def cmd_advanced_example(message: Message):
+    content = as_list(
+        as_marked_section(
+            Bold("Success:"),
+            "Test 1",
+            "Test 3",
+            "Test 4",
+            marker="✅ ",
+        ),
+        as_marked_section(
+            Bold("Failed:"),
+            "Test 2",
+            marker="❌ ",
+        ),
+        as_marked_section(
+            Bold("Summary:"),
+            as_key_value("Total", 4),
+            as_key_value("Success", 3),
+            as_key_value("Failed", 1),
+            marker="  ",
+        ),
+        HashTag("#test"),
+        sep="\n\n",
+    )
+    await message.answer(**content.as_kwargs())
+```
+
+![Продвинутый пример](images/messages/advanced_example.png)
 
 Почему мы не воспользовались просто `message.text`? В противном случае бот бы ответил: 
 "Привет, /name Иван Иванов", а нам нужен только текст **после** команды. Если вы 
@@ -97,28 +193,8 @@ async def cmd_name(message: types.Message, command: CommandObject):
 и достать оттуда текст после команды, который aiogram уже распарсил за вас. Если после команды ничего не указано, 
 то `command.args` будет иметь значение `None`.
 
-Проверим:
 
-![Работа команды /name](images/messages/cmd_name_before.png)
 
-И, вроде бы, всё хорошо, но тут приходит хитрый юзер и пишет `/name <славик777>`. В этом случае 
-бот не ответит, а в консоли появится ошибка:  
-`aiogram.exceptions.TelegramBadRequest: Bad Request: can't parse entities: Unsupported start tag "славик777" at byte offset 17`  
-
-😱 😱 😱 Что же делать? К счастью, проблема решается просто: экранированием. Для этого 
-в модуле html (в markdown аналогично) есть метод `quote()` для экранирования, а также различные 
-методы для форматирования: `bold()`, `italic()`, `link()` и т.д.  
-Исправим код, чтобы всё заработало:
-
-```python
-# новый импорт!
-from aiogram import html
-
-# В функции cmd_name
-await message.answer(f"Привет, {html.bold(html.quote(command.args))}", parse_mode="HTML")
-```
-
-![Работа команды /name](images/messages/cmd_name_after.png)
 
 
 !!! info ""
@@ -135,7 +211,7 @@ await message.answer(f"Привет, {html.bold(html.quote(command.args))}", par
 from datetime import datetime
 
 @dp.message(F.text)
-async def echo_with_time(message: types.Message):
+async def echo_with_time(message: Message):
     # Получаем текущее время в часовом поясе ПК
     time_now = datetime.now().strftime('%H:%M')
     # Создаём подчёркнутый текст
@@ -172,7 +248,7 @@ Telegram сильно упрощает жизнь разработчикам, в
 
 ```python
 @dp.message(F.text)
-async def extract_data(message: types.Message):
+async def extract_data(message: Message):
     data = {
         "url": "<N/A>",
         "email": "<N/A>",
@@ -207,7 +283,7 @@ async def extract_data(message: types.Message):
 
 ```python
 @dp.message(F.animation)
-async def echo_gif(message: types.Message):
+async def echo_gif(message: Message):
     await message.reply_animation(message.animation.file_id)
 ```
 
@@ -238,7 +314,7 @@ async def echo_gif(message: types.Message):
 from aiogram.types import FSInputFile, URLInputFile, BufferedInputFile
 
 @dp.message(Command('images'))
-async def upload_photo(message: types.Message):
+async def upload_photo(message: Message):
     # Сюда будем помещать file_id отправленных файлов, чтобы потом ими воспользоваться
     file_ids = []
 
@@ -283,7 +359,7 @@ async def upload_photo(message: types.Message):
 
 ```python
 @dp.message(F.photo)
-async def download_photo(message: types.Message, bot: Bot):
+async def download_photo(message: Message, bot: Bot):
     await bot.download(
         message.photo[-1],
         destination=f"/tmp/{message.photo[-1].file_id}.jpg"
@@ -291,7 +367,7 @@ async def download_photo(message: types.Message, bot: Bot):
 
 
 @dp.message(F.sticker)
-async def download_sticker(message: types.Message, bot: Bot):
+async def download_sticker(message: Message, bot: Bot):
     await bot.download(
         message.sticker,
         # для Windows пути надо подправить
@@ -335,7 +411,7 @@ async def download_sticker(message: types.Message, bot: Bot):
 
 ```python
 @dp.message(F.new_chat_members)
-async def somebody_added(message: types.Message):
+async def somebody_added(message: Message):
     for user in message.new_chat_members:
         # проперти full_name берёт сразу имя И фамилию 
         # (на скриншоте выше у юзеров нет фамилии)
@@ -379,7 +455,7 @@ async def somebody_added(message: types.Message):
 from aiogram.utils.markdown import hide_link
 
 @dp.message(Command("hidden_link"))
-async def cmd_hidden_link(message: types.Message):
+async def cmd_hidden_link(message: Message):
     await message.answer(
         f"{hide_link('https://telegra.ph/file/562a512448876923e28c3.png')}"
         f"Документация Telegram: *существует*\n"
