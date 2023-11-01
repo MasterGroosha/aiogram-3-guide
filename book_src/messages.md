@@ -105,11 +105,11 @@ async def cmd_hello(message: Message):
 
 ![Работа команды /hello](images/messages/cmd_hello_before.png)
 
-Но тут приходит юзер с именем <Cлавик777> и бот молчит! А в логах видно следующее:
+Но тут приходит юзер с именем &lt;Cлавик777&gt; и бот молчит! А в логах видно следующее:
 `aiogram.exceptions.TelegramBadRequest: Telegram server says - Bad Request: can't parse entities: 
 Unsupported start tag "Славик777" at byte offset 7`
 
-Упс, у нас стоит режим форматирования HTML, и Telegram пытается распарсить <Славик777> как HTML-тег. Непорядок. 
+Упс, у нас стоит режим форматирования HTML, и Telegram пытается распарсить &lt;Cлавик777&gt; как HTML-тег. Непорядок. 
 Но у этой проблемы есть несколько решений. Первое: экранировать передаваемые значения.
 
 ```python
