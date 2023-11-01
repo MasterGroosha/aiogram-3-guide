@@ -427,6 +427,86 @@ async def any_emails(message: Message):
     await message.answer("At least one email!")
 ```
 
+### MagicData {: id="magic-data" }
+
+Наконец, слегка затронем [MagicData](https://docs.aiogram.dev/en/latest/dispatcher/filters/magic_data.html). Этот фильтр 
+позволяет подняться на уровень выше в плане фильтров, и оперировать значениями, которые передаются через мидлвари или 
+в [диспетчер/поллинг/вебхук](quickstart.md#pass-extras). Предположим, у вас есть популярный бот. И вот настало время 
+провести тех.обслуживание: забэкапить базу данных, почистить логи и т.д. Но при этом не хочется затыкать бота, 
+чтобы не терять новую аудиторию: пусть он отвечает пользователям, мол, подождите немного. 
+
+Одно из возможных решений — сделать специальный роутер, который будет перехватывать сообщения, колбэки и др., если 
+каким-либо образом в бота передано булево значение maintenance_mode, равное `True`. Простенький однофайловый пример для 
+понимания этой логики доступен ниже: 
+
+```python
+import asyncio
+import logging
+import sys
+
+from aiogram import Bot, Dispatcher, Router, F
+from aiogram.filters import MagicData, CommandStart
+from aiogram.types import Message, CallbackQuery
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+
+# Создаём роутер для режима обслуживания и ставим ему фильтры на типы
+maintenance_router = Router()
+maintenance_router.message.filter(MagicData(F.maintenance_mode.is_(True)))
+maintenance_router.callback_query.filter(MagicData(F.maintenance_mode.is_(True)))
+
+regular_router = Router()
+
+# Хэндлеры этого роутера перехватят все сообщения и колбэки, 
+# если maintenance_mode равен True
+@maintenance_router.message()
+async def any_message(message: Message):
+    await message.answer("Бот в режиме обслуживания. Пожалуйста, подождите.")
+
+
+@maintenance_router.callback_query()
+async def any_callback(callback: CallbackQuery):
+    await callback.answer(
+        text="Бот в режиме обслуживания. Пожалуйста, подождите",
+        show_alert=True
+    )
+
+# Хэндлеры этого роутера используются ВНЕ режима обслуживания,
+# т.е. когда maintenance_mode равен False или не указан вообще
+@regular_router.message(CommandStart())
+async def cmd_start(message: Message):
+    builder = InlineKeyboardBuilder()
+    builder.button(text="Нажми меня", callback_data="anything")
+    await message.answer(
+        text="Какой-то текст с кнопкой",
+        reply_markup=builder.as_markup()
+    )
+
+
+@regular_router.callback_query(F.data == "anything")
+async def callback_anything(callback: CallbackQuery):
+    await callback.answer(
+        text="Это какое-то обычное действие",
+        show_alert=True
+    )
+
+
+async def main() -> None:
+    bot = Bot('1234567890:AaBbCcDdEeFfGrOoShAHhIiJjKkLlMmNnOo')
+    # В реальной жизни значение maintenance_mode
+    # будет взято из стороннего источника (например, конфиг или через API)
+    # Помните, что т.к. bool тип является иммутабельным,
+    # его смена в рантайме ни на что не повлияет
+    dp = Dispatcher(maintenance_mode=True)
+    # Maintenance-роутер должен быть первый
+    dp.include_routers(maintenance_router, regular_router)
+    await dp.start_polling(bot)
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+    asyncio.run(main())
+```
+
 !!! tip "Всего должно быть в меру"
     Magic-filter предоставляет довольно мощный инструмент для фильтрации и порой позволяет компактно описать сложную логику, 
     но это не панацея и не универсальное средство. Если вы не можете сходу написать красивый магический фильтр, 
@@ -462,14 +542,19 @@ async def any_emails(message: Message):
 ![«луковица» из мидлварей](images/filters-and-middlewares/middlewares_structure.png)
 
 Оказывается, мидлварей два вида: внешние (outer) и внутренние (inner или просто «мидлвари»). В чём разница? 
-Outer выполняются до начала проверки фильтрами, а inner — после. На практике это значит, что апдейт/сообщение/колбэк, 
-проходящий через outer-мидлварь, может так ни в один хэндлер и не попасть, а если он попал в inner, то дальше 
+Outer выполняются до начала проверки фильтрами, а inner — после. На практике это значит, что сообщение/колбэк/инлайн-запрос, 
+проходящий через outer-мидлварь, может так ни в один хэндлер и не попасть, но если он попал в inner, то дальше 
 100% будет какой-то хэндлер.
 
-Теперь рассмотрим простейшую мидлварь с точки зрения кода:
+!!! info "Мидлвари на тип Update"
+    Стоит напомнить, что Update — это общий тип для всех видов событий в Telegram. И с ним связаны две важных особенности в 
+    плане их обработки aiogram-ом:  
+    • Inner-мидлварь на Update вызывается **всегда** (т.е. в этом случае нет разницы между Outer и Inner).  
+    • Мидлвари на Update можно вешать только на диспетчер (корневой роутер).
+
+Рассмотрим простейшую мидлварь:
 
 ```python linenums="1"
-# новые импорты!
 from typing import Callable, Dict, Any, Awaitable
 from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject
@@ -487,7 +572,7 @@ class SomeMiddleware(BaseMiddleware):
         return result
 ```
 
-Каждая мидлварь, построенная на классах (впрочем, возможны и 
+Каждая мидлварь, построенная на классах (мы не будем рассматривать 
 [иные варианты](https://docs.aiogram.dev/en/dev-3.x/dispatcher/middlewares.html#function-based)), должна реализовывать 
 метод `__call__()` с тремя аргументами:
 
@@ -502,9 +587,9 @@ class SomeMiddleware(BaseMiddleware):
 
 С телом функции ещё интереснее. 
 
-* Всё, что вы напишете ДО 14-й строки, будет выполнено до передачи управления 
+* Всё, что вы напишете ДО 13-й строки, будет выполнено до передачи управления 
 нижестоящему обработчику (это может быть другая мидлварь или непосредственно хэндлер). 
-* Всё, что вы напишете ПОСЛЕ 14-й строки, будет выполнено уже после выхода из нижестоящего обработчика.
+* Всё, что вы напишете ПОСЛЕ 13-й строки, будет выполнено уже после выхода из нижестоящего обработчика.
 * Если вы хотите, чтобы обработка продолжилась, вы **ОБЯЗАНЫ** вызвать `await handler(event, data)`. Если хотите 
 «дропнуть» апдейт, просто не вызывайте его.
 * Если вам не нужно получать данные из хэндлера, то последней строкой функции поставьте 
@@ -544,119 +629,223 @@ class SomeMiddleware(BaseMiddleware):
     каким-нибудь своим «списком заблокированных» и просто сделать `return`, чтобы предотвратить дальнейшую обработку 
     по цепочке.
 
-### Пример мидлварей {: id="middlewares-example" }
+### Примеры мидлварей {: id="middlewares-examples" }
 
-Разыграем следующую ситуацию: по команде `/checkin` в ЛС будем присылать сообщение с кнопкой, по нажатию на
-которую пользователю будет выводиться некоторое подтверждение. 
-Но мы хотим, чтобы по выходным дням конкретно эта команда вообще не работала, 
-а по нажатию на любые инлайн-кнопки юзеру всплывало окно с надписью “бот не работает”. 
+Рассмотрим несколько примеров мидлварей.
 
-Создадим новый каталог **middlewares** и в нём файл **weekend.py**:
+#### Передача аргументов в мидлварь {: id="middleware-pass-arguments" }
 
-```python title="middlewares/weekend.py"
-from datetime import datetime
-from typing import Callable, Dict, Any, Awaitable
+Мы используем мидлвари-классы, соответственно, у них есть конструктор. Это позволяет кастомизировать поведение кода внутри, 
+управляя им снаружи. Например, из файла конфигурации. Напишем бесполезную, но наглядную "замедляющую" мидлварь, 
+которая будет тормозить обработку входящих сообщений на указанное количество секунд:
 
+```python hl_lines="7 8 18"
+import asyncio
+from typing import Any, Callable, Dict, Awaitable
 from aiogram import BaseMiddleware
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import TelegramObject
 
+class SlowpokeMiddleware(BaseMiddleware):
+    def __init__(self, sleep_sec: int):
+        self.sleep_sec = sleep_sec
 
-def _is_weekend() -> bool:
-    # 5 - суббота, 6 - воскресенье
-    return datetime.utcnow().weekday() in (5, 6)
-
-
-# Это будет inner-мидлварь на сообщения
-class WeekendMessageMiddleware(BaseMiddleware):
     async def __call__(
-        self,
-        handler: Callable[[Message, Dict[str, Any]], Awaitable[Any]],
-        event: Message,
-        data: Dict[str, Any]
+            self,
+            handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
+            event: TelegramObject,
+            data: Dict[str, Any],
     ) -> Any:
-        # Если сегодня не суббота и не воскресенье,
-        # то продолжаем обработку.
-        if not _is_weekend():
-            return await handler(event, data)
-        # В противном случае просто вернётся None
-        # и обработка прекратится
+        # Ждём указанное количество секунд и передаём управление дальше по цепочке
+        # (это может быть как хэндлер, так и следующая мидлварь)
+        await asyncio.sleep(self.sleep_sec)
+        result = await handler(event, data)
+        # Если в хэндлере сделать return, то это значение попадёт в result
+        print(f"Handler was delayed by {self.sleep_sec} seconds")
+        return result
+```
 
+И теперь повесим её на два роутера с разными значениями:
+
+```python
+from aiogram import Router
+from <...> import SlowpokeMiddleware
+
+# Где-то в другом месте
+router1 = Router()
+router2 = Router()
+
+router1.message.middleware(SlowpokeMiddleware(sleep_sec=5))
+router2.message.middleware(SlowpokeMiddleware(sleep_sec=10))
+```
+
+#### Передача данных из мидлвари {: id="middleware-store-data" }
+
+Как мы уже выяснили [ранее](#middlewares-structure), при обработке очередного апдейта мидлварям доступен словарь `data`, 
+в котором лежат различные полезные объекты: бот, автор апдейта (event_from_user) и т.д. Но также мы можем наполнять этот 
+словарь чем угодно. Более того, позднее вызванные мидлвари могут видеть то, что туда положили ранее вызванные.
+
+Рассмотрим следующую ситуацию: первая мидлварь по Telegram ID юзера получает какой-то внутренний айдишник (например, из 
+якобы стороннего сервиса), а вторая мидлварь по этому внутреннему айди вычисляет «счастливый месяц» пользователя
+(остаток от деления внутреннего айди на 12). Всё это кладётся в хэндлер, который радует или огорчает человека, вызвавшего 
+команду. Звучит сложно, но сейчас всё поймёте. Начнём с мидлварей:
+
+```python hl_lines="20 21 32 33 36 37"
+from random import randint
+from typing import Any, Callable, Dict, Awaitable
+from datetime import datetime
+from aiogram import BaseMiddleware
+from aiogram.types import TelegramObject
+
+# Мидлварь, которая достаёт внутренний айди юзера из какого-то стороннего сервиса
+class UserInternalIdMiddleware(BaseMiddleware):
+    # Разумеется, никакого сервиса у нас в примере нет,
+    # а только суровый рандом:
+    def get_internal_id(self, user_id: int) -> int:
+        return randint(100_000_000, 900_000_000) + user_id
+
+    async def __call__(
+            self,
+            handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
+            event: TelegramObject,
+            data: Dict[str, Any],
+    ) -> Any:
+        user = data["event_from_user"]
+        data["internal_id"] = self.get_internal_id(user.id)
+        return await handler(event, data)
+
+# Мидлварь, которая вычисляет "счастливый месяц" пользователя
+class HappyMonthMiddleware(BaseMiddleware):
+    async def __call__(
+            self,
+            handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
+            event: TelegramObject,
+            data: Dict[str, Any],
+    ) -> Any:
+        # Получаем значение из предыдущей мидлвари
+        internal_id: int = data["internal_id"]
+        current_month: int = datetime.now().month
+        is_happy_month: bool = (internal_id % 12) == current_month
+        # Кладём True или False в data, чтобы забрать в хэндлере
+        data["is_happy_month"] = is_happy_month
+        return await handler(event, data)
+```
+
+Теперь напишем хэндлер, положим его в роутер и прицепим роутер к диспетчеру. Первую мидлварь повесим как outer на диспетчер, 
+потому что (по задумке) этот внутренний айди нужен всегда и везде. А вторую мидлварь повесим как inner на конкретный роутер, 
+поскольку вычисление счастливого месяца нужно только в нём.
+
+```python hl_lines="4 5"
+@router.message(Command("happymonth"))
+async def cmd_happymonth(
+        message: Message, 
+        internal_id: int, 
+        is_happy_month: bool
+):
+    phrases = [f"Ваш ID в нашем сервисе: {internal_id}"]
+    if is_happy_month:
+        phrases.append("Сейчас ваш счастливый месяц!")
+    else:
+        phrases.append("В этом месяце будьте осторожнее...")
+    await message.answer(". ".join(phrases))
+
+# Где-то в другом месте:
+async def main():
+    dp = Dispatcher()
+    # <...>
+    dp.update.outer_middleware(UserInternalIdMiddleware())
+    router.message.middleware(HappyMonthMiddleware())
+```
+
+Вот какие результаты получились в ноябре (11-й месяц):
+
+![У кого-то месяц счастливый, а у кого-то не очень](images/filters-and-middlewares/happymonth.png)
+
+#### Никаких колбэков по выходным! {: id="no-callbacks-on-weekend" }
+
+Представим, что у некоторого завода есть Telegram-бот и каждое утро заводчане должны нажимать на инлайн-кнопку, 
+чтобы подтвердить своё наличие и дееспособность. Завод работает 5/2 и мы хотим, чтобы в субботу и воскресенье нажатия 
+не учитывались. Поскольку на нажатие на кнопку завязана сложная логика (отправка данных в СКД), то в выходные будем 
+просто «дропать» апдейт и выводить окошко с ошибкой. Следующий пример можно скопировать целиком и запустить:
+
+```python
+import asyncio
+import logging
+import sys
+from datetime import datetime
+from typing import Any, Callable, Dict, Awaitable
+
+from aiogram import Bot, Dispatcher, Router, BaseMiddleware, F
+from aiogram.filters import Command
+from aiogram.types import Message, CallbackQuery, TelegramObject
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+
+router = Router()
 
 # Это будет outer-мидлварь на любые колбэки
 class WeekendCallbackMiddleware(BaseMiddleware):
+    def is_weekend(self) -> bool:
+        # 5 - суббота, 6 - воскресенье
+        return datetime.utcnow().weekday() in (5, 6)
+
     async def __call__(
-        self,
-        handler: Callable[[CallbackQuery, Dict[str, Any]], Awaitable[Any]],
-        event: CallbackQuery,
-        data: Dict[str, Any]
+            self,
+            handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
+            event: TelegramObject,
+            data: Dict[str, Any]
     ) -> Any:
+        # Можно подстраховаться и игнорировать мидлварь,
+        # если она установлена по ошибке НЕ на колбэки
+        if not isinstance(event, CallbackQuery):
+            # тут как-нибудь залогировать
+            return await handler(event, data)
+
         # Если сегодня не суббота и не воскресенье,
         # то продолжаем обработку.
-        if not _is_weekend():
+        if not self.is_weekend():
             return await handler(event, data)
         # В противном случае отвечаем на колбэк самостоятельно
         # и прекращаем дальнейшую обработку
         await event.answer(
-            "Бот по выходным не работает!",
+            "Какая работа? Завод остановлен до понедельника!",
             show_alert=True
         )
         return
-```
-
-А заодно и простенькую инлайн-клавиатуру с одной callback-кнопкой:
-
-```python title="keyboards/checkin.py"
-from aiogram.types import InlineKeyboardMarkup
-from aiogram.utils.keyboard import InlineKeyboardBuilder
-
-
-def get_checkin_kb() -> InlineKeyboardMarkup:
-    kb = InlineKeyboardBuilder()
-    kb.button(text="Подтвердить", callback_data="confirm")
-    return kb.as_markup()
-```
-
-И, наконец, создадим новый файл с роутером и хэндлерами:
-
-```python title="handlers/checkin.py" hl_lines="10"
-from aiogram import Router, F
-from aiogram.filters import Command
-from aiogram.types import Message, CallbackQuery
-
-from keyboards.checkin import get_checkin_kb
-from middlewares.weekend import WeekendMessageMiddleware
-
-router = Router()
-router.message.filter(F.chat.type == "private")
-router.message.middleware(WeekendMessageMiddleware())
 
 
 @router.message(Command("checkin"))
 async def cmd_checkin(message: Message):
+    builder = InlineKeyboardBuilder()
+    builder.button(text="Я на работе!", callback_data="checkin")
     await message.answer(
-        "Пожалуйста, нажмите на кнопку ниже:",
-        reply_markup=get_checkin_kb()
+        text="Нажимайте эту кнопку только по будним дням!",
+        reply_markup=builder.as_markup()
     )
 
 
-@router.callback_query(F.data == "confirm")
-async def checkin_confirm(callback: CallbackQuery):
+@router.callback_query(F.data == "checkin")
+async def callback_checkin(callback: CallbackQuery):
+    # Тут много сложного кода
     await callback.answer(
-        "Спасибо, подтверждено!",
+        text="Спасибо, что подтвердили своё присутствие!",
         show_alert=True
     )
+
+
+async def main() -> None:
+    bot = Bot('1234567890:AaBbCcDdEeFfGrOoShAHhIiJjKkLlMmNnOo')
+    dp = Dispatcher()
+    dp.callback_query.outer_middleware(WeekendCallbackMiddleware())
+    dp.include_router(router)
+    await dp.start_polling(bot)
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+    asyncio.run(main())
 ```
 
-Как видите, мидлвари подключаются аналогично фильтрам. Если просто `middleware(...)`, значит, это внутренняя 
-мидлварь, а если `outer_middleware(...)`, то это внешняя.
-
-Мы подключили мидлварь для сообщений, а для колбэков где? Раз мы условились, что будем фильтровать вообще 
-все колбэки, то логично навесить мидлварь прямо на диспетчер, для этого в **bot.py** необходимо импортировать 
-мидлварь и добавить строку: `dp.callback_query.outer_middleware(WeekendCallbackMiddleware())`.
-
-Теперь, если немного побаловаться с перемещениями во времени, то можно заметить, что команда `/checkin` работает 
-только с понедельника по пятницу, а попытка нажать на инлайн-кнопку «подтвердить» по выходным покажет 
-всплывашку с текстом «Бот по выходным не работает!».
+Теперь, если немного побаловаться с перемещениями во времени, можно увидеть, что по будним дням бот отвечает нормально, 
+а по выходным выводит ошибку.
 
 ### Флаги {: id="flags" }
 
