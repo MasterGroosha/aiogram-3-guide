@@ -1,10 +1,11 @@
 import asyncio
 import logging
+import re
 from datetime import datetime
 
 from aiogram import Bot, Dispatcher, html, F
 from aiogram.enums import ParseMode
-from aiogram.filters import Command
+from aiogram.filters import Command, CommandObject, CommandStart
 from aiogram.types import Message, FSInputFile, URLInputFile, BufferedInputFile
 from aiogram.utils.formatting import as_list, as_marked_section, Bold, as_key_value, HashTag
 from aiogram.utils.markdown import hide_link
@@ -58,6 +59,66 @@ async def cmd_advanced_example(message: Message):
         sep="\n\n",
     )
     await message.answer(**content.as_kwargs())
+
+
+@dp.message(Command("settimer"))
+async def cmd_settimer(
+        message: Message,
+        command: CommandObject
+):
+    # Если не переданы никакие аргументы, то
+    # command.args будет None
+    if command.args is None:
+        await message.answer(
+            "Ошибка: не переданы аргументы"
+        )
+        return
+    # Пробуем разделить аргументы на две части по первому встречному пробелу
+    try:
+        delay_time, text_to_send = command.args.split(" ", maxsplit=1)
+    # Если получилось меньше двух частей, вылетит ValueError
+    except ValueError:
+        await message.answer(
+            "Ошибка: неправильный формат команды. Пример:\n"
+            "/settimer <time> <message>"
+        )
+        return
+    await message.answer(
+        "Таймер добавлен!\n"
+        f"Время: {delay_time}\n"
+        f"Текст: {text_to_send}"
+    )
+
+
+@dp.message(Command("custom1", prefix="%"))
+async def cmd_custom1(message: Message):
+    await message.answer("Вижу команду!")
+
+
+# Можно указать несколько префиксов...............vv.....
+@dp.message(Command("custom2", prefix="/!"))
+async def cmd_custom2(message: Message):
+    await message.answer("И эту тоже вижу!")
+
+
+@dp.message(Command("help"))
+@dp.message(CommandStart(
+    deep_link=True, magic=F.args == "help"
+))
+async def cmd_start_help(message: Message):
+    await message.answer("Это сообщение со справкой")
+
+
+@dp.message(CommandStart(
+    deep_link=True,
+    magic=F.args.regexp(re.compile(r'book_(\d+)'))
+))
+async def cmd_start_book(
+        message: Message,
+        command: CommandObject
+):
+    book_number = command.args.split("_")[1]
+    await message.answer(f"Sending book №{book_number}")
 
 
 @dp.message(Command("hidden_link"))

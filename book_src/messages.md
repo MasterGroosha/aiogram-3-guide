@@ -187,16 +187,6 @@ async def cmd_advanced_example(message: Message):
 
 ![Продвинутый пример](images/messages/advanced_example.png)
 
-Почему мы не воспользовались просто `message.text`? В противном случае бот бы ответил: 
-"Привет, /name Иван Иванов", а нам нужен только текст **после** команды. Если вы 
-используете встроенный фильтр Command, то можно добавить в хэндлер аргумент `command` с типом `CommandObject` 
-и достать оттуда текст после команды, который aiogram уже распарсил за вас. Если после команды ничего не указано, 
-то `command.args` будет иметь значение `None`.
-
-
-
-
-
 !!! info ""
     Подробнее о различных способах форматирования и поддерживаемых тегах можно узнать 
     [в документации Bot API](https://core.telegram.org/bots/api#formatting-options).
@@ -270,6 +260,120 @@ async def extract_data(message: Message):
 ```
 
 ![Парсинг entities](images/messages/parse_entities.png)
+
+### Команды и их аргументы {: id="commands-args" }
+
+Telegram [предоставляет](https://core.telegram.org/bots/features#inputs) пользователям множество способов ввода 
+информации. Одним из них являются команды: ключевые слова, начинающиеся со слэша, например, `/new` или `/ban`. 
+Иногда бот может быть спроектирован так, чтобы ожидать после самой команды какие-то _аргументы_, вроде `/ban 2d` или 
+`/settimer 20h This is delayed message`. В составе aiogram есть фильтр `Command()`, упрощающий жизнь разработчика. 
+Реализуем последний пример в коде:
+
+```python
+@dp.message(Command("settimer"))
+async def cmd_settimer(
+        message: Message,
+        command: CommandObject
+):
+    # Если не переданы никакие аргументы, то
+    # command.args будет None
+    if command.args is None:
+        await message.answer(
+            "Ошибка: не переданы аргументы"
+        )
+        return
+    # Пробуем разделить аргументы на две части по первому встречному пробелу
+    try:
+        delay_time, text_to_send = command.args.split(" ", maxsplit=1)
+    # Если получилось меньше двух частей, вылетит ValueError
+    except ValueError:
+        await message.answer(
+            "Ошибка: неправильный формат команды. Пример:\n"
+            "/settimer <time> <message>"
+        )
+        return
+    await message.answer(
+        "Таймер добавлен!\n"
+        f"Время: {delay_time}\n"
+        f"Текст: {text_to_send}"
+    )
+```
+
+Попробуем передать команду с разными аргументами (или вообще без них) и проверить реакцию:
+
+![Аргументы команд](images/messages/command_args.png)
+
+С командами может возникнуть небольшая проблема в группах: Telegram автоматически подсвечивает команды, начинающиеся 
+со слэша, из-за чего порой случается вот такое (спасибо моим дорогим подписчикам за помощь в создании скриншота):
+
+![Флуд командами](images/messages/commands_flood.png)
+
+Чтобы этого избежать, можно заставить бота реагировать на команды с другими префиксами. Они не будут подсвечиваться и 
+потребуют полностью ручной ввод, так что сами оценивайте пользу такого подхода.
+
+```python
+@dp.message(Command("custom1", prefix="%"))
+async def cmd_custom1(message: Message):
+    await message.answer("Вижу команду!")
+
+
+# Можно указать несколько префиксов....vv...
+@dp.message(Command("custom2", prefix="/!"))
+async def cmd_custom2(message: Message):
+    await message.answer("И эту тоже вижу!")
+```
+
+![Кастомные префиксы](images/messages/command_custom_prefix.png)
+
+Проблема кастомных префиксов в группах только в том, что боты не-админы со включенным Privacy Mode (по умолчанию) могут 
+не увидеть такие команды из-за [особенностей](https://core.telegram.org/bots/faq#what-messages-will-my-bot-get) 
+логики сервера. Самый частый use-case — боты-модераторы групп, которые уже являются администраторами.
+
+### Диплинки {: id="deeplinks" }
+
+Существует одна команда в Telegram, у которой есть чуть больше возможностей. Это `/start`. Дело в том, что можно 
+сформировать ссылку вида `t.me/bot?start=xxx` и пре переходе по такой ссылке пользователю покажут кнопку «Начать», при 
+нажатии которой бот получит сообщение `/start xxx`. Т.е. в ссылке зашивается некий дополнительный параметр, не требующий 
+ручного ввода. Это называется диплинк (не путать с дикпиком) и может использоваться для кучи разных вещей: шорткаты для 
+активации различных команд, реферальная система, быстрая конфигурация бота и т.д. Напишем два примера:
+
+```python
+import re
+from aiogram import F
+from aiogram.types import Message
+from aiogram.filters import Command, CommandObject, CommandStart
+
+@dp.message(Command("help"))
+@dp.message(CommandStart(
+    deep_link=True, magic=F.args == "help"
+))
+async def cmd_start_help(message: Message):
+    await message.answer("Это сообщение со справкой")
+
+
+@dp.message(CommandStart(
+    deep_link=True,
+    magic=F.args.regexp(re.compile(r'book_(\d+)'))
+))
+async def cmd_start_book(
+        message: Message,
+        command: CommandObject
+):
+    book_number = command.args.split("_")[1]
+    await message.answer(f"Sending book №{book_number}")
+```
+
+![Примеры диплинков](images/messages/deeplinks.png)
+
+Учтите, что диплинки через `start` отправляют пользователя в личку с ботом. Чтобы выбрать группу и отправить диплинк туда, 
+замените `start` на `startgroup`. Также у aiogram существует удобная 
+[функция](https://github.com/aiogram/aiogram/blob/228a86afdc3c594dd9db9e82d8d6d445adb5ede1/aiogram/utils/deep_linking.py#L126-L158) 
+для создания диплинков прямо из вашего кода.
+
+!!! tip "Больше диплинков, но не для ботов"
+    В документации Telegram есть подробное описание всевозможных диплинков для клиентских приложений: 
+    [https://core.telegram.org/api/links](https://core.telegram.org/api/links)
+
 
 ## Медиафайлы {: id="media" }
 
