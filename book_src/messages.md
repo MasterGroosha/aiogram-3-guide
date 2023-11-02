@@ -496,6 +496,62 @@ async def download_sticker(message: Message, bot: Bot):
     [собственный сервер Bot API](https://core.telegram.org/bots/api#using-a-local-bot-api-server) для работы с 
     большими файлами.
 
+### Альбомы {: id="albums" }
+
+То, что мы называем «альбомами» (медиагруппами) в Telegram, на самом деле отдельные сообщения с медиа, у которых есть общий 
+`media_group_id` и которые визуально «склеиваются» на клиентах. Начиная с версии 3.1, в aiogram есть 
+[«сборщик» альбомов](https://docs.aiogram.dev/en/latest/utils/media_group.html), работу с которым мы сейчас рассмотрим. 
+Но прежде стоит упомянуть несколько особенностей медиагрупп:
+
+* К ним нельзя прицепить инлайн-клавиатуру или отправить реплай-клавиатуру вместе с ними. Никак. Вообще никак.
+* У каждого медиафайле в альбоме может быть своя подпись (caption). Если подпись есть только у одного медиа, 
+то она будет выводиться как общая подпись ко всему альбому.
+* Фотографии можно отправлять вперемешку с видео в одном альбоме, файлы (Document) и музыку (Audio) нельзя ни с чем 
+смешивать, только с медиа того же типа.
+* В альбоме может быть не больше 10 (десяти) медиафайлов.
+
+Теперь посмотрим, как это сделать в aiogram:
+
+```python
+from aiogram.filters import Command
+from aiogram.types import FSInputFile, Message
+from aiogram.utils.media_group import MediaGroupBuilder
+
+@dp.message(Command("album"))
+async def cmd_album(message: Message):
+    album_builder = MediaGroupBuilder(
+        caption="Общая подпись для будущего альбома"
+    )
+    album_builder.add(
+        type="photo",
+        media=FSInputFile("image_from_pc.jpg")
+        # caption="Подпись к конкретному медиа"
+
+    )
+    # Если мы сразу знаем тип, то вместо общего add
+    # можно сразу вызывать add_<тип>
+    album_builder.add_photo(
+        # Для ссылок или file_id достаточно сразу указать значение
+        media="https://picsum.photos/seed/groosha/400/300"
+    )
+    album_builder.add_photo(
+        media="<ваш file_id>"
+    )
+    await message.answer_media_group(
+        # Не забудьте вызвать build()
+        media=album_builder.build()
+    )
+```
+
+Результат: 
+
+![Результат работы билдера](images/messages/media_group_builder.png)
+
+А вот со скачиванием альбомов всё сильно хуже... Как уже было сказано выше, альбомы — это просто сгруппированные 
+отдельные сообщения, а это значит, что боту они прилетают тоже в разных апдейтах. Вряд ли существует 100% надёжный 
+способ принять весь альбом одним куском, но можно попытаться сделать это с минимальными потерями. Обычно это делается 
+через мидлвари, мою собственную реализацию приёма медиагрупп можно найти 
+[по этой ссылке](https://github.com/MasterGroosha/telegram-feedback-bot-topics/blob/master/bot/middlewares/albums_collector.py).
 
 ## Сервисные (служебные) сообщения {: id="service" }
 
