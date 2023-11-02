@@ -68,7 +68,7 @@ Type "help", "copyright", "credits" or "license" for more information.
 
 ```plain
 [groosha@main 01_quickstart]$ python3.9 -m venv venv
-[groosha@main 01_quickstart]$ echo "aiogram==3.0" > requirements.txt
+[groosha@main 01_quickstart]$ echo "aiogram<4.0" > requirements.txt
 [groosha@main 01_quickstart]$ echo "python-dotenv==1.0.0" >> requirements.txt
 [groosha@main 01_quickstart]$ source venv/bin/activate
 (venv) [groosha@main 01_quickstart]$ pip install -r requirements.txt 
