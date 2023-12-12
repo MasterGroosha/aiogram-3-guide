@@ -57,8 +57,12 @@ markdown_extensions:
   - pymdownx.superfences
   - meta
   - attr_list
+  - md_in_html
   - toc:
       permalink: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
 
 nav:
   - 'Введение': index.md
@@ -70,6 +74,7 @@ nav:
   - 'Особые апдейты': special-updates.md
   - 'Конечные автоматы': fsm.md
   - 'Инлайн-режим': inline-mode.md
+  - '🔒 Продвинутый уровень': advanced-teaser.md
 #  - 'Дополнительное чтение':
 #    - 'Тест': extra/test.md
 
