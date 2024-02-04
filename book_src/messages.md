@@ -409,7 +409,7 @@ async def echo_gif(message: Message):
 загрузку (upload) файлов Telegram правильнее производить один раз, а в дальнейшем использовать `file_id`, 
 который будет доступен после первой загрузки медиа. 
 
-В aiogram 3.x присутствуют 3 класса для отправки изображений - `FSInputFile`, `BufferedInputFile`, 
+В aiogram 3.x присутствуют 3 класса для отправки файлов и медиа - `FSInputFile`, `BufferedInputFile`, 
 `URLInputFile`, с ними можно ознакомиться 
 в [документации](https://docs.aiogram.dev/en/dev-3.x/api/upload_file.html).
 
