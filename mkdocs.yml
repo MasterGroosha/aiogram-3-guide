@@ -1,24 +1,24 @@
 # Project information
-site_name: Пишем Telegram-ботов с aiogram 3.x
-site_description: Учебник по разработке ботов для Telegram на языке Python при помощи фреймворка aiogram 3.x
+site_name: 🧭 aiogram 3.x 指南
+site_description: 使用 aiogram 3.x 框架用 Python 为 Telegram 开发机器人的教程。
 site_author: MasterGroosha
 site_url: https://mastergroosha.github.io/aiogram-3-guide
 docs_dir: book_src
 site_dir: docs
 
 # Repository
-repo_name: MasterGroosha/aiogram-3-guide
-repo_url: https://github.com/MasterGroosha/aiogram-3-guide
+repo_name: Donald996/aiogram-3-guide
+repo_url: https://github.com/Donald996/aiogram-3-guide
 edit_uri: ""
 
 # Copyright
-copyright: Copyright &copy; 2020-2023 Groosha
+copyright: Copyright &copy; 2023-2024 SychO
 
 # Configuration
 theme:
   name: material
   custom_dir: book_src/overrides
-  language: ru
+  language: zh
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
@@ -44,10 +44,10 @@ theme:
 extra:
   social:
     - icon: fontawesome/brands/telegram
-      link: https://t.me/+DE0_2nCvbXozZjUy
-      name: "Чат в Telegram"
+      link: https://t.me/SychO6
+      name: "Telegram"
     - icon: fontawesome/brands/github
-      link: https://github.com/MasterGroosha/aiogram-3-guide
+      link: https://github.com/Donald996/aiogram-3-guide
       name: GitHub
 
 # Extensions
@@ -65,16 +65,16 @@ markdown_extensions:
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
 
 nav:
-  - 'Введение': index.md
-  - 'Знакомство с aiogram': quickstart.md
-  - 'Работа с сообщениями': messages.md
-  - 'Кнопки': buttons.md
-  - 'Роутеры. Структура': routers.md
-  - 'Фильтры и мидлвари': filters-and-middlewares.md
-  - 'Особые апдейты': special-updates.md
-  - 'Конечные автоматы': fsm.md
-  - 'Инлайн-режим': inline-mode.md
-  - '🔒 Продвинутый уровень': advanced-teaser.md
+  - '导言': index.md
+  - '了解aiogram': quickstart.md
+  - '处理信息': messages.md
+  - '按钮': buttons.md
+  - '路由器': routers.md
+  - '过滤程序和中间件': filters-and-middlewares.md
+  - '更新': special-updates.md
+  - '有限状态机': fsm.md
+  - '内联模式': inline-mode.md
+#  - '🔒 高级': advanced-teaser.md
 #  - 'Дополнительное чтение':
 #    - 'Тест': extra/test.md
 
@@ -90,8 +90,8 @@ plugins:
   - search:
       lang:
         - en
-        - ru
+        - zh
 
 
 # Custom
-nav_name: "Оглавление"
+#nav_name: "目录"
