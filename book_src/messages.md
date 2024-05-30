@@ -66,15 +66,25 @@ async def any_message(message: Message):
 ![Hello world с разным форматированием](images/messages/l02_1.png)
 
 Если в боте повсеместно используется определённое форматирование, то каждый раз указывать аргумент `parse_mode` довольно 
-накладно. К счастью, в aiogram можно передать необходимый тип прямо в объект **Bot**, а если в каком-то конкретном случае 
-нужно обойтись без этих ваших разметок, то просто укажите `parse_mode=None`:
-
+накладно. К счастью, в aiogram можно задать параметры бота по умолчанию. Для этого создайте объект `DefaultBotProperties` 
+и передайте туда нужные настройки:
 
 ```python
+from aiogram.client.default import DefaultBotProperties
+
+bot = Bot(
+    token="123:abcxyz",
+    default=DefaultBotProperties(
+        parse_mode=ParseMode.HTML
+        # тут ещё много других интересных настроек
+    )
+)
 bot = Bot(token="123:abcxyz", parse_mode="HTML")
 
 # где-то в функции...
 await message.answer("Сообщение с <u>HTML-разметкой</u>")
+# чтобы явно отключить форматирование в конкретном запросе, 
+# передайте parse_mode=None
 await message.answer(
     "Сообщение без <s>какой-либо разметки</s>", 
     parse_mode=None
