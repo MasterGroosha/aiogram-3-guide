@@ -60,16 +60,16 @@ Type "help", "copyright", "credits" or "license" for more information.
 ```
 
 Теперь создадим файл `requirements.txt`, в котором укажем используемую нами версию aiogram. Также нам понадобится 
-библиотека python-dotenv для файлов конфигурации.
+библиотека pydantic-settings для файлов конфигурации.
 !!! important "О версиях aiogram"
     В этой главе используется aiogram **3.x**, перед началом работы рекомендую заглянуть в 
     [канал релизов](https://t.me/aiogram_live) библиотеки и проверить наличие более новой версии. Подойдёт любая 
     более новая, начинающаяся с цифры 3, поскольку aiogram 2.x более рассматриваться не будет и считается устаревшим.
 
 ```plain
-[groosha@main 01_quickstart]$ python3.9 -m venv venv
+[groosha@main 01_quickstart]$ python3.11 -m venv venv
 [groosha@main 01_quickstart]$ echo "aiogram<4.0" > requirements.txt
-[groosha@main 01_quickstart]$ echo "python-dotenv==1.0.0" >> requirements.txt
+[groosha@main 01_quickstart]$ echo "pydantic-settings" >> requirements.txt
 [groosha@main 01_quickstart]$ source venv/bin/activate
 (venv) [groosha@main 01_quickstart]$ pip install -r requirements.txt 
 # ...здесь куча строк про установку...
@@ -78,10 +78,10 @@ Successfully installed ...тут длинный список...
 ```
 
 Обратите внимание на префикс "venv" в терминале. Он указывает, что мы находимся в виртуальном окружении с именем "venv".
-Проверим, что внутри venv вызов команды `python` указывает на всё тот же Python 3.9:  
+Проверим, что внутри venv вызов команды `python` указывает на всё тот же Python 3.11:  
 ```plain
 (venv) [groosha@main 01_quickstart]$ python
-Python 3.9.9 (main, Jan 11 2022, 16:35:07) 
+Python 3.11.9 (main, Jan 11 2024, 16:35:07) 
 [GCC 11.1.0] on linux
 Type "help", "copyright", "credits" or "license" for more information.
 >>> exit()
