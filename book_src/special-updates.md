@@ -314,7 +314,7 @@ async def bot_added_as_admin(event: ChatMemberUpdated):
         member_status_changed=IS_NOT_MEMBER >> MEMBER
     )
 )
-async def bot_added_as_member(event: ChatMemberUpdated):
+async def bot_added_as_member(event: ChatMemberUpdated, bot: Bot):
     # Вариант посложнее: бота добавили как обычного участника.
     # Но может отсутствовать право написания сообщений, поэтому заранее проверим.
     chat_info = await bot.get_chat(event.chat.id)
