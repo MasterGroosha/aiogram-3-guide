@@ -6,7 +6,7 @@ description: Апдейты my_chat_member и chat_member
 # Особые апдейты {: id="special-updates" }
 
 !!! info ""
-    Используемая версия aiogram: 3.1.1
+    Используемая версия aiogram: 3.7.0
 
 ## Введение {: id="intro" }
 

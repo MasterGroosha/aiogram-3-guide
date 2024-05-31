@@ -21,7 +21,7 @@ title: Введение
 курсов по Python, пройдите их, а лишь затем принимайтесь за написание ботов, сэкономите себе время и нервные клетки.
 
 Во всех главах в качестве операционной системы мы будем использовать что-нибудь семейства GNU/Linux, 
-например, [Ubuntu](https://ubuntu.com/), Python 3.9 (в Virtual Environment) и среду разработки 
+например, [Ubuntu](https://ubuntu.com/), Python 3.11 (в Virtual Environment) и среду разработки 
 [PyCharm](https://www.jetbrains.com/ru-ru/pycharm/download/), впрочем, не возбраняется и [Visual Studio Code](https://code.visualstudio.com/).
 При этом пользователи Windows не в пролёте: всё, что касается кода, будет спокойно работать и у вас, а для специфичных вещей
 вроде systemd вы можете использовать Ubuntu в [VirtualBox](https://www.virtualbox.org).
