@@ -6,7 +6,7 @@ description: Знакомство с aiogram
 # Знакомство с aiogram
 
 !!! info ""
-    Используемая версия aiogram: 3.1.1
+    Используемая версия aiogram: 3.7.0
 
 !!! warning "Некоторые детали сознательно упрощены!"
     Автор этой книги убеждён, что помимо теории должна быть и практика. Чтобы максимально упростить повторение 
@@ -60,16 +60,16 @@ Type "help", "copyright", "credits" or "license" for more information.
 ```
 
 Теперь создадим файл `requirements.txt`, в котором укажем используемую нами версию aiogram. Также нам понадобится 
-библиотека python-dotenv для файлов конфигурации.
+библиотека pydantic-settings для файлов конфигурации.
 !!! important "О версиях aiogram"
     В этой главе используется aiogram **3.x**, перед началом работы рекомендую заглянуть в 
     [канал релизов](https://t.me/aiogram_live) библиотеки и проверить наличие более новой версии. Подойдёт любая 
     более новая, начинающаяся с цифры 3, поскольку aiogram 2.x более рассматриваться не будет и считается устаревшим.
 
 ```plain
-[groosha@main 01_quickstart]$ python3.9 -m venv venv
+[groosha@main 01_quickstart]$ python3.11 -m venv venv
 [groosha@main 01_quickstart]$ echo "aiogram<4.0" > requirements.txt
-[groosha@main 01_quickstart]$ echo "python-dotenv==1.0.0" >> requirements.txt
+[groosha@main 01_quickstart]$ echo "pydantic-settings" >> requirements.txt
 [groosha@main 01_quickstart]$ source venv/bin/activate
 (venv) [groosha@main 01_quickstart]$ pip install -r requirements.txt 
 # ...здесь куча строк про установку...
@@ -78,10 +78,10 @@ Successfully installed ...тут длинный список...
 ```
 
 Обратите внимание на префикс "venv" в терминале. Он указывает, что мы находимся в виртуальном окружении с именем "venv".
-Проверим, что внутри venv вызов команды `python` указывает на всё тот же Python 3.9:  
+Проверим, что внутри venv вызов команды `python` указывает на всё тот же Python 3.11:  
 ```plain
 (venv) [groosha@main 01_quickstart]$ python
-Python 3.9.9 (main, Jan 11 2022, 16:35:07) 
+Python 3.11.9 (main, Jan 11 2024, 16:35:07) 
 [GCC 11.1.0] on linux
 Type "help", "copyright", "credits" or "license" for more information.
 >>> exit()
@@ -205,12 +205,12 @@ async def cmd_dice(message: types.Message):
     поэтому встроенная проверка типов, как, например, в C++ или Java, отсутствует. Однако начиная с версии 3.5 
     в языке появилась поддержка [подсказок типов](https://docs.python.org/3/library/typing.html), благодаря которой
     различные чекеры и IDE вроде PyCharm анализируют типы используемых значений и подсказывают
-    программисту, если он передаёт что-то не то. В данном случае подсказка `types.Message` соообщает
+    программисту, если он передаёт что-то не то. В данном случае подсказка `types.Message` сообщает
     PyCharm-у, что переменная `message` имеет тип `Message`, описанный в модуле `types` библиотеки
     aiogram (см. импорты в начале кода). Благодаря этому IDE может на лету подсказывать атрибуты и функции.
 
 При вызове команды `/dice` бот отправит в тот же чат игральный кубик. Разумеется, если его надо отправить в какой-то
-другой чат, то придётся по-старинке вызывать `await bot.send_dice(...)`. Но объект `bot` (экземпляр класса Bot) может быть 
+другой чат, то придётся по старинке вызывать `await bot.send_dice(...)`. Но объект `bot` (экземпляр класса Bot) может быть 
 недоступен в области видимости конкретной функции. В aiogram 3.x объект бота, которому пришёл апдейт, неявно 
 прокидывается в хэндлер и его можно достать как аргумент `bot`. Предположим, вы хотите по команде `/dice` 
 отправлять кубик не в тот же чат, а в канал с ID -100123456789. Перепишем предыдущую функцию:

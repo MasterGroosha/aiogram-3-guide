@@ -1,2 +1,2 @@
-mkdocs-material==9.5.14
+mkdocs-material==9.5.25
 mkdocs-video==1.5.0

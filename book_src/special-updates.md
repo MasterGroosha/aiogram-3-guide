@@ -6,7 +6,7 @@ description: Апдейты my_chat_member и chat_member
 # Особые апдейты {: id="special-updates" }
 
 !!! info ""
-    Используемая версия aiogram: 3.1.1
+    Используемая версия aiogram: 3.7.0
 
 ## Введение {: id="intro" }
 
@@ -314,7 +314,7 @@ async def bot_added_as_admin(event: ChatMemberUpdated):
         member_status_changed=IS_NOT_MEMBER >> MEMBER
     )
 )
-async def bot_added_as_member(event: ChatMemberUpdated):
+async def bot_added_as_member(event: ChatMemberUpdated, bot: Bot):
     # Вариант посложнее: бота добавили как обычного участника.
     # Но может отсутствовать право написания сообщений, поэтому заранее проверим.
     chat_info = await bot.get_chat(event.chat.id)
@@ -496,6 +496,8 @@ import asyncio
 import logging
 
 from aiogram import Bot, Dispatcher
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
 
 from config_reader import config
 from handlers import in_pm, bot_in_group, admin_changes_in_group, events_in_group
@@ -508,7 +510,12 @@ async def main():
     )
 
     dp = Dispatcher()
-    bot = Bot(config.bot_token.get_secret_value(), parse_mode="HTML")
+    bot = Bot(
+        config.bot_token.get_secret_value(),
+        default=DefaultBotProperties(
+            parse_mode=ParseMode.HTML
+        )
+    )
     dp.include_routers(
         in_pm.router, events_in_group.router,
         bot_in_group.router, admin_changes_in_group.router

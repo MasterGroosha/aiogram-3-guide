@@ -4,16 +4,22 @@ import re
 from datetime import datetime
 
 from aiogram import Bot, Dispatcher, html, F
+from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import Command, CommandObject, CommandStart
-from aiogram.types import Message, FSInputFile, URLInputFile, BufferedInputFile
+from aiogram.types import Message, FSInputFile, URLInputFile, BufferedInputFile, LinkPreviewOptions
 from aiogram.utils.formatting import as_list, as_marked_section, Bold, as_key_value, HashTag
 from aiogram.utils.markdown import hide_link
 from aiogram.utils.media_group import MediaGroupBuilder
 
 from config_reader import config
 
-bot = Bot(token=config.bot_token.get_secret_value(), parse_mode="HTML")
+bot = Bot(
+    token=config.bot_token.get_secret_value(),
+    default=DefaultBotProperties(
+        parse_mode=ParseMode.HTML
+    )
+)
 dp = Dispatcher()
 logging.basicConfig(level=logging.INFO)
 
@@ -91,6 +97,15 @@ async def cmd_settimer(
     )
 
 
+@dp.message(Command("gif"))
+async def send_gif(message: Message):
+    await message.answer_animation(
+        animation="<file_id гифки>",
+        caption="Я сегодня:",
+        show_caption_above_media=True
+    )
+
+
 @dp.message(Command("custom1", prefix="%"))
 async def cmd_custom1(message: Message):
     await message.answer("Вижу команду!")
@@ -120,6 +135,73 @@ async def cmd_start_book(
 ):
     book_number = command.args.split("_")[1]
     await message.answer(f"Sending book №{book_number}")
+
+
+@dp.message(Command("links"))
+async def cmd_links(message: Message):
+    # Две ссылки, которые попадут в итоговое сообщение
+    links_text = (
+        "https://nplus1.ru/news/2024/05/23/voyager-1-science-data"
+        "\n"
+        "https://t.me/telegram"
+    )
+    # Ссылка отключена
+    options_1 = LinkPreviewOptions(is_disabled=True)
+    await message.answer(
+        f"Нет превью ссылок\n{links_text}",
+        link_preview_options=options_1
+    )
+
+    # -------------------- #
+
+    # Маленькое превью
+    # Для использования prefer_small_media обязательно указывать ещё и url
+    options_2 = LinkPreviewOptions(
+        url="https://nplus1.ru/news/2024/05/23/voyager-1-science-data",
+        prefer_small_media=True
+    )
+    await message.answer(
+        f"Маленькое превью\n{links_text}",
+        link_preview_options=options_2
+    )
+
+    # -------------------- #
+
+    # Большое превью
+    # Для использования prefer_large_media обязательно указывать ещё и url
+    options_3 = LinkPreviewOptions(
+        url="https://nplus1.ru/news/2024/05/23/voyager-1-science-data",
+        prefer_large_media=True
+    )
+    await message.answer(
+        f"Большое превью\n{links_text}",
+        link_preview_options=options_3
+    )
+
+    # -------------------- #
+
+    # Можно сочетать: маленькое превью и расположение над текстом
+    options_4 = LinkPreviewOptions(
+        url="https://nplus1.ru/news/2024/05/23/voyager-1-science-data",
+        prefer_small_media=True,
+        show_above_text=True
+    )
+    await message.answer(
+        f"Маленькое превью над текстом\n{links_text}",
+        link_preview_options=options_4
+    )
+
+    # -------------------- #
+
+    # Можно выбрать, какая ссылка будет использоваться для предпосмотра,
+    options_5 = LinkPreviewOptions(
+        url="https://t.me/telegram"
+    )
+    await message.answer(
+        f"Предпросмотр не первой ссылки\n{links_text}",
+        link_preview_options=options_5
+    )
+
 
 
 @dp.message(Command("hidden_link"))
