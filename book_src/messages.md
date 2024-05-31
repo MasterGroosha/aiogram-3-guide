@@ -545,6 +545,20 @@ async def upload_photo(message: Message):
     await message.answer("Отправленные файлы:\n"+"\n".join(file_ids))
 ```
 
+Подпись у фото, видео и GIF можно перенести наверх: 
+
+```python
+@dp.message(Command("gif"))
+async def send_gif(message: Message):
+    await message.answer_animation(
+        animation="<file_id гифки>",
+        caption="Я сегодня:",
+        show_caption_above_media=True
+    )
+```
+
+![подпись над анимацией](images/messages/caption_above_media.jpg)
+
 ### Скачивание файлов {: id="downloading-media" }
 
 Помимо переиспользования для отправки, бот может скачать медиа к себе на компьютер/сервер. Для этого у объекта типа `Bot` 

@@ -97,6 +97,15 @@ async def cmd_settimer(
     )
 
 
+@dp.message(Command("gif"))
+async def send_gif(message: Message):
+    await message.answer_animation(
+        animation="<file_id гифки>",
+        caption="Я сегодня:",
+        show_caption_above_media=True
+    )
+
+
 @dp.message(Command("custom1", prefix="%"))
 async def cmd_custom1(message: Message):
     await message.answer("Вижу команду!")
