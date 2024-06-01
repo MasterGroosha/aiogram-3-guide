@@ -143,3 +143,16 @@ To register a function as a message handler, you need to do one of two things:
 1. Attach a [decorator](https://devpractice.ru/python-lesson-19-decorators/) to it, as in the example above. 
 We will get acquainted with various types of decorators later.  
 2. Directly call the registration method on the dispatcher or router.
+
+Let's consider the following code:
+
+```python
+# Handler for the /test1 command
+@dp.message(Command("test1"))
+async def cmd_test1(message: types.Message):
+    await message.reply("Test 1")
+
+# Handler for the /test2 command
+async def cmd_test2(message: types.Message):
+    await message.reply("Test 2")
+```
