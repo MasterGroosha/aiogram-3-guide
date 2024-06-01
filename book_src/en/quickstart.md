@@ -43,3 +43,54 @@ to process the received update.
 * Filter — an expression that usually returns True or False and affects whether a handler will be called or not.
 * Middleware — a layer that is inserted into the processing of updates.
 
+## Installation {: id="installation" }
+
+First, let's create a directory for the bot, set up a virtual environment (venv) there, and
+install the [aiogram](https://github.com/aiogram/aiogram) library.  
+Let's check that Python version 3.9 is installed (if you know that you have version 3.9 or higher, you can skip this section):
+
+```plain
+[groosha@main lesson_01]$ python3.9
+Python 3.9.9 (main, Jan 11 2022, 16:35:07) 
+[GCC 11.1.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> exit()
+[groosha@main lesson_01]$ 
+```
+
+Now let's create a `requirements.txt` file, in which we will specify the version of aiogram we are using. 
+We will also need the pydantic-settings library for configuration files.
+!!! important "About aiogram versions"
+    This chapter uses aiogram **3.x**. Before you start, 
+    I recommend checking the [release channel](https://t.me/aiogram_live) of the library to see if there is a newer version available. 
+    Any newer version starting with the number 3 will do, as aiogram 2.x will not be considered anymore and is deemed outdated.
+
+```plain
+[groosha@main 01_quickstart]$ python3.11 -m venv venv
+[groosha@main 01_quickstart]$ echo "aiogram<4.0" > requirements.txt
+[groosha@main 01_quickstart]$ echo "pydantic-settings" >> requirements.txt
+[groosha@main 01_quickstart]$ source venv/bin/activate
+(venv) [groosha@main 01_quickstart]$ pip install -r requirements.txt 
+# ...here a bunch of lines about installation...
+Successfully installed ...here a long list...
+[groosha@main 01_quickstart]$
+```
+
+Note the "venv" prefix in the terminal. It indicates that we are inside a virtual environment named "venv".
+Let's verify that inside venv the command `python` still points to the same Python 3.11:  
+```plain
+(venv) [groosha@main 01_quickstart]$ python
+Python 3.11.9 (main, Jan 11 2024, 16:35:07) 
+[GCC 11.1.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> exit()
+(venv) [groosha@main 01_quickstart]$ deactivate 
+[groosha@main 01_quickstart]$ 
+```
+
+Using the last `deactivate` command, we exited venv so that it doesn't interfere with us now.
+
+!!! info ""
+    If you use PyCharm for writing bots, I also recommend installing the third-party 
+    [Pydantic](https://plugins.jetbrains.com/plugin/12861-pydantic) plugin to support code autocompletion 
+    in Telegram objects.
