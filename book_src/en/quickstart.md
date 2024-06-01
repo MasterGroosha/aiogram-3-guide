@@ -94,3 +94,52 @@ Using the last `deactivate` command, we exited venv so that it doesn't interfere
     If you use PyCharm for writing bots, I also recommend installing the third-party 
     [Pydantic](https://plugins.jetbrains.com/plugin/12861-pydantic) plugin to support code autocompletion 
     in Telegram objects.
+
+## First Bot {: id="hello-world" }
+
+Let's create a `bot.py` file with a basic bot template using aiogram:
+```python title="bot.py"
+import asyncio
+import logging
+from aiogram import Bot, Dispatcher, types
+from aiogram.filters.command import Command
+
+# Enable logging to avoid missing important messages
+logging.basicConfig(level=logging.INFO)
+# Bot object
+bot = Bot(token="12345678:AaBbCcDdEeFfGgHh")
+# Dispatcher
+dp = Dispatcher()
+
+# Handler for the /start command
+@dp.message(Command("start"))
+async def cmd_start(message: types.Message):
+    await message.answer("Hello!")
+
+# Start polling for new updates
+async def main():
+    await dp.start_polling(bot)
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+The first thing to note is that aiogram is an asynchronous library, so your handlers must also be asynchronous, 
+and you need to put the **await** keyword before API method calls, as these calls return [coroutines](https://docs.python.org/3/library/asyncio-task.html#coroutines).
+
+!!! info "Asynchronous programming in Python"
+    Don't neglect the official documentation!  
+    A great tutorial on asyncio is available [on the Python website](https://docs.python.org/3/library/asyncio-task.html)
+
+If you have previously worked with another library for Telegram, for example, pyTelegramBotAPI, 
+then the concept of handlers (event processors) will immediately become clear to you. 
+The difference is that in aiogram, handlers are managed by the dispatcher. The dispatcher registers handler functions, 
+further limiting the list of events that call them through filters. After receiving the next update (event from Telegram), 
+the dispatcher will select the appropriate processing function that matches all the filters, 
+for example, "processing messages that are images, in a chat with ID x and with a caption length of y". 
+If two functions have logically identical filters, the one that was registered first will be called.
+
+To register a function as a message handler, you need to do one of two things:
+1. Attach a [decorator](https://devpractice.ru/python-lesson-19-decorators/) to it, as in the example above.
+We will get acquainted with various types of decorators later.
+2. Directly call the registration method on the dispatcher or router.
