@@ -119,7 +119,7 @@ plugins:
           theme:
             name: material
             custom_dir: book_src/overrides
-            language: ru
+            language: en
             palette:
               - media: "(prefers-color-scheme: light)"
                 scheme: default
