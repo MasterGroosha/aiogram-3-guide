@@ -26,3 +26,20 @@ description: Getting Started with aiogram
     **It is important to remember that the author's goal is to explain specifically how to work with the Telegram Bot API
     using aiogram, not to teach all of Computer Science in its entirety.**
 
+## Terminology {: id="glossary" }
+
+To communicate using the same concepts, let's introduce some terms to avoid confusion moving forward:
+
+* DM — direct messages, in the context of a bot this is a one-on-one conversation with a user, not a group/channel.
+* Chat — a general term for DMs, groups, supergroups, and channels.
+* Update — any event from [this list](https://core.telegram.org/bots/api#update): 
+messages, edited messages, callbacks, inline queries, payments, adding bots to groups, etc.
+* Handler — an asynchronous function that receives the next update from the dispatcher/router 
+and processes it.
+* Dispatcher — an object that handles receiving updates from Telegram and subsequently chooses a handler 
+to process the received update.
+* Router — similar to the dispatcher, but responsible for a subset of handlers. 
+**It can be said that the dispatcher is the root router**.
+* Filter — an expression that usually returns True or False and affects whether a handler will be called or not.
+* Middleware — a layer that is inserted into the processing of updates.
+
