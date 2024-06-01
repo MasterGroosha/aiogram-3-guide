@@ -139,7 +139,7 @@ the dispatcher will select the appropriate processing function that matches all 
 for example, "processing messages that are images, in a chat with ID x and with a caption length of y". 
 If two functions have logically identical filters, the one that was registered first will be called.
 
-To register a function as a message handler, you need to do one of two things:
-1. Attach a [decorator](https://devpractice.ru/python-lesson-19-decorators/) to it, as in the example above.
-We will get acquainted with various types of decorators later.
+To register a function as a message handler, you need to do one of two things:  
+1. Attach a [decorator](https://devpractice.ru/python-lesson-19-decorators/) to it, as in the example above. 
+We will get acquainted with various types of decorators later.  
 2. Directly call the registration method on the dispatcher or router.
