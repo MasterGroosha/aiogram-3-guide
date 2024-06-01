@@ -114,6 +114,7 @@ plugins:
             'Конечные автоматы': "Finite State Machines"
             'Инлайн-режим': "Inline Mode"
             '🔒 Продвинутый уровень': "🔒 Advanced Level"
+          nav_name: "Contents"
           site_name: Writing Telegram Bots with aiogram 3.x
           site_description: A tutorial on developing bots for Telegram using the aiogram 3.x framework in Python
           theme:
