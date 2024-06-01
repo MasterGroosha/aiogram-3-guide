@@ -27,3 +27,12 @@ everything related to the code will work smoothly for you too, and for specific 
 
 The text of the book and the source code in the [relevant repository](https://github.com/MasterGroosha/aiogram-3-guide) 
 are completely free, published under the MIT license, and available to anyone for download, modification, and use for any purpose.
+
+**Donations**  
+I spent a lot of time and effort writing and updating the book. If you are from Russia and want to thank the author financially, 
+you can do so via [YooMoney](https://yoomoney.ru/to/41001515922197) (please specify in the comments that it is for the book).  
+Just to clarify, any donation is **voluntary and does not provide any advantages**, except for a plus in karma.
+
+**Acknowledgments**  
+Thanks to the creator of aiogram [Alex JRootJunior](https://github.com/JrooTJunior), contributors to aiogram itself [aiogram](https://github.com/aiogram/aiogram) 
+and the [book's repository](https://github.com/MasterGroosha/aiogram-3-guide), as well as to you, dear readers, for the existence and current form of this book!
