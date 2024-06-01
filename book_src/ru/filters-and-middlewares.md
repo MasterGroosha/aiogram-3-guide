@@ -214,7 +214,7 @@ if __name__ == "__main__":
 
 Проверяем:
 
-![Работа фильтра в группе](images/filters-and-middlewares/group_filter.png)
+![Работа фильтра в группе](../images/filters-and-middlewares/group_filter.png)
 
 Вроде всё хорошо, но что, если у нас будет не 2 хэндлера, а 10? Придётся каждому указывать наш 
 фильтр и нигде не забыть. К счастью, фильтры можно цеплять прямо на роутеры! В этом случае проверка 
@@ -325,7 +325,7 @@ async def message_with_usernames(
 который навешан этот фильтр, можно добавить аргумент с точно таким же названием в функцию-обработчик. Вуаля! 
 Теперь нет нужды ещё раз парсить всё сообщение и снова вытаскивать список юзернеймов: 
 
-![Перечисляем вытащенные юзернеймы](images/filters-and-middlewares/data_propagation_in_filter.png)
+![Перечисляем вытащенные юзернеймы](../images/filters-and-middlewares/data_propagation_in_filter.png)
 
 ### Магические фильтры {: id="magic-filters" }
 
@@ -539,7 +539,7 @@ if __name__ == "__main__":
 [другом разделе](https://docs.aiogram.dev/en/dev-3.x/dispatcher/middlewares.html#basics) и посмотрим на 
 следующее изображение:
 
-![«луковица» из мидлварей](images/filters-and-middlewares/middlewares_structure.png)
+![«луковица» из мидлварей](../images/filters-and-middlewares/middlewares_structure.png)
 
 Оказывается, мидлварей два вида: внешние (outer) и внутренние (inner или просто «мидлвари»). В чём разница? 
 Outer выполняются до начала проверки фильтрами, а inner — после. На практике это значит, что сообщение/колбэк/инлайн-запрос, 
@@ -758,7 +758,7 @@ async def main():
 
 Вот какие результаты получились в ноябре (11-й месяц):
 
-![У кого-то месяц счастливый, а у кого-то не очень](images/filters-and-middlewares/happymonth.png)
+![У кого-то месяц счастливый, а у кого-то не очень](../images/filters-and-middlewares/happymonth.png)
 
 #### Никаких колбэков по выходным! {: id="no-callbacks-on-weekend" }
 

@@ -16,7 +16,7 @@ description: Инлайн-режим
 позволяющий пользователю отправить информацию от своего имени, но с помощью бота. Это называется **инлайн-режим** 
 (Inline mode), и вот как он выглядит в реальной жизни:
 
-![Пример работы бота @imdb в инлайн-режиме](images/inline_mode/inline_demo.png)
+![Пример работы бота @imdb в инлайн-режиме](../images/inline_mode/inline_demo.png)
 
 Но как на практике вообще можно применить такую фичу? Предлагаю взглянуть на названия некоторых
 около-официальных Telegram-ботов, у которых есть инлайн-режим:
@@ -64,7 +64,7 @@ description: Инлайн-режим
 вместо ссылки на медиафайл. Различные типы лучше всего не смешивать друг с другом, особенно Article с остальными.
 Рассмотрим некоторые из них отдельно.
 
-![тип InlineQueryResultArticle](images/inline_mode/inline_articles.jpg)
+![тип InlineQueryResultArticle](../images/inline_mode/inline_articles.jpg)
 
 Пожалуй, самый часто используемый тип — это [InlineQueryResultArticle](https://core.telegram.org/bots/api#inlinequeryresultarticle)
 (на изображении сверху). Во всех основных клиентах выглядит как стопка из прямоугольных блоков, у которых всегда есть 
@@ -79,7 +79,7 @@ description: Инлайн-режим
 * контакт
 * счёт на оплату (invoice)
 
-![тип InlineQueryResultPhoto](images/inline_mode/inline_pictures.png)
+![тип InlineQueryResultPhoto](../images/inline_mode/inline_pictures.png)
 
 Остальные типы относятся к т.н. «медиафайлам», которые мы рассмотрим на примере изображений. При ответе набором 
 изображений данные выстраиваются либо вертикальными плитками, как на скриншоте выше, либо прокручиваемой горизонтальной 
@@ -121,7 +121,7 @@ description: Инлайн-режим
 личку с ботом, вместо поля ввода будет кнопка «НАЧАТЬ», а при нажатии боту прилетит сообщение с текстом 
 `/start ТЕКСТ`, где вместо ТЕКСТ — значение аргумента `switch_pm_parameter`.
 
-![Кнопка switch_pm](images/inline_mode/switch_pm_button.png)
+![Кнопка switch_pm](../images/inline_mode/switch_pm_button.png)
 
 Подобную штуку очень удобно использовать, если по конкретному запросу нет результатов или хочется дать возможность 
 юзеру быстро что-то добавить. Есть и ещё одна фича, но её мы рассмотрим позднее в процессе разработки бота. Кстати, 
@@ -505,7 +505,7 @@ async def save_image(message: Message, photo: PhotoSize, state: FSMContext):
 [InlineQueryResultArticle](https://core.telegram.org/bots/api#inlinequeryresultarticle). Все необходимые 
 (и даже дополнительные) данные у нас уже есть:
 
-![Содержимое объекта InlineQueryResultArticle](images/inline_mode/article_content.png "Содержимое объекта InlineQueryResultArticle")
+![Содержимое объекта InlineQueryResultArticle](../images/inline_mode/article_content.png "Содержимое объекта InlineQueryResultArticle")
 
 Для аргумента `input_message_content` напишем простую вложенную функцию, которая будет возвращать текст с учётом наличия или 
 отсутствия описания:
@@ -557,11 +557,11 @@ async def show_user_links(inline_query: InlineQuery):
 
 Получаем в итоге (у второй записи был пропущен этап со сводом `description`):
 
-![Просмотр ссылок](images/inline_mode/our_links_result.png "Просмотр ссылок")
+![Просмотр ссылок](../images/inline_mode/our_links_result.png "Просмотр ссылок")
 
 При нажатии получается вот такое красивое сообщение:
 
-![Результат в чате](images/inline_mode/our_links_result_in_chat.png "Результат в чате")
+![Результат в чате](../images/inline_mode/our_links_result_in_chat.png "Результат в чате")
 
 #### Изображения {: id="show-images" }
 
@@ -585,7 +585,7 @@ async def show_user_images(inline_query: InlineQuery):
 
 Ну и результат:
 
-![Отображение картинок в инлайн-режиме](images/inline_mode/our_images_result.png "Отображение картинок в инлайн-режиме")
+![Отображение картинок в инлайн-режиме](../images/inline_mode/our_images_result.png "Отображение картинок в инлайн-режиме")
 
 ### Удаление данных {: id="delete-data" }
 
@@ -632,7 +632,7 @@ async def cmd_delete(message: Message, state: FSMContext):
 При нажатии на такую кнопку подставляется нужное значение в инлайн-режим, что сразу откроет список ссылок или 
 изображений (для демонстрации я убрал пока всплывающего меню, чтобы было видно кнопки):
 
-![Кнопка switch_inline_query_current_chat](images/inline_mode/cmd_delete.png "Кнопка switch_inline_query_current_chat")
+![Кнопка switch_inline_query_current_chat](../images/inline_mode/cmd_delete.png "Кнопка switch_inline_query_current_chat")
 
 Если бы мы использовали просто `switch_inline_query` вместо `switch_inline_query_current_chat`, то Telegram предложил 
 бы выбрать чат, в который пользователь может писать, а затем подставил бы указанный текст там.
@@ -816,7 +816,7 @@ async def pagination_demo(
 Мало кто знает, но Telegram позволяет собирать простенькую статистику по использованию бота в инлайн-режиме. Для начала 
 требуется включить соответствующую настройку у @BotFather: `/mybots` - (выбрать бота) - Bot Settings - Inline Feedback:
 
-![Пример работы бота @imdb в инлайн-режиме](images/inline_mode/botfather_inline_feedback.png "Пример работы бота @imdb в инлайн-режиме")
+![Пример работы бота @imdb в инлайн-режиме](../images/inline_mode/botfather_inline_feedback.png "Пример работы бота @imdb в инлайн-режиме")
 
 Числа на кнопках означают _вероятность_ получения события [ChosenInlineResult](https://core.telegram.org/bots/api#choseninlineresult) 
 при выборе пользователем какого-либо объекта в инлайн-режиме. Так, например, если выставлено значение **10%**, то при 

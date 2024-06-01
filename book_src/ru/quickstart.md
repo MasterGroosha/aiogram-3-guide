@@ -157,7 +157,7 @@ async def cmd_test2(message: types.Message):
 ```
 
 Давайте запустим с ним бота:  
-![Команда /test2 не работает](images/quickstart/l01_1.jpg)
+![Команда /test2 не работает](../images/quickstart/l01_1.jpg)
 
 Хэндлер `cmd_test2` не сработает, т.к. диспетчер о нём не знает. Исправим эту ошибку 
 и отдельно зарегистрируем функцию:
@@ -171,7 +171,7 @@ dp.message.register(cmd_test2, Command("test2"))
 ```
 
 Снова запустим бота:  
-![Обе команды работают](images/quickstart/l01_2.jpg)
+![Обе команды работают](../images/quickstart/l01_2.jpg)
 
 ## Синтаксический сахар {: id="sugar" }
 
@@ -190,7 +190,7 @@ async def cmd_answer(message: types.Message):
 async def cmd_reply(message: types.Message):
     await message.reply('Это ответ с "ответом"')
 ```
-![Разница между message.answer() и message.reply()](images/quickstart/l01_3.jpg)
+![Разница между message.answer() и message.reply()](../images/quickstart/l01_3.jpg)
 
 Более того, для большинства типов сообщений есть вспомогательные методы вида 
 "answer_{type}" или "reply_{type}", например:
@@ -267,7 +267,7 @@ async def cmd_info(message: types.Message, started_at: str):
 уникальные для каждого апдейта значения (например, объект сессии СУБД), 
 то ознакомьтесь с [мидлварями](filters-and-middlewares.md#middlewares).
 
-![Аргумент mylist может быть изменён между вызовами](images/quickstart/extra-args.png)
+![Аргумент mylist может быть изменён между вызовами](../images/quickstart/extra-args.png)
 
 ## Файлы конфигурации
 

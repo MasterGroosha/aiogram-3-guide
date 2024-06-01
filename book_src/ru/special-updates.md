@@ -108,7 +108,7 @@ Insomnia/Postman и перейдём по ссылке `https://api.telegram.org
 
 Итак, вот что приходит боту, когда кто-то его блокирует:
 
-![Пользователь заблокировал бота](images/special-updates/my_chat_member-blocked.png)
+![Пользователь заблокировал бота](../images/special-updates/my_chat_member-blocked.png)
 
 На что надо обратить внимание:
 
@@ -122,7 +122,7 @@ Insomnia/Postman и перейдём по ссылке `https://api.telegram.org
 То есть, бот в ЛС с Groosha совершил переход своего состояния из "member" в "kicked". Теперь посмотрим, что пришло от 
 Telegram после разблокировки:
 
-![Пользователь разблокировал бота](images/special-updates/my_chat_member-unblocked.png)
+![Пользователь разблокировал бота](../images/special-updates/my_chat_member-unblocked.png)
 
 Этот скриншот похож на предыдущий, но если присмотреться, то можно заметить разницу: другой `update_id` 
 (увеличился на единицу), а также статусы ДО и ПОСЛЕ поменялись местами. Бот в ЛС с Groosha совершил переход 
@@ -188,7 +188,7 @@ async def cmd_users(message: Message):
 
 И вот как это выглядит на практике:
 
-![type:video](images/special-updates/my_chat_member_video.mp4)
+![type:video](../images/special-updates/my_chat_member_video.mp4)
 
 ### Добавление в группу {: id="bot-added-to-group" }
 
@@ -333,7 +333,7 @@ async def bot_added_as_member(event: ChatMemberUpdated, bot: Bot):
 со своим ботом [@my_id_bot](https://t.me/my_id_bot), а затем добавил туда тестового бота с кодом, описанным выше. 
 Внимание на картинку:
 
-![конвертация группы в супергруппу](images/special-updates/group_supergroup.png)
+![конвертация группы в супергруппу](../images/special-updates/group_supergroup.png)
 
 Ой, почему-то бот отреагировал так, как будто его только что добавили, хотя вроде как ничего не изменилось. 
 На деле, конвертация группы в супергруппу для бота выглядит как добавление в новый чат. К счастью, в 
@@ -534,15 +534,15 @@ if __name__ == '__main__':
 
 Теперь посмотрим, что в итоге получилось. Пробуем вызвать команду `/ban` не-админом:
 
-![У пользователя не хватает прав](images/special-updates/ban_insufficient_rights.png)
+![У пользователя не хватает прав](../images/special-updates/ban_insufficient_rights.png)
 
 Идём в настройки группы и назначаем Артура администратором (бот увидит изменение и сообщит об этом в чате):
 
-![Теперь прав достаточно](images/special-updates/ban_ok.png)
+![Теперь прав достаточно](../images/special-updates/ban_ok.png)
 
 Отзовём права админа у подопытного пациента и попросим его ещё раз вызвать команду `/ban`:
 
-![Прав снова не хватает](images/special-updates/ban_insufficient_again.png)
+![Прав снова не хватает](../images/special-updates/ban_insufficient_again.png)
 
 Теперь вы знаете, как работать с этими «невидимыми» апдейтами, ура! Напоследок, порекомендую ознакомиться 
 с [ещё одним демонстрационным ботом](https://github.com/MasterGroosha/telegram-report-bot/tree/aiogram3/), в котором 
