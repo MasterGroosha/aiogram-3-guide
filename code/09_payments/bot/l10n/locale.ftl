@@ -9,14 +9,6 @@ cmd-start =
     • /paysupport: помощь с покупками.
     • /refund: возврат платежа (рефанд).
 
-donate-cmd-message =
-    Вы собираетесь подарить {$starsCount ->
-        [one] {$starsCount} звезду
-        [few] {$starsCount} звезды
-       *[other] {$starsCount} звёзд
-}.
-    Пожалуйста, нажмите на кнопку ниже для продолжения.
-
 custom-donate-input-error = Пожалуйста, введите сумму в формате <code>/donate ЧИСЛО</code>, где ЧИСЛО от 1 до 2500 включительно.
 
 invoice-title = Добровольное пожертвование
