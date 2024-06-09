@@ -4,6 +4,7 @@ import logging
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 # Доп. импорт для раздела про стратегии FSM
+from aiogram.fsm.strategy import FSMStrategy
 
 # файл config_reader.py можно взять из репозитория
 # пример — в первой главе
