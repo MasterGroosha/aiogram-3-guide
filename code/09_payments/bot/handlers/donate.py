@@ -1,6 +1,5 @@
 import structlog
 from aiogram import F, Router, Bot
-from aiogram.enums import ParseMode
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import CommandStart, Command, CommandObject
 from aiogram.types import Message, LabeledPrice, PreCheckoutQuery
@@ -11,7 +10,10 @@ logger = structlog.get_logger()
 
 
 @router.message(CommandStart())
-async def cmd_start(message: Message, l10n: FluentLocalization):
+async def cmd_start(
+    message: Message,
+    l10n: FluentLocalization,
+):
     await message.answer(
         l10n.format_value("cmd-start"),
         parse_mode=None,
