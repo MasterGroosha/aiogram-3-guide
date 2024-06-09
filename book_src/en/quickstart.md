@@ -277,7 +277,7 @@ then check out [middlewares](filters-and-middlewares.md#middlewares).
 
 ![The mylist argument can be modified between calls](../images/en/quickstart/extra-args.png)
 
-## Configuration Files
+## Configuration Files {: id="configuration-files" }
 
 In order not to store the token directly in the code (what if you want to upload your bot to a public repository?), 
 you can move such data to a separate configuration file. There is [a good and reasonable opinion](https://configu.com/blog/dotenv-managing-environment-variables-in-node-python-php-and-more/), 

@@ -125,13 +125,13 @@ plugins:
             palette:
               - media: "(prefers-color-scheme: light)"
                 scheme: default
-                primary: teal
+                primary: crimson
                 toggle:
                   icon: material/brightness-4
                   name: Switch to Dark Theme
               - media: "(prefers-color-scheme: dark)"
                 scheme: slate
-                primary: teal
+                primary: crimson
                 toggle:
                   icon: material/brightness-7
                   name: Switch to Light Theme
