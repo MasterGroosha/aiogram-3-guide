@@ -114,6 +114,7 @@ plugins:
             'Особые апдейты': "Special Updates"
             'Конечные автоматы': "Finite State Machines"
             'Инлайн-режим': "Inline Mode"
+            'Платежи': "Payments"
             '🔒 Продвинутый уровень': "🔒 Advanced Level"
           nav_name: "Contents"
           site_name: Writing Telegram Bots with aiogram 3.x
