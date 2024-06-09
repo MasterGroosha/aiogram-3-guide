@@ -1,0 +1,14 @@
+[Unit]
+Description=Donate Bot
+After=network.target
+
+[Service]
+Type=simple
+User=groosha
+Environment=CONFIG_FILE_PATH=/home/user/donate-bot/settings.toml
+WorkingDirectory=/home/user/donate-bot
+ExecStart=/home/user/donate-bot/venv/bin/python -m bot
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
