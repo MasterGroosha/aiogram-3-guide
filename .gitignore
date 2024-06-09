@@ -6,4 +6,7 @@ docs/
 
 # .env-файлы
 .env
-/code/09_payments/settings.toml
+/code/ru/09_payments/settings.toml
+
+# Vai files, etc.
+dev_data/

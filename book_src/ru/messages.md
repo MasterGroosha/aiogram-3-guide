@@ -63,7 +63,7 @@ async def any_message(message: Message):
     )
 ```
 
-![Hello world с разным форматированием](../images/messages/l02_1.png)
+![Hello world с разным форматированием](../images/ru/messages/l02_1.png)
 
 Если в боте повсеместно используется определённое форматирование, то каждый раз указывать аргумент `parse_mode` довольно 
 накладно. К счастью, в aiogram можно задать параметры бота по умолчанию. Для этого создайте объект `DefaultBotProperties` 
@@ -91,7 +91,7 @@ await message.answer(
 )
 ```
 
-![Настройка типа разметки по умолчанию](../images/messages/l02_2.png)
+![Настройка типа разметки по умолчанию](../images/ru/messages/l02_2.png)
 
 ### Экранирование ввода {: id="input-escaping" }
 
@@ -113,7 +113,7 @@ async def cmd_hello(message: Message):
 
 И вроде всё хорошо, бот приветствует пользователей:
 
-![Работа команды /hello](../images/messages/cmd_hello_before.png)
+![Работа команды /hello](../images/ru/messages/cmd_hello_before.png)
 
 Но тут приходит юзер с именем &lt;Cлавик777&gt; и бот молчит! А в логах видно следующее:
 `aiogram.exceptions.TelegramBadRequest: Telegram server says - Bad Request: can't parse entities: 
@@ -155,7 +155,7 @@ async def cmd_hello(message: Message):
 В примере выше конструкция `**content.as_kwargs()` вернёт аргументы `text`, `entities`, `parse_mode` и 
 подставит их в вызов `answer()`.
 
-![Работа команды /hello после фиксов](../images/messages/cmd_hello_after.png)
+![Работа команды /hello после фиксов](../images/ru/messages/cmd_hello_after.png)
 
 Упомянутый инструмент форматирования довольно комплексный, 
 [официальная документация](https://docs.aiogram.dev/en/latest/utils/formatting.html) демонстрирует удобное отображение 
@@ -195,7 +195,7 @@ async def cmd_advanced_example(message: Message):
     await message.answer(**content.as_kwargs())
 ```
 
-![Продвинутый пример](../images/messages/advanced_example.png)
+![Продвинутый пример](../images/ru/messages/advanced_example.png)
 
 !!! info ""
     Подробнее о различных способах форматирования и поддерживаемых тегах можно узнать 
@@ -220,7 +220,7 @@ async def echo_with_time(message: Message):
     await message.answer(f"{message.text}\n\n{added_text}", parse_mode="HTML")
 ```
 
-![Добавленный текст (неудачная попытка)](../images/messages/keep_formatting_bad.png)
+![Добавленный текст (неудачная попытка)](../images/ru/messages/keep_formatting_bad.png)
 
 Мда, что-то пошло не так, почему сбилось форматирование исходного сообщения? 
 Это происходит из-за того, что `message.text` возвращает просто текст, без каких-либо оформлений. 
@@ -228,7 +228,7 @@ async def echo_with_time(message: Message):
 `message.html_text` или `message.md_text`. Сейчас нам нужен первый вариант. Заменяем в примере 
 выше `message.text` на `message.html_text` и получаем корректный результат:
 
-![Добавленный текст (успех)](../images/messages/keep_formatting_good.png)
+![Добавленный текст (успех)](../images/ru/messages/keep_formatting_good.png)
 
 ### Работа с entities {: id="message-entities" }
 
@@ -269,7 +269,7 @@ async def extract_data(message: Message):
     )
 ```
 
-![Парсинг entities](../images/messages/parse_entities.png)
+![Парсинг entities](../images/ru/messages/parse_entities.png)
 
 ### Команды и их аргументы {: id="commands-args" }
 
@@ -311,12 +311,12 @@ async def cmd_settimer(
 
 Попробуем передать команду с разными аргументами (или вообще без них) и проверить реакцию:
 
-![Аргументы команд](../images/messages/command_args.png)
+![Аргументы команд](../images/ru/messages/command_args.png)
 
 С командами может возникнуть небольшая проблема в группах: Telegram автоматически подсвечивает команды, начинающиеся 
 со слэша, из-за чего порой случается вот такое (спасибо моим дорогим подписчикам за помощь в создании скриншота):
 
-![Флуд командами](../images/messages/commands_flood.png)
+![Флуд командами](../images/ru/messages/commands_flood.png)
 
 Чтобы этого избежать, можно заставить бота реагировать на команды с другими префиксами. Они не будут подсвечиваться и 
 потребуют полностью ручной ввод, так что сами оценивайте пользу такого подхода.
@@ -333,7 +333,7 @@ async def cmd_custom2(message: Message):
     await message.answer("И эту тоже вижу!")
 ```
 
-![Кастомные префиксы](../images/messages/command_custom_prefix.png)
+![Кастомные префиксы](../images/ru/messages/command_custom_prefix.png)
 
 Проблема кастомных префиксов в группах только в том, что боты не-админы со включенным Privacy Mode (по умолчанию) могут 
 не увидеть такие команды из-за [особенностей](https://core.telegram.org/bots/faq#what-messages-will-my-bot-get) 
@@ -373,7 +373,7 @@ async def cmd_start_book(
     await message.answer(f"Sending book №{book_number}")
 ```
 
-![Примеры диплинков](../images/messages/deeplinks.png)
+![Примеры диплинков](../images/ru/messages/deeplinks.png)
 
 Учтите, что диплинки через `start` отправляют пользователя в личку с ботом. Чтобы выбрать группу и отправить диплинк туда, 
 замените `start` на `startgroup`. Также у aiogram существует удобная 
@@ -461,7 +461,7 @@ async def cmd_links(message: Message):
 ```
 
 Результат: 
-![Примеры предпросмотров ссылок](../images/messages/link_preview_options.png)
+![Примеры предпросмотров ссылок](../images/ru/messages/link_preview_options.png)
 
 Также некоторые параметры предпросмотра можно указать по умолчанию в `DefaultBotProperties`, о чём рассказывалось 
 в начале главы.
@@ -557,7 +557,7 @@ async def send_gif(message: Message):
     )
 ```
 
-![подпись над анимацией](../images/messages/caption_above_media.jpg)
+![подпись над анимацией](../images/ru/messages/caption_above_media.jpg)
 
 ### Скачивание файлов {: id="downloading-media" }
 
@@ -650,7 +650,7 @@ async def cmd_album(message: Message):
 
 Результат: 
 
-![Результат работы билдера](../images/messages/media_group_builder.png)
+![Результат работы билдера](../images/ru/messages/media_group_builder.png)
 
 А вот со скачиванием альбомов всё сильно хуже... Как уже было сказано выше, альбомы — это просто сгруппированные 
 отдельные сообщения, а это значит, что боту они прилетают тоже в разных апдейтах. Вряд ли существует 100% надёжный 
@@ -663,7 +663,7 @@ async def cmd_album(message: Message):
 Сообщения в Telegram делятся на текстовые, медиафайлы и служебные (они же — сервисные). 
 Настало время поговорить о последних.
 
-![Сервисные сообщения](../images/messages/service_messages.png)
+![Сервисные сообщения](../images/ru/messages/service_messages.png)
 
 Несмотря на то, что они выглядят необычно и взаимодействие с ними ограничено, это всё ещё 
 сообщения, у которых есть свои айдишники и даже владелец. Стоит отметить, что спектр применения 
@@ -683,7 +683,7 @@ async def somebody_added(message: Message):
         await message.reply(f"Привет, {user.full_name}")
 ```
 
-![Добавлены несколько юзеров](../images/messages/multiple_add.png)
+![Добавлены несколько юзеров](../images/ru/messages/multiple_add.png)
 
 Важно помнить, что `message.new_chat_members` является списком, потому что один пользователь может 
 добавить сразу нескольких участников. Также не надо путать поля `message.from_user` и 
@@ -727,7 +727,7 @@ async def cmd_hidden_link(message: Message):
     )
 ```
 
-![Изображение со скрытой ссылкой](../images/messages/hidden_link.png)
+![Изображение со скрытой ссылкой](../images/ru/messages/hidden_link.png)
 
 А при помощи LinkPreviewOptions (см. выше) можно сделать медиафайл сверху с длинной подписью в 4096 символов ниже.
 

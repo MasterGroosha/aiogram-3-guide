@@ -156,3 +156,77 @@ async def cmd_test1(message: types.Message):
 async def cmd_test2(message: types.Message):
     await message.reply("Test 2")
 ```
+
+Let's start the bot with it:  
+![The /test2 command is not working](../images/en/quickstart/l01_1.png)
+
+The `cmd_test2` handler won't work because the dispatcher doesn't know about it. 
+Let's fix this error and register the function separately:
+```python
+# Handler for the /test2 command
+async def cmd_test2(message: types.Message):
+    await message.reply("Test 2")
+
+# Somewhere else, for example, in the main() function:
+dp.message.register(cmd_test2, Command("test2"))
+```
+
+Let's run the bot again:  
+![Both commands work](../images/en/quickstart/l01_2.png)
+
+## Syntactic Sugar {: id="sugar" }
+
+To make the code cleaner and more readable, 
+aiogram extends the capabilities of standard Telegram objects. 
+For example, instead of `bot.send_message(...)`, 
+you can write `message.answer(...)` or `message.reply(...)`. 
+In the latter two cases, there's no need to specify `chat_id`, 
+as it's assumed to be the same as in the original message.  
+The difference between `answer` and `reply` is simple: 
+the first method just sends a message to the same chat, 
+while the second makes a "reply" to the message from `message`:
+```python
+@dp.message(Command("answer"))
+async def cmd_answer(message: types.Message):
+    await message.answer("This is a simple answer")
+
+
+@dp.message(Command("reply"))
+async def cmd_reply(message: types.Message):
+    await message.reply('This is a reply with a "reply"')
+```
+
+![Difference between message.answer() and message.reply()](../images/en/quickstart/l01_3.png)
+
+Moreover, for most message types, 
+there are helper methods like "answer_{type}" or "reply_{type}", for example:
+```python
+@dp.message(Command("dice"))
+async def cmd_dice(message: types.Message):
+    await message.answer_dice(emoji="🎲")
+```
+
+!!! info "what does 'message: types.Message' mean?"
+    Python is an interpreted language with [strong but dynamic typing](https://www.bairesdev.com/blog/static-vs-dynamic-typing/),
+    which means it lacks built-in type checking like in C++ or Java. However, starting with version 3.5,
+    the language introduced support for [type hints](https://docs.python.org/3/library/typing.html), thanks to which
+    various checkers and IDEs like PyCharm analyze the types of used values and suggest
+    to the programmer if they are passing something incorrect. In this case, the hint `types.Message` informs
+    PyCharm that the variable `message` is of type `Message`, described in the `types` module of the
+    aiogram library (see imports at the beginning of the code). This allows the IDE to suggest attributes and functions on the fly.
+
+When the `/dice` command is called, the bot will send a dice to the same chat. 
+Of course, if it needs to be sent to some other chat, you would have to call `await bot.send_dice(...)` the old-fashioned way. 
+However, the `bot` object (an instance of the Bot class) might not be available in the scope of a specific function. 
+In aiogram 3.x, the bot object to which an update is sent is implicitly passed into the handler and can be accessed as the `bot` argument. 
+Let's say you want to send a dice not to the same chat but to a channel with the ID -100123456789 in response to the `/dice` command. 
+Let's rewrite the previous function:
+
+```python
+# don't forget to import
+from aiogram.enums.dice_emoji import DiceEmoji
+
+@dp.message(Command("dice"))
+async def cmd_dice(message: types.Message, bot: Bot):
+    await bot.send_dice(-100123456789, emoji=DiceEmoji.DICE)
+```
