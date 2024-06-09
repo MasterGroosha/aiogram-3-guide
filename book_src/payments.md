@@ -154,7 +154,40 @@ async def cmd_donate(
 
 ![ввод суммы доната](images/payments/cmd_donate.png)
 
-Кнопка "Оплатить" вместе с суммой генерируется телеграмом автоматически, её не нужно генерировать вручную.
+Кнопка "Оплатить" вместе с суммой генерируется телеграмом автоматически, её не нужно генерировать вручную. 
+Но при желании можно создать собственную инлайн-клавиатуру и прицепить её к инвойсу. Главное требование: первой должна быть 
+кнопка с параметром `pay=True`. Если в тексте кнопки использовать эмодзи ⭐ или подстроку XTR, то этот текст будет 
+автоматически заменён на иконку Telegram Star:
+
+```python
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text=f"Оплатить {amount} XTR",
+        pay=True
+    )
+    builder.button(
+        text="Отменить покупку",
+        callback_data="cancel"
+    )
+    builder.adjust(1)
+
+    prices = [LabeledPrice(label="XTR", amount=amount)]
+    await message.answer_invoice(
+        title=l10n.format_value("invoice-title"),
+        description=l10n.format_value(
+            "invoice-description",
+            {"starsCount": amount}
+        ),
+        prices=prices,
+        provider_token="",
+        payload=f"{amount}_stars",
+        currency="XTR",
+        # Переопределяем клавиатуру
+        reply_markup=builder.as_markup()
+    )
+```
+
+![инвойс с дополнительными кнопками](images/payments/extra_buttons_invoice.jpg)
 
 К слову, инвойс можно отправить и в виде кликабельной ссылки в тексте сообщения:
 

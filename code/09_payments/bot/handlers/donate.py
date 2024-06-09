@@ -2,8 +2,9 @@ import structlog
 from aiogram import F, Router, Bot
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import CommandStart, Command, CommandObject
-from aiogram.types import Message, LabeledPrice, PreCheckoutQuery
+from aiogram.types import Message, LabeledPrice, PreCheckoutQuery, InlineKeyboardMarkup
 from fluent.runtime import FluentLocalization
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 router = Router()
 logger = structlog.get_logger()
@@ -47,6 +48,18 @@ async def cmd_donate(
             return
         amount = int(command.args)
 
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text=f"Оплатить {amount} XTR",
+        pay=True
+    )
+    builder.button(
+        text="Отменить покупку",
+        callback_data="cancel"
+    )
+    builder.adjust(1)
+
+
     # Для платежей в Telegram Stars список цен
     # ОБЯЗАН состоять РОВНО из 1 элемента
     prices = [LabeledPrice(label="XTR", amount=amount)]
@@ -63,7 +76,8 @@ async def cmd_donate(
         # например, айди того, что именно покупается
         payload=f"{amount}_stars",
         # XTR - это код валюты Telegram Stars
-        currency="XTR"
+        currency="XTR",
+        reply_markup=builder.as_markup()
     )
 
 
