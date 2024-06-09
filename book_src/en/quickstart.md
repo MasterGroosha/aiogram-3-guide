@@ -230,3 +230,106 @@ from aiogram.enums.dice_emoji import DiceEmoji
 async def cmd_dice(message: types.Message, bot: Bot):
     await bot.send_dice(-100123456789, emoji=DiceEmoji.DICE)
 ```
+
+## Passing Extra Parameters {: id="pass-extras" }
+
+Sometimes when launching a bot, you may need to pass one or several additional values. 
+This could be some variable, a configuration object, a list of something, a timestamp, or anything else. 
+To do this, it is sufficient to pass these data as named (kwargs) arguments into the dispatcher, or assign values as 
+if you were working with a dictionary.
+
+This possibility is best suited for passing objects that must exist in a single instance and not change 
+during the bot's operation (i.e., be read-only). If you anticipate that the value should change over time, remember that 
+this will only work with [mutable objects](https://mathspp.com/blog/pydonts/pass-by-value-reference-and-assignment). 
+To get the values in the handlers, simply specify them as arguments. 
+Let's consider an example:
+
+```python
+# Somewhere else
+# For example, at the entry point of the application
+from datetime import datetime
+
+# bot = ...
+dp = Dispatcher()
+dp["started_at"] = datetime.now().strftime("%Y-%m-%d %H:%M")
+await dp.start_polling(bot, mylist=[1, 2, 3])
+
+
+@dp.message(Command("add_to_list"))
+async def cmd_add_to_list(message: types.Message, mylist: list[int]):
+    mylist.append(7)
+    await message.answer("Number 7 added")
+
+
+@dp.message(Command("show_list"))
+async def cmd_show_list(message: types.Message, mylist: list[int]):
+    await message.answer(f"Your list: {mylist}")
+
+    
+@dp.message(Command("info"))
+async def cmd_info(message: types.Message, started_at: str):
+    await message.answer(f"Bot launched {started_at}")
+```
+
+Now the variable `started_at` and the list `mylist` can be read and written in different handlers. And if you need to pass 
+values unique to each update (for example, a DBMS session object), 
+then check out [middlewares](filters-and-middlewares.md#middlewares).
+
+![The mylist argument can be modified between calls](../images/en/quickstart/extra-args.png)
+
+## Configuration Files
+
+In order not to store the token directly in the code (what if you want to upload your bot to a public repository?), 
+you can move such data to a separate configuration file. There is [a good and reasonable opinion](https://configu.com/blog/dotenv-managing-environment-variables-in-node-python-php-and-more/), 
+that for production it is enough to use environment variables, however, within the framework of this book, we will use separate `.env` files, 
+to simplify our lives a bit and save readers time on deploying a demo project.
+
+So, let's create a separate file `config_reader.py` next to `bot.py` with the following content
+
+```python title="config_reader.py"
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import SecretStr
+
+
+class Settings(BaseSettings):
+    # It is preferable to use SecretStr instead of str 
+    # for confidential data, such as the bot token
+    bot_token: SecretStr
+
+    # Starting with the second version of pydantic, the settings of the settings class are set
+    # through model_config
+    # In this case, a .env file will be used, which will be read
+    # with UTF-8 encoding
+    model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
+
+
+# Upon importing the file, a config object will be immediately created 
+# and validated, 
+# which can then be imported from different places
+config = Settings()
+```
+
+Now let's make some edits to our `bot.py`:
+
+```python title="bot.py"
+# imports
+from config_reader import config
+
+# For entries of type Secret* you need to 
+# call the get_secret_value() method, 
+# to get the real content instead of '*******'
+bot = Bot(token=config.bot_token.get_secret_value())
+```
+
+Finally, we will create a `.env` file (with a dot at the beginning), 
+where we will describe the bot token:
+
+```title=".env"
+BOT_TOKEN = 0000000000:AaBbCcDdEeFfGgHhIiJjKkLlMmNn
+```
+
+If everything is done correctly, then when starting, python-dotenv will load the variables from the `.env` file, 
+pydantic will validate them and the bot object will be successfully created with the required token.
+
+With this, we conclude our introduction to the library, and in the following chapters, 
+we will look at other "features" of aiogram and the Telegram Bot API.
