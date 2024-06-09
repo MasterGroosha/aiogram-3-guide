@@ -159,8 +159,9 @@ async def on_successful_payment(
     )
     await message.answer(
         l10n.format_value(
-            "successful-payment",
+            "payment-successful",
             {"id": message.successful_payment.telegram_payment_charge_id}
         ),
+        # Это эффект "огонь" из стандартных реакций
         message_effect_id="5104841245755180586",
     )
