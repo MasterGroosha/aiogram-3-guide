@@ -20,7 +20,11 @@ async def main():
     locale = get_fluent_localization()
 
     dp = Dispatcher()
+
+    # Регистрация мидлвари на типы Message и PreCheckoutQuery
     dp.message.outer_middleware(L10nMiddleware(locale))
+    dp.pre_checkout_query.outer_middleware(L10nMiddleware(locale))
+
     dp.include_routers(*get_routers())
 
     bot_config: BotConfig = get_config(model=BotConfig, root_key="bot")

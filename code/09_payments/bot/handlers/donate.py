@@ -135,11 +135,14 @@ async def cmd_link(
 
 
 @router.pre_checkout_query()
-async def on_pre_checkout_query(pre_checkout_query: PreCheckoutQuery):
+async def on_pre_checkout_query(
+    pre_checkout_query: PreCheckoutQuery,
+    l10n: FluentLocalization,
+):
     await pre_checkout_query.answer(ok=True)
     # await pre_checkout_query.answer(
     #     ok=False,
-    #     error_message="Нет больше места для денег 😭"
+    #     error_message=l10n.format_value("pre-checkout-failed-reason")
     # )
 
 
