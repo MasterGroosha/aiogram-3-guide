@@ -9,5 +9,5 @@
 CONFIG_FILE_PATH=/path/to/settings.toml python -m bot
 ```
 
-Также в репозитории лежит файл [donatebot.example.service](code/09_payments/donatebot.example.service) 
+Также в репозитории лежит файл [donatebot.example.service](donatebot.example.service) 
 для запуска через Systemd.
