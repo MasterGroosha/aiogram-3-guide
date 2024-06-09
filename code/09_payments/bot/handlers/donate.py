@@ -39,7 +39,7 @@ async def cmd_donate(
         if (
             command.args is None
             or not command.args.isdigit()
-            or not 1 <= int(command.args) <= 25000
+            or not 1 <= int(command.args) <= 2500
         ):
             await message.answer(
                 l10n.format_value("custom-donate-input-error")
