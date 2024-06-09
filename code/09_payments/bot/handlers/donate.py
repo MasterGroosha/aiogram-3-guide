@@ -27,7 +27,7 @@ async def cmd_donate(
     command: CommandObject,
     l10n: FluentLocalization,
 ):
-    # Если это команда /donate_ЧИСЛО,
+    # Если это команда /donate ЧИСЛО,
     # тогда вытаскиваем число из текста команды
     if command.command != "donate":
         amount = int(command.command.split("_")[1])
