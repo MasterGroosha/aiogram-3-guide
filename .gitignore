@@ -6,3 +6,4 @@ docs/
 
 # .env-файлы
 .env
+/code/09_payments/settings.toml
