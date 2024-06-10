@@ -109,3 +109,14 @@
     </div>
   {% endif %}
 {% endblock %}
+
+{% block content %}
+    {%- if page.meta.translation_in_work == True -%}
+        <div class="admonition warning">
+            <p class="admonition-title">{{ config.extra.translation_in_work_string_short | safe }}</p>
+            <p>{{ config.extra.translation_in_work_string | safe }}</p>
+        </div>
+    {%- endif -%}
+
+    {{ super() }}
+{% endblock %}

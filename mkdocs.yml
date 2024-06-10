@@ -50,6 +50,11 @@ extra:
       link: https://github.com/MasterGroosha/aiogram-3-guide
       name: GitHub
   announcement: Кажется эта страница не была переведена на этот Язык и предварительно будет показана на Русском Языке.
+  translation_in_work_string_short: Важное предупреждение о переводе!
+  translation_in_work_string: |
+    Привет! Это сообщение от переводчика <a href="https://github.com/Vadim-Khristenko">VAI || Programmer</a>.
+    Пожалуйста, имейте в виду, что эта страница все еще переводится.
+    
 
 # Extensions
 markdown_extensions:
@@ -151,6 +156,10 @@ plugins:
                 link: https://github.com/MasterGroosha/aiogram-3-guide
                 name: GitHub
             announcement: It seems this page has not been translated into this Language and will preliminarily be displayed in Russian.
+            translation_in_work_string_short: An important warning about translation!
+            translation_in_work_string: |
+              Hello! This message is from the translator <a href="https://github.com/Vadim-Khristenko">VAI || Programmer</a>.
+              Please keep in mind that this page is still being translated.
 
 
 
