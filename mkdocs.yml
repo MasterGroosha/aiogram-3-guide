@@ -49,6 +49,7 @@ extra:
     - icon: fontawesome/brands/github
       link: https://github.com/MasterGroosha/aiogram-3-guide
       name: GitHub
+  announcement: Кажется эта страница не была переведена на этот Язык и предварительно будет показана на Русском Языке.
 
 # Extensions
 markdown_extensions:
@@ -149,6 +150,7 @@ plugins:
               - icon: fontawesome/brands/github
                 link: https://github.com/MasterGroosha/aiogram-3-guide
                 name: GitHub
+            announcement: It seems this page has not been translated into this Language and will preliminarily be displayed in Russian.
 
 
 
