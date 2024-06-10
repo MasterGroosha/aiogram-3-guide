@@ -111,7 +111,7 @@
 {% endblock %}
 
 {% block content %}
-    {%- if page.meta.translation_in_work == True -%}
+    {%- if page.meta and page.meta.translation_in_work == True and i18n_page_locale != "ru" and i18n_file_locale != i18n_page_locale -%}
         <div class="admonition warning">
             <p class="admonition-title">{{ config.extra.translation_in_work_string_short | safe }}</p>
             <p>{{ config.extra.translation_in_work_string | safe }}</p>
