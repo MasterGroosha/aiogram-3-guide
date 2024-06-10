@@ -109,26 +109,3 @@
     </div>
   {% endif %}
 {% endblock %}
-
-{% block content %}
-    {%- set translation_in_work = False -%}
-    {%- set lines = page.content.split('\n')[:5] -%}
-    {%- for line in lines -%}
-        {%- if 'translation_in_work: True' in line -%}
-            {%- set translation_in_work = True -%}
-            {%- break -%}
-        {%- elif 'translation_in_work: False' in line -%}
-            {%- set translation_in_work = False -%}
-            {%- break -%}
-        {%- endif -%}
-    {%- endfor -%}
-
-    {%- if translation_in_work and i18n_page_locale != "ru" and i18n_file_locale != i18n_page_locale -%}
-        <div class="admonition warning">
-            <p class="admonition-title">{{ config.extra.translation_in_work_string_short | safe }}</p>
-            <p>{{ config.extra.translation_in_work_string | safe }}</p>
-        </div>
-    {%- endif -%}
-
-    {{ super() }}
-{% endblock %}
