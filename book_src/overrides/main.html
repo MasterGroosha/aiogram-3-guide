@@ -101,3 +101,11 @@
 
   {{ super() }}
 {% endblock %}
+
+{% block announce %}
+  {% if page.meta and i18n_page_locale != "ru" and i18n_file_locale != i18n_page_locale %}
+    <div class="announcement__translation">
+        {{ config.extra.announcement | d('It seems this page has not been translated into this Language and will preliminarily be displayed in Russian.') }}
+    </div>
+  {% endif %}
+{% endblock %}
