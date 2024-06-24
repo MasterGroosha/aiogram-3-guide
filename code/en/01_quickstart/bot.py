@@ -23,7 +23,7 @@ async def cmd_start(message: types.Message):
 # Handler for the /test1 command
 @dp.message(Command("test1"))
 async def cmd_test1(message: types.Message):
-    await message.answer("Test 1")
+    await message.reply("Test 1")
 
 
 # Handler for the /test2 command
