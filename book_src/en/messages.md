@@ -207,3 +207,126 @@ async def cmd_advanced_example(message: Message):
 !!! info ""
     You can learn more about the different formatting methods and supported tags 
     [in the Bot API documentation](https://core.telegram.org/bots/api#formatting-options).
+
+
+### Preserving Formatting {: id="keep-formatting" }
+
+Let's imagine that a bot needs to receive formatted text from a user and add something of its own, such as a timestamp. We'll write a simple code snippet:
+
+```python
+# New import!
+from datetime import datetime
+
+@dp.message(F.text)
+async def echo_with_time(message: Message):
+    # Get the current time in the local PC timezone
+    time_now = datetime.now().strftime('%H:%M')
+    # Create underlined text
+    added_text = html.underline(f"Created at {time_now}")
+    # Send a new message with the added text
+    await message.answer(f"{message.text}\n\n{added_text}", parse_mode="HTML")
+```
+
+![Added text (unsuccessful attempt)](../images/en/messages/keep_formatting_bad.png)
+
+Hmm, something went wrong. 
+Why did the formatting of the original message get messed up? 
+This happens because `message.text` returns plain text without any formatting. 
+To get the text in the desired format, 
+let's use alternative properties: `message.html_text` or `message.md_text`. 
+For now, we'll use the first option. 
+Let's replace `message.text` with `message.html_text` in the example above, 
+and we'll get the correct result:
+
+![Added text (success)](../images/en/messages/keep_formatting_good.png)
+
+### Working with Entities {: id="message-entities" }
+
+Telegram significantly simplifies the life of developers by preprocessing user messages 
+on its side. For example, some entities, like e-mail, phone number, username, etc., can 
+be extracted directly from the [Message](https://core.telegram.org/bots/api#message) object 
+and the `entities` field, which contains an array of 
+[MessageEntity](https://core.telegram.org/bots/api#messageentity) objects, rather than 
+using [regular expressions](https://en.wikipedia.org/wiki/Regular_expression). 
+As an example, let's write a handler that extracts a link, e-mail, 
+and monospaced text from a message (one of each).
+
+Here lies an important catch. **Telegram returns not the actual values, but their start position in the text and length**. 
+Moreover, the text is counted in UTF-8 characters, while entities work with UTF-16. 
+Because of this, if you simply take the position and length, 
+your processed text will be misaligned if there are UTF-16 characters (e.g., emojis).
+
+The example below demonstrates this best. 
+In the screenshot, the first bot response is the result of naive parsing, 
+while the second is the result of using the `extract_from()` method on the entity. 
+The entire original text is passed to this method:
+
+```python
+@dp.message(F.text)
+async def extract_data(message: Message):
+    data = {
+        "url": "<N/A>",
+        "email": "<N/A>",
+        "code": "<N/A>"
+    }
+    entities = message.entities or []
+    for item in entities:
+        if item.type in data.keys():
+            # Incorrect
+            # data[item.type] = message.text[item.offset : item.offset+item.length]
+            # Correct
+            data[item.type] = item.extract_from(message.text)
+    await message.reply(
+        "Here's what I found:\n"
+        f"URL: {html.quote(data['url'])}\n"
+        f"E-mail: {html.quote(data['email'])}\n"
+        f"Code: {html.quote(data['code'])}"
+    )
+```
+
+![Parsing entities](../images/en/messages/parse_entities.png)
+
+### Commands and Their Arguments {: id="commands-args" }
+
+Telegram [provides](https://core.telegram.org/bots/features#inputs) 
+users with many ways to input information. 
+One of them is commands: keywords that start with a slash, such as `/new` or `/ban`. 
+Sometimes, a bot can be designed to expect some _arguments_ after the command itself, 
+like `/ban 2d` or `/settimer 20h This is delayed message`. 
+The aiogram library includes a `Command()` filter, which makes developers' lives easier. 
+Let's implement the last example in code:
+
+
+```python
+@dp.message(Command("settimer"))
+async def cmd_settimer(
+        message: Message,
+        command: CommandObject
+):
+    # If no arguments are passed,
+    # command.args will be None
+    if command.args is None:
+        await message.answer(
+            "Error: no arguments passed"
+        )
+        return
+    # Try to split the arguments into two parts by the first encountered space
+    try:
+        delay_time, text_to_send = command.args.split(" ", maxsplit=1)
+    # If less than two parts are obtained, a ValueError will be raised
+    except ValueError:
+        await message.answer(
+            "Error: incorrect command format. Example:\n"
+            "/settimer <time> <message>"
+        )
+        return
+    await message.answer(
+        "Timer added!\n"
+        f"Time: {delay_time}\n"
+        f"Text: {text_to_send}"
+    )
+```
+
+Let's try passing the command with different arguments (or without any) and check the reaction:
+
+![Command Arguments](../images/en/messages/command_args.png)
