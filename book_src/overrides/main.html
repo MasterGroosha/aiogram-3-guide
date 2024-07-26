@@ -36,6 +36,7 @@
   <script src="https://telegram.org/js/telegram-web-app.js?35"></script>
     <script type="text/javascript">
       const webapp = window.Telegram.WebApp;
+      webapp.disableVerticalSwipes()
       webapp.ready();
       webapp.expand();
       const initData = webapp.initDataUnsafe;
