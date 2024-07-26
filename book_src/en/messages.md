@@ -490,3 +490,135 @@ Result:
 
 Some preview parameters can also be specified by default in `DefaultBotProperties`, 
 which was discussed at the beginning of the chapter.
+
+Here's the translation:
+
+---
+
+## Media Files {: id="media" }
+
+### Uploading Files {: id="uploading-media" }
+
+In addition to regular text messages, Telegram allows the exchange of various types of media files: photos, videos, 
+GIFs, locations, stickers, etc. Most media files have `file_id` and `file_unique_id` properties. 
+The first one can be used to resend the same file multiple times instantly since the file is already stored on Telegram's servers. 
+This is the most preferred method.  
+For example, the following code will make the bot instantly reply to the user with the same GIF that was sent:
+
+```python
+@dp.message(F.animation)
+async def echo_gif(message: Message):
+    await message.reply_animation(message.animation.file_id)
+```
+
+!!! warning "Always use the correct file_id!"
+    The bot should **only** use `file_id` that it directly received, 
+    for instance, from a user in a private chat or by "seeing" the media file in a group/channel. If you try to use a `file_id` from another bot, it _might work_, but after some time, you will receive an error **wrong url/file_id specified**. Therefore, use only your own `file_id`!
+
+Unlike `file_id`, the `file_unique_id` cannot be used for resending or downloading the media file, 
+but it is the same for all bots for a specific media. 
+`file_unique_id` is usually needed when multiple bots need to know that their own `file_id` corresponds to the same file.
+
+If the file does not yet exist on the Telegram server, the bot can upload it in three different ways: 
+as a file in the file system, by a URL, and directly as a byte array. 
+To speed up sending and generally to be more considerate of the messenger's servers, 
+it's more efficient to upload files to Telegram once and then use the `file_id` that will be available after the first media upload.
+
+In aiogram 3.x, there are 3 classes for sending files and media - `FSInputFile`, 
+`BufferedInputFile`, `URLInputFile`. You can learn more about them in the [documentation](https://docs.aiogram.dev/en/dev-3.x/api/upload_file.html).
+
+Let's look at a simple example of sending images in all different ways:
+```python
+from aiogram.types import FSInputFile, URLInputFile, BufferedInputFile
+
+@dp.message(Command('images'))
+async def upload_photo(message: Message):
+    # We will store the file_ids of the sent files here to use them later
+    file_ids = []
+
+    # To demonstrate BufferedInputFile, we use the "classic" 
+    # file opening method with `open()`. However, this method
+    # is best suited for sending bytes from memory after performing
+    # some manipulations, such as editing with Pillow
+    with open("buffer_emulation.jpg", "rb") as image_from_buffer:
+        result = await message.answer_photo(
+            BufferedInputFile(
+                image_from_buffer.read(),
+                filename="image from buffer.jpg"
+            ),
+            caption="Image from buffer"
+        )
+        file_ids.append(result.photo[-1].file_id)
+
+    # Sending a file from the file system
+    image_from_pc = FSInputFile("image_from_pc.jpg")
+    result = await message.answer_photo(
+        image_from_pc,
+        caption="Image from file on PC"
+    )
+    file_ids.append(result.photo[-1].file_id)
+
+    # Sending a file via URL
+    image_from_url = URLInputFile("https://picsum.photos/seed/groosha/400/300")
+    result = await message.answer_photo(
+        image_from_url,
+        caption="Image from URL"
+    )
+    file_ids.append(result.photo[-1].file_id)
+    await message.answer("Sent files:\n"+"\n".join(file_ids))
+```
+
+The caption for photos, videos, and GIFs can be placed above the media:
+
+```python
+@dp.message(Command("gif"))
+async def send_gif(message: Message):
+    await message.answer_animation(
+        animation="<gif file_id>",
+        caption="Me today:",
+        show_caption_above_media=True
+    )
+```
+
+![caption above animation](../images/en/messages/caption_above_media.png)
+
+### Downloading Files {: id="downloading-media" }
+
+In addition to reusing for sending, the bot can download media to your computer/server. 
+The `Bot` object has a `download()` method for this purpose. 
+In the examples below, files are downloaded directly to the file system, 
+but you can also save them to a BytesIO object in memory to pass them on to another application (e.g., Pillow).
+
+```python
+@dp.message(F.photo)
+async def download_photo(message: Message, bot: Bot):
+    await bot.download(
+        message.photo[-1],
+        destination=f"/tmp/{message.photo[-1].file_id}.jpg"
+    )
+
+
+@dp.message(F.sticker)
+async def download_sticker(message: Message, bot: Bot):
+    await bot.download(
+        message.sticker,
+        # adjust paths for Windows
+        destination=f"/tmp/{message.sticker.file_id}.webp"
+    )
+```
+
+Why did we use `message.photo[-1]` instead of `message.photo`? 
+Photos in Telegram messages come in several copies; 
+it’s the same image with different sizes. So, by taking the last element (index -1), 
+we are working with the maximum available size of the photo.
+
+!!! info "Downloading Large Files"
+    Bots using the Telegram Bot API can download files up to [20 megabytes](https://core.telegram.org/bots/api#getfile). 
+    If you plan to download/upload larger files, consider using libraries that interact with the 
+    Telegram Client API rather than the Telegram Bot API, such as [Telethon](https://docs.telethon.dev/en/latest/index.html) 
+    or [Pyrogram](https://docs.pyrogram.org/).
+    Few people know, but the Client API can be used not only by regular accounts but also by 
+    [bots](https://docs.telethon.dev/en/latest/concepts/botapi-vs-mtproto.html).
+    
+    Starting with Bot API version 5.0, you can use a 
+    [local Bot API server](https://core.telegram.org/bots/api#using-a-local-bot-api-server) to work with larger files.
