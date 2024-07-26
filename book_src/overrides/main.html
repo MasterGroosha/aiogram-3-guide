@@ -102,10 +102,38 @@
   {{ super() }}
 {% endblock %}
 
+
 {% block announce %}
   {% if page.meta and i18n_page_locale != "ru" and i18n_file_locale != i18n_page_locale %}
     <div class="announcement__translation">
-        {{ config.extra.announcement | d('It seems this page has not been translated into this Language and will preliminarily be displayed in Russian.') }}
+      {{ config.extra.announcement | default('It seems this page has not been translated into this language and will preliminarily be displayed in Russian.') }}
     </div>
   {% endif %}
+{% endblock %}
+
+
+{% block content %}
+  {% if page.meta and page.meta.t_status %}
+    {% set locale = i18n_page_locale | default('en') %}
+    {% if locale != "ru" and page.meta.t_status == "in_progress" %}
+      <div class="admonition warning">
+        <p class="admonition-title">
+          {{ config.extra.translation_warning_string | default('An important warning about translation!') }}
+        </p>
+        <p>
+          {{ config.extra.translation_in_work_string | default('Hello! This message is from the translator <a href="https://github.com/Vadim-Khristenko">VAI || Programmer</a>. Please keep in mind that this page is still being translated.') }}
+        </p>
+      </div>
+    {% elif locale != "ru" and page.meta.t_status == "dropped" %}
+      <div class="admonition note">
+        <p class="admonition-title">
+          {{ config.extra.translation_warning_string | default('An important warning about translation!') }}
+        </p>
+        <p>
+          {{ config.extra.translation_stopped_string | default('Hello! This message is from the translator <a href="https://github.com/Vadim-Khristenko">VAI || Programmer</a>. Translation of this page has been stopped.') }}
+        </p>
+      </div>
+    {% endif %}
+  {% endif %}
+  {{ super() }}
 {% endblock %}

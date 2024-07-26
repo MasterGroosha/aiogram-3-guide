@@ -1,11 +1,8 @@
 ---
 title: Working with Messages
 description: Working with Messages
+t_status: in_progress
 ---
-
-!!! warning "An important warning about translation!"
-    Hello! This message is from the translator [VAI || Programmer](https://github.com/Vadim-Khristenko).
-    Please keep in mind that this page is still being translated.
 
 # Working with Messages
 
@@ -330,3 +327,166 @@ async def cmd_settimer(
 Let's try passing the command with different arguments (or without any) and check the reaction:
 
 ![Command Arguments](../images/en/messages/command_args.png)
+
+There may be a minor issue with commands in groups: 
+Telegram automatically highlights commands that start with a slash, 
+which can sometimes result in situations like this (thanks to my dear subscribers for helping create the screenshot):
+
+> P.S. (From the Translator): I don't have subscribers available to help with creating the screenshot, so the users shown in the screenshot are part of the technical support team for one of my projects.
+
+![Command Flood](../images/en/messages/commands_flood.png)
+
+To avoid this, you can make the bot respond to commands with different prefixes. 
+These will not be highlighted and will require manual input, 
+so evaluate the usefulness of this approach yourself.
+
+```python
+@dp.message(Command("custom1", prefix="%"))
+async def cmd_custom1(message: Message):
+    await message.answer("I see the command!")
+
+
+# You can specify multiple prefixes....vv...
+@dp.message(Command("custom2", prefix="/!"))
+async def cmd_custom2(message: Message):
+    await message.answer("I see this one too!")
+```
+
+![Custom Prefixes](../images/en/messages/command_custom_prefix.png)
+
+The issue with custom prefixes in groups is that non-admin bots with Privacy Mode enabled 
+(by default) may not see such commands due to [server logic](https://core.telegram.org/bots/faq#what-messages-will-my-bot-get). 
+The most common use case is group moderation bots that are already administrators.
+
+Here's the translation with the joke adapted for English:
+
+---
+
+### Deep Links {: id="deeplinks" }
+
+There is one command in Telegram with a bit more functionality: `/start`. 
+The trick is that you can create a link like `t.me/bot?start=xxx`, 
+and when a user clicks on such a link, they will see a "Start" button. 
+When clicked, the bot will receive a `/start xxx` message. 
+In other words, the link contains an additional parameter that doesn’t require manual input.
+This is called a deep link (not to be confused with a "deep pick") 
+and can be used for a variety of purposes: shortcuts for activating different commands, 
+referral systems, quick bot configuration, etc. Let’s look at two examples:
+
+```python
+import re
+from aiogram import F
+from aiogram.types import Message
+from aiogram.filters import Command, CommandObject, CommandStart
+
+@dp.message(Command("help"))
+@dp.message(CommandStart(
+    deep_link=True, magic=F.args == "help"
+))
+async def cmd_start_help(message: Message):
+    await message.answer("This is a help message")
+
+
+@dp.message(CommandStart(
+    deep_link=True,
+    magic=F.args.regexp(re.compile(r'book_(\d+)'))
+))
+async def cmd_start_book(
+        message: Message,
+        command: CommandObject
+):
+    book_number = command.args.split("_")[1]
+    await message.answer(f"Sending book №{book_number}")
+```
+
+![Deep Link Examples](../images/en/messages/deeplinks.png)
+
+Note that deep links using `start` will send the user to a private chat with the bot. 
+To choose a group and send the deep link there, replace `start` with `startgroup`. 
+Aiogram also provides a convenient [function](https://github.com/aiogram/aiogram/blob/228a86afdc3c594dd9db9e82d8d6d445adb5ede1/aiogram/utils/deep_linking.py#L126-L158) 
+to create deep links directly from your code.
+
+!!! tip "More deep links, but not for bots"
+    The Telegram documentation provides a detailed description of various deep links for client applications: 
+    [https://core.telegram.org/api/links](https://core.telegram.org/api/links)
+
+### Link Previews {: id="link-previews" }
+
+Usually, when sending a text message with links, 
+Telegram tries to find and show a preview of the first link in the order. 
+You can customize this behavior by passing a `LinkPreviewOptions` object to the `send_message()` method's `link_preview_options` argument:
+
+```python
+# New import
+from aiogram.types import LinkPreviewOptions
+
+@dp.message(Command("links"))
+async def cmd_links(message: Message):
+    links_text = (
+        "https://nplus1.ru/news/2024/05/23/voyager-1-science-data"
+        "\n"
+        "https://t.me/telegram"
+    )
+    # Link preview disabled
+    options_1 = LinkPreviewOptions(is_disabled=True)
+    await message.answer(
+        f"No link previews\n{links_text}",
+        link_preview_options=options_1
+    )
+
+    # -------------------- #
+
+    # Small preview
+    # To use prefer_small_media, you must also specify the URL
+    options_2 = LinkPreviewOptions(
+        url="https://nplus1.ru/news/2024/05/23/voyager-1-science-data",
+        prefer_small_media=True
+    )
+    await message.answer(
+        f"Small preview\n{links_text}",
+        link_preview_options=options_2
+    )
+
+    # -------------------- #
+
+    # Large preview
+    # To use prefer_large_media, you must also specify the URL
+    options_3 = LinkPreviewOptions(
+        url="https://nplus1.ru/news/2024/05/23/voyager-1-science-data",
+        prefer_large_media=True
+    )
+    await message.answer(
+        f"Large preview\n{links_text}",
+        link_preview_options=options_3
+    )
+
+    # -------------------- #
+
+    # You can combine: small preview and positioning above the text
+    options_4 = LinkPreviewOptions(
+        url="https://nplus1.ru/news/2024/05/23/voyager-1-science-data",
+        prefer_small_media=True,
+        show_above_text=True
+    )
+    await message.answer(
+        f"Small preview above text\n{links_text}",
+        link_preview_options=options_4
+    )
+
+    # -------------------- #
+
+    # You can choose which link to use for the preview
+    options_5 = LinkPreviewOptions(
+        url="https://t.me/telegram"
+    )
+    await message.answer(
+        f"Preview not for the first link\n{links_text}",
+        link_preview_options=options_5
+    )
+```
+
+Result:
+![Link Preview Examples](../images/en/messages/link_preview_options.png)
+
+Some preview parameters can also be specified by default in `DefaultBotProperties`, 
+which was discussed at the beginning of the chapter.
