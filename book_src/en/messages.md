@@ -619,3 +619,59 @@ we are working with the maximum available size of the photo.
     Starting with Bot API version 5.0, you can use a 
     [local Bot API server](https://core.telegram.org/bots/api#using-a-local-bot-api-server) to work with larger files.
 
+### Albums {: id="albums" }
+
+What we call "albums" (media groups) in Telegram are actually separate messages with media that share a common `media_group_id` 
+and are visually "stitched together" on clients. Starting from version 3.1, 
+aiogram includes an [album builder](https://docs.aiogram.dev/en/latest/utils/media_group.html), which we'll now look at. 
+But first, let's mention a few features of media groups:
+
+* You cannot attach an inline keyboard or send a reply keyboard with them. Not in any way. Absolutely no way.
+* Each media file in the album can have its own caption. If only one media has a caption, it will be displayed as a common caption for the entire album.
+* Photos can be mixed with videos in the same album, but files (Document) and music (Audio) cannot be mixed with anything else, only with media of the same type.
+* An album can have no more than 10 (ten) media files.
+
+Now let's see how to do this in aiogram:
+
+```python
+from aiogram.filters import Command
+from aiogram.types import FSInputFile, Message
+from aiogram.utils.media_group import MediaGroupBuilder
+
+@dp.message(Command("album"))
+async def cmd_album(message: Message):
+    album_builder = MediaGroupBuilder(
+        caption="General caption for the future album"
+    )
+    album_builder.add(
+        type="photo",
+        media=FSInputFile("image_from_pc.jpg")
+        # caption="Caption for a specific media"
+    )
+    # If we immediately know the type, instead of the general add,
+    # we can directly call add_<type>
+    album_builder.add_photo(
+        # For links or file_id, just specify the value directly
+        media="https://picsum.photos/seed/groosha/400/300"
+    )
+    album_builder.add_photo(
+        media="<your file_id>"
+    )
+    await message.answer_media_group(
+        # Don't forget to call build()
+        media=album_builder.build()
+    )
+```
+
+Result:
+
+![Result of the builder's work](../images/en/messages/media_group_builder.png)
+
+However, downloading albums is much worse... As mentioned above, 
+albums are just grouped separate messages, 
+which means that they also arrive to the bot in different updates. 
+There is probably no 100% reliable way to receive the entire album in one piece, 
+but you can try to do this with minimal losses. 
+This is usually done through middleware, 
+and my own implementation of receiving media groups can be found [at this link](https://github.com/MasterGroosha/telegram-feedback-bot-topics/blob/master/bot/middlewares/albums_collector.py).
+
