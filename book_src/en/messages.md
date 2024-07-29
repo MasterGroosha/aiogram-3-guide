@@ -358,10 +358,6 @@ The issue with custom prefixes in groups is that non-admin bots with Privacy Mod
 (by default) may not see such commands due to [server logic](https://core.telegram.org/bots/faq#what-messages-will-my-bot-get). 
 The most common use case is group moderation bots that are already administrators.
 
-Here's the translation with the joke adapted for English:
-
----
-
 ### Deep Links {: id="deeplinks" }
 
 There is one command in Telegram with a bit more functionality: `/start`. 
@@ -675,3 +671,44 @@ but you can try to do this with minimal losses.
 This is usually done through middleware, 
 and my own implementation of receiving media groups can be found [at this link](https://github.com/MasterGroosha/telegram-feedback-bot-topics/blob/master/bot/middlewares/albums_collector.py).
 
+## Service Messages {: id="service" }
+
+Messages in Telegram are divided into text, media files, and service messages. 
+It's time to talk about the latter.
+
+![Service Messages](../images/en/messages/service_messages.png)
+
+Despite their unusual appearance and limited interaction, 
+these are still messages with their own IDs and even owners. 
+It is worth noting that the range of applications for service messages has changed over the years, 
+and now your bot is unlikely to work with them, or only to delete them.
+
+Let's not delve too deeply into the details and consider one specific example: 
+sending a welcome message to a newly joined member. 
+Such a service message will have a content_type equal to "new_chat_members", 
+but in general, it is a Message object with a populated field of the same name.
+
+```python
+@dp.message(F.new_chat_members)
+async def somebody_added(message: Message):
+    for user in message.new_chat_members:
+        # The full_name property takes both the first and last name
+        # (in the screenshot above, the users have no last names)
+        await message.reply(f"Hello, {user.full_name}")
+```
+
+![Multiple Users Added](../images/en/messages/multiple_add.png)
+
+It's important to remember that `message.new_chat_members` is a list because one user can add multiple members at once. Also, do not confuse the fields `message.from_user` and `message.new_chat_members`. The first is the subject, i.e., the one who performed the action. The second is the objects of the action. For example, if you see a message like "Anna added Boris and Victor", then `message.from_user` is information about Anna, and the `message.new_chat_members` list contains information about Boris and Victor.
+
+!!! warning "Do not rely entirely on service messages!"
+    Service messages about additions (new_chat_members) and exits (left_chat_member) have an
+    unpleasant peculiarity: they are unreliable, meaning they may not be created at all.
+    For instance, the new_chat_members message stops being created at around ~10k members in a group,
+    while left_chat_member stops at 50 (but while writing this chapter, I encountered a situation
+    where left_chat_member did not appear in a group of 9 members. And half an hour later,
+    it appeared in the same group when another person left).
+
+    With the release of Bot API 5.0, developers have a much more reliable way to see member entries/exits
+    in groups of any size, **as well as in channels**. But we will talk about this
+    [another time](special-updates.md).
