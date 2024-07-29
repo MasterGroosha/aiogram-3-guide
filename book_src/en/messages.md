@@ -491,10 +491,6 @@ Result:
 Some preview parameters can also be specified by default in `DefaultBotProperties`, 
 which was discussed at the beginning of the chapter.
 
-Here's the translation:
-
----
-
 ## Media Files {: id="media" }
 
 ### Uploading Files {: id="uploading-media" }
@@ -622,3 +618,4 @@ we are working with the maximum available size of the photo.
     
     Starting with Bot API version 5.0, you can use a 
     [local Bot API server](https://core.telegram.org/bots/api#using-a-local-bot-api-server) to work with larger files.
+
