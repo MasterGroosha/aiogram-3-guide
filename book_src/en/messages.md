@@ -712,3 +712,38 @@ It's important to remember that `message.new_chat_members` is a list because one
     With the release of Bot API 5.0, developers have a much more reliable way to see member entries/exits
     in groups of any size, **as well as in channels**. But we will talk about this
     [another time](special-updates.md).
+
+## Bonus: Hiding a Link in Text {: id="bonus" }
+
+There are situations when you want to send a long message with a picture, 
+but the limit for captions on media files is only 1024 characters compared to 4096 for regular text messages. 
+Adding a link to the media at the bottom looks unattractive. 
+To solve this problem, the approach of "hidden links" in HTML markup was invented many years ago. 
+The idea is that you can place a link in a [zero-width space](http://www.fileformat.info/info/unicode/char/200b/index.htm) 
+and insert this structure at the beginning of the message. 
+For the observer, there is nothing extra in the message, 
+but the Telegram server sees everything and honestly adds the preview.
+
+The aiogram developers even created a special helper method `hide_link()` for this:
+
+```python
+# new import!
+from aiogram.utils.markdown import hide_link
+
+@dp.message(Command("hidden_link"))
+async def cmd_hidden_link(message: Message):
+    await message.answer(
+        f"{hide_link('https://telegra.ph/file/562a512448876923e28c3.png')}"
+        f"Telegram Documentation: *exists*\n"
+        f"Users: *do not read documentation*\n"
+        f"Groosha:"
+    )
+```
+
+![Image with Hidden Link](../images/en/messages/hidden_link.png)
+
+And using LinkPreviewOptions (see above), 
+you can place a media file on top with a long caption of 4096 characters below.
+
+That's all for now. Until the next chapters!  
+<s><small>Like, subscribe, and turn on notifications</small></s>
