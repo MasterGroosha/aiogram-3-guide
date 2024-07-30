@@ -1,7 +1,6 @@
 ---
 title: Working with Messages
 description: Working with Messages
-t_status: in_progress
 ---
 
 # Working with Messages

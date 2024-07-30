@@ -64,6 +64,7 @@ markdown_extensions:
   - admonition
   - pymdownx.highlight
   - pymdownx.superfences
+  - pymdownx.blocks.details
   - meta
   - attr_list
   - md_in_html
