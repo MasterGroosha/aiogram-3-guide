@@ -25,13 +25,13 @@ theme:
       primary: teal
       toggle:
         icon: material/brightness-4
-        name: Switch to dark mode
+        name: Включить тёмную тему
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
       primary: teal
       toggle:
         icon: material/brightness-7
-        name: Switch to light mode
+        name: Включить светлую тему
   font:
     text: Roboto
     code: Roboto Mono
@@ -49,12 +49,22 @@ extra:
     - icon: fontawesome/brands/github
       link: https://github.com/MasterGroosha/aiogram-3-guide
       name: GitHub
+  announcement: Кажется эта страница не была переведена на этот Язык и предварительно будет показана на Русском Языке.
+  translation_warning_string: Важное предупреждение о переводе!
+  translation_in_work_string: |
+    Привет! Это сообщение от переводчика <a href="https://github.com/Vadim-Khristenko">VAI || Programmer</a>.
+    Пожалуйста, имейте в виду, что эта страница все еще переводится.
+  translation_stopped_string: |
+    Привет! Это сообщение от переводчика <a href="https://github.com/Vadim-Khristenko">VAI || Programmer</a>.
+    Перевод этой страницы остановлен.
+    
 
 # Extensions
 markdown_extensions:
   - admonition
   - pymdownx.highlight
   - pymdownx.superfences
+  - pymdownx.blocks.details
   - meta
   - attr_list
   - md_in_html
@@ -92,6 +102,127 @@ plugins:
       lang:
         - en
         - ru
+  - i18n:
+      reconfigure_material: true
+      reconfigure_search: true
+      docs_structure: folder
+      languages:
+        - locale: ru
+          name: Русский
+          default: true
+          build: true
+        - locale: en
+          name: English
+          build: true
+          nav_translations:
+            'Введение': "Introduction"
+            'Знакомство с aiogram': "Getting Started with aiogram"
+            'Работа с сообщениями': "Working with Messages"
+            'Кнопки': "Buttons"
+            'Роутеры. Структура': "Routers. Structure"
+            'Фильтры и мидлвари': "Filters and Middlewares"
+            'Особые апдейты': "Special Updates"
+            'Конечные автоматы': "Finite State Machines"
+            'Инлайн-режим': "Inline Mode"
+            'Платежи': "Payments"
+            '🔒 Продвинутый уровень': "🔒 Advanced Level"
+          nav_name: "Contents"
+          site_name: Writing Telegram Bots with aiogram 3.x
+          site_description: A tutorial on developing bots for Telegram using the aiogram 3.x framework in Python
+          theme:
+            name: material
+            custom_dir: book_src/overrides
+            language: en
+            palette:
+              - media: "(prefers-color-scheme: light)"
+                scheme: default
+                primary: purple
+                toggle:
+                  icon: material/brightness-4
+                  name: Switch to Dark Theme
+              - media: "(prefers-color-scheme: dark)"
+                scheme: slate
+                primary: purple
+                toggle:
+                  icon: material/brightness-7
+                  name: Switch to Light Theme
+            font:
+              text: Roboto
+              code: Roboto Mono
+            icon:
+              logo: material/robot
+          extra:
+            social:
+              - icon: fontawesome/brands/telegram
+                link: https://t.me/+DE0_2nCvbXozZjUy
+                name: "Chat in Telegram"
+              - icon: fontawesome/brands/github
+                link: https://github.com/MasterGroosha/aiogram-3-guide
+                name: GitHub
+            announcement: It seems this page has not been translated into this Language and will preliminarily be displayed in Russian.
+            translation_warning_string: An important warning about translation!
+            translation_in_work_string: |
+              Hello! This message is from the translator <a href="https://github.com/Vadim-Khristenko">VAI || Programmer</a>.
+              Please keep in mind that this page is still being translated.
+            translation_stopped_string: |
+              Hello! This message is from the translator <a href="https://github.com/Vadim-Khristenko">VAI || Programmer</a>.
+              Translation of this page has been stopped.
+        - locale: uk
+          name: Українська
+          build: false
+          nav_translations:
+            'Введение': "Вступ"
+            'Знакомство с aiogram': "Знайомство з aiogram"
+            'Работа с сообщениями': "Робота з повідомленнями"
+            'Кнопки': "Кнопки"
+            'Роутеры. Структура': "Роутери. Структура"
+            'Фильтры и мидлвари': "Фільтри та мідлвари"
+            'Особые апдейты': "Особливі оновлення"
+            'Конечные автоматы': "Кінцеві автомати"
+            'Инлайн-режим': "Інлайн-режим"
+            'Платежи': "Платежі"
+            '🔒 Продвинутый уровень': "🔒 Просунутий рівень"
+          nav_name: "Зміст"
+          site_name: Написання ботів для Telegram з aiogram 3.x
+          site_description: Посібник з розробки ботів для Telegram за допомогою фреймворку aiogram 3.x на Python
+          theme:
+            name: material
+            custom_dir: book_src/overrides
+            language: uk
+            palette:
+              - media: "(prefers-color-scheme: light)"
+                scheme: default
+                primary: purple
+                toggle:
+                  icon: material/brightness-4
+                  name: Перемкнути на темну тему
+              - media: "(prefers-color-scheme: dark)"
+                scheme: slate
+                primary: purple
+                toggle:
+                  icon: material/brightness-7
+                  name: Перемкнути на світлу тему
+            font:
+              text: Roboto
+              code: Roboto Mono
+            icon:
+              logo: material/robot
+          extra:
+            social:
+              - icon: fontawesome/brands/telegram
+                link: https://t.me/+DE0_2nCvbXozZjUy
+                name: "Чат у Telegram"
+              - icon: fontawesome/brands/github
+                link: https://github.com/MasterGroosha/aiogram-3-guide
+                name: GitHub
+            announcement: Здається, ця сторінка ще не перекладена на цю мову і попередньо буде відображена російською.
+            translation_warning_string: Важливе попередження про переклад!
+            translation_in_work_string: |
+              Привіт! Це повідомлення від перекладача <a href="https://github.com/Vadim-Khristenko">VAI || Programmer</a>.
+              Будь ласка, майте на увазі, що ця сторінка ще перекладається.
+            translation_stopped_string: |
+              Привіт! Це повідомлення від перекладача <a href="https://github.com/Vadim-Khristenko">VAI || Programmer</a>.
+              Переклад цієї сторінки зупинено.
 
 
 # Custom
