@@ -73,7 +73,10 @@ async def cmd_start(message: types.Message):
         [types.KeyboardButton(text="Without mashed potatoes")]
     ]
     keyboard = types.ReplyKeyboardMarkup(keyboard=kb)
-    await message.answer("How should the cutlets be served?", reply_markup=keyboard)
+    await message.answer(
+        "How should the cutlets be served?", 
+        reply_markup=keyboard
+    )
 ```
 
 !!! info ""
@@ -125,7 +128,10 @@ async def cmd_start(message: types.Message):
         resize_keyboard=True,
         input_field_placeholder="Choose a serving method"
     )
-    await message.answer("How should the cutlets be served?", reply_markup=keyboard)
+    await message.answer(
+        "How should the cutlets be served?", 
+        reply_markup=keyboard
+    )
 ```
 
 Looking at it now — it indeed looks nice:
@@ -248,8 +254,14 @@ async def cmd_special_buttons(message: types.Message):
     # of one or more buttons. For example, the first row
     # will consist of two buttons...
     builder.row(
-        types.KeyboardButton(text="Request Location", request_location=True),
-        types.KeyboardButton(text="Request Contact", request_contact=True)
+        types.KeyboardButton(
+            text="Request Location", 
+            request_location=True
+        ),
+        types.KeyboardButton(
+            text="Request Contact", 
+            request_contact=True
+        )
     )
     # ... the second row consists of one button ...
     builder.row(types.KeyboardButton(
@@ -305,3 +317,58 @@ async def on_chat_shared(message: types.Message):
         f"Chat ID: {message.chat_shared.chat_id}"
     )
 ```
+
+## Inline Buttons {: id="inline-buttons" }
+### URL Buttons {: id="url-buttons" }
+
+Unlike regular buttons, inline buttons are attached not to the bottom of the screen but to the message they were sent with. 
+In this chapter, we will look at two types of such buttons: URL and Callback. 
+Another type — Switch — will be considered in the chapter on [inline mode](inline-mode.md).
+
+!!! info ""
+    Login and Pay buttons will not be covered in this book at all. If anyone is willing to help with at least 
+    working code for authorization or payment, please create a Pull Request on 
+    [GitHub](https://github.com/MasterGroosha/aiogram-3-guide). Thank you!
+
+The simplest inline buttons are of the URL type, i.e., "link". 
+Only HTTP(S) and tg:// protocols are supported.
+
+```python
+# new import
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+
+@dp.message(Command("inline_url"))
+async def cmd_inline_url(message: types.Message, bot: Bot):
+    builder = InlineKeyboardBuilder()
+    builder.row(types.InlineKeyboardButton(
+        text="GitHub", url="https://github.com")
+    )
+    builder.row(types.InlineKeyboardButton(
+        text="Official Telegram Channel",
+        url="tg://resolve?domain=telegram")
+    )
+
+    # To be able to show the ID button,
+    # The user must have the has_private_forwards flag set to False
+    user_id = 1234567890
+    chat_info = await bot.get_chat(user_id)
+    if not chat_info.has_private_forwards:
+        builder.row(types.InlineKeyboardButton(
+            text="Some User",
+            url=f"tg://user?id={user_id}")
+        )
+
+    await message.answer(
+        'Choose a link',
+        reply_markup=builder.as_markup(),
+    )
+```
+
+Let's take a closer look at the middle block of code. The fact is that in March 2019, 
+Telegram developers [added the ability](https://telegram.org/blog/unsend-privacy-emoji#anonymous-forwarding) to disable user profile 
+links in forwarded messages. When trying to create a URL button with a user ID who has disabled forwarding links, 
+the bot will receive an error `Bad Request: BUTTON_USER_PRIVACY_RESTRICTED`. 
+Therefore, before displaying such a button, it is necessary to check the state of this setting. 
+To do this, you can call the [getChat](https://core.telegram.org/bots/api#getchat) method and check the state of the `has_private_forwards` field 
+in the response. If it is `True`, then the attempt to add a URL-ID button will result in an error.
+
