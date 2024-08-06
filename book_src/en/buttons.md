@@ -153,3 +153,155 @@ async def without_puree(message: types.Message):
 
 To remove the buttons, you need to send a new message with a special "removing" keyboard of type `ReplyKeyboardRemove`. 
 For example: `await message.reply("Excellent choice!", reply_markup=types.ReplyKeyboardRemove())`
+
+### Keyboard Builder {: id="reply-builder" }
+
+For more dynamic button generation, you can use a keyboard builder. The following methods will be useful:
+
+- `add(<KeyboardButton>)` — adds a button to the builder's memory;
+- `adjust(int1, int2, int3...)` — arranges rows with `int1, int2, int3...` buttons;
+- `as_markup()` — returns the ready keyboard object;
+- `button(<params>)` — adds a button with specified parameters, automatically determining the button type (Reply or Inline).
+
+Let's create a numbered keyboard of size 4×4:
+
+```python
+# new import!
+from aiogram.utils.keyboard import ReplyKeyboardBuilder
+
+@dp.message(Command("reply_builder"))
+async def reply_builder(message: types.Message):
+    builder = ReplyKeyboardBuilder()
+    for i in range(1, 17):
+        builder.add(types.KeyboardButton(text=str(i)))
+    builder.adjust(4)
+    await message.answer(
+        "Choose a number:",
+        reply_markup=builder.as_markup(resize_keyboard=True),
+    )
+```
+
+![Result of the button builder](../images/en/buttons/reply_builder.png)
+
+!!! info ""
+    The [ReplyKeyboardMarkup](https://core.telegram.org/bots/api#replykeyboardmarkup) object also has two useful options: 
+    `one_time_keyboard` for automatically hiding the keyboard after a button is pressed, 
+    and `selective` for displaying the keyboard only to certain members of a group. 
+    Their usage is left for self-study.
+
+### Special Regular Buttons {: id="reply-special" }
+
+As of the writing of this chapter, 
+Telegram supports six special types of regular buttons that are not just regular message templates. 
+They are designed for:
+
+- Sending the current location;
+- Sending the user's contact with a phone number;
+- Creating a poll/quiz;
+- Selecting and sending user data to the bot based on specified criteria;
+- Selecting and sending (super)group or channel data to the bot based on specified criteria;
+- Launching a WebApp.
+
+Let's discuss them in more detail.
+
+**Sending Current Location**: 
+This is straightforward; it sends the user's current coordinates. 
+This is static location data, not the Live Location, which updates automatically. 
+Users can fake their location at the system level (Android).
+
+**Sending User Contact with Phone Number**: 
+When the button is pressed (with prior confirmation), 
+the user sends their contact with a phone number to the bot. 
+Users can ignore the button and send any contact, 
+but you can handle this by verifying in the handler 
+or filter that `message.contact.user_id == message.from_user.id`.
+
+**Creating a Poll/Quiz**:
+When the button is pressed, the user is prompted to create a poll or quiz, 
+which is then sent to the current chat. 
+You need to pass a [KeyboardButtonPollType](https://core.telegram.org/bots/api#keyboardbuttonpolltype) object. 
+The optional `type` argument specifies the poll type (poll or quiz).
+
+**Selecting and Sending User Data to the Bot**: 
+Displays a window to select a user from the chat list of the user who pressed the button. 
+You need to pass a [KeyboardButtonRequestUser](https://core.telegram.org/bots/api#keyboardbuttonrequestuser) object with a generated request ID and criteria, 
+such as "is bot," "has Telegram Premium," etc. 
+After selecting a user, the bot receives a [UserShared](https://core.telegram.org/bots/api#usershared) service message.
+
+**Selecting and Sending Chat Data to the Bot**: 
+Displays a window to select a chat from the chat list of the user who pressed the button. 
+You need to pass a [KeyboardButtonRequestChat](https://core.telegram.org/bots/api#keyboardbuttonrequestchat) object with a generated request ID and criteria, 
+such as "is a group or channel," "user is chat creator," etc. 
+After selecting a chat, the bot receives a [ChatShared](https://core.telegram.org/bots/api#chatshared) service message.
+
+**Launching a WebApp**: 
+When the button is pressed, it opens a [WebApp](https://core.telegram.org/bots/webapps). 
+You need to pass a [WebAppInfo](https://core.telegram.org/bots/api#webappinfo) object. 
+WebApps will not be covered in this book.
+
+Here's some code for illustration:
+```python
+@dp.message(Command("special_buttons"))
+async def cmd_special_buttons(message: types.Message):
+    builder = ReplyKeyboardBuilder()
+    # The row method explicitly forms a row
+    # of one or more buttons. For example, the first row
+    # will consist of two buttons...
+    builder.row(
+        types.KeyboardButton(text="Request Location", request_location=True),
+        types.KeyboardButton(text="Request Contact", request_contact=True)
+    )
+    # ... the second row consists of one button ...
+    builder.row(types.KeyboardButton(
+        text="Create Quiz",
+        request_poll=types.KeyboardButtonPollType(type="quiz"))
+    )
+    # ... and the third row again consists of two buttons
+    builder.row(
+        types.KeyboardButton(
+            text="Select Premium User",
+            request_user=types.KeyboardButtonRequestUser(
+                request_id=1,
+                user_is_premium=True
+            )
+        ),
+        types.KeyboardButton(
+            text="Select Supergroup with Forums",
+            request_chat=types.KeyboardButtonRequestChat(
+                request_id=2,
+                chat_is_channel=False,
+                chat_is_forum=True
+            )
+        )
+    )
+    # No WebApps yet, sorry :(
+
+    await message.answer(
+        "Choose an action:",
+        reply_markup=builder.as_markup(resize_keyboard=True),
+    )
+```
+
+![Special Regular Buttons](../images/en/buttons/special_buttons.png)
+
+Finally, two handler templates for handling button presses from the bottom two buttons:
+
+```python
+# new import
+from aiogram import F
+
+@dp.message(F.user_shared)
+async def on_user_shared(message: types.Message):
+    print(
+        f"Request {message.user_shared.request_id}. "
+        f"User ID: {message.user_shared.user_id}"
+    )
+
+
+@dp.message(F.chat_shared)
+async def on_chat_shared(message: types.Message):
+    print(
+        f"Request {message.chat_shared.request_id}. "
+        f"Chat ID: {message.chat_shared.chat_id}"
+    )
+```
