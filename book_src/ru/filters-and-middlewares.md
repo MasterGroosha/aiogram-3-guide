@@ -6,7 +6,7 @@ description: Фильтры и мидлвари
 # Фильтры и мидлвари
 
 !!! info ""
-    Используемая версия aiogram: 3.7.0
+    Используемая версия aiogram: 3.14.0
 
 Настало время разобраться, как устроены фильтры и мидлвари в aiogram 3.x, а также познакомиться с 
 «убийцей лямбда-выражений» фреймворка — _магическими фильтрами_.
@@ -867,15 +867,20 @@ if __name__ == "__main__":
 А вот и сама мидлварь:
 
 ```python
+from typing import Callable, Dict, Any, Awaitable
+
+from aiogram import BaseMiddleware
 from aiogram.dispatcher.flags import get_flag
+from aiogram.types import Message
 from aiogram.utils.chat_action import ChatActionSender
+
 
 class ChatActionMiddleware(BaseMiddleware):
     async def __call__(
         self,
         handler: Callable[[Message, Dict[str, Any]], Awaitable[Any]],
         event: Message,
-        data: Dict[str, Any]
+        data: Dict[str, Any],
     ) -> Any:
         long_operation_type = get_flag(data, "long_operation")
 
@@ -885,8 +890,9 @@ class ChatActionMiddleware(BaseMiddleware):
 
         # Если флаг есть
         async with ChatActionSender(
-                action=long_operation_type, 
-                chat_id=event.chat.id
+                action=long_operation_type,
+                chat_id=event.chat.id,
+                bot=data["bot"],
         ):
             return await handler(event, data)
 ```
