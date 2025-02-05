@@ -372,3 +372,361 @@ Therefore, before displaying such a button, it is necessary to check the state o
 To do this, you can call the [getChat](https://core.telegram.org/bots/api#getchat) method and check the state of the `has_private_forwards` field 
 in the response. If it is `True`, then the attempt to add a URL-ID button will result in an error.
 
+### Callbacks {: id="callback-buttons" }
+
+There isn't much more to discuss about URL buttons, so let's move on to the highlight of today's program — Callback buttons. 
+These are very powerful and can be found almost everywhere. Reaction buttons on posts (likes), menus in @BotFather, etc. 
+The essence is that callback buttons have a special value (data) by which your application recognizes what was pressed and what needs to be done. 
+Choosing the right data is **very important**! It is also worth noting that, unlike regular buttons, pressing a callback button 
+allows you to do almost anything, from ordering pizza to launching computations on a supercomputer cluster.
+
+Let's write a handler that will send a message with a callback button on the `/random` command:
+```python
+@dp.message(Command("random"))
+async def cmd_random(message: types.Message):
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="Press me",
+        callback_data="random_value")
+    )
+    await message.answer(
+        "Press the button for the bot to send a number from 1 to 10",
+        reply_markup=builder.as_markup()
+    )
+```
+
+But how do we handle the press? If earlier we used a handler on `message` to handle incoming messages, now 
+we will use a handler on `callback_query` to handle callbacks. We will focus on the button's "value", i.e., its data:
+
+```python
+@dp.callback_query(F.data == "random_value")
+async def send_random_value(callback: types.CallbackQuery):
+    await callback.message.answer(str(randint(1, 10)))
+```
+
+![Reaction to pressing the callback button](../images/en/buttons/l03_5.png)
+
+Oh, what are those clocks? It turns out that the Telegram server is waiting for us to confirm the delivery of the callback, otherwise, within 30 
+seconds, it will show a special icon. To hide the clocks, you need to call the `answer()` method on the callback (or use 
+the API method `answer_callback_query()`). In general, you can call the `answer()` method without any arguments, but you can also call 
+a special window (pop-up or overlay):
+
+```python
+@dp.callback_query(F.data == "random_value")
+async def send_random_value(callback: types.CallbackQuery):
+    await callback.message.answer(str(randint(1, 10)))
+    await callback.answer(
+        text="Thank you for using the bot!",
+        show_alert=True
+    )
+    # or just await callback.answer()
+```
+
+![Pop-up window when pressing the callback button](../images/en/buttons/l03_6.png)
+
+The reader may wonder: at what point in the processing should we respond to the callback with the `answer()` method? In general, the main thing is to simply not forget to inform Telegram about receiving the callback request, but I recommend placing 
+the `answer()` call at the very end, and here's why: if an error occurs during the callback processing and 
+the bot encounters an unhandled exception, the user will see the non-disappearing clocks for half a minute and understand that something 
+is wrong. Otherwise, the clocks will disappear, and the user will remain unaware of whether their request was successfully processed or not.
+
+!!! info "Note"
+    In the `send_random_value` function, we called the `answer()` method not on `message`, but on `callback.message`. This is because 
+    callback handlers work not with messages (type [Message](https://core.telegram.org/bots/api#message)), 
+    but with callbacks (type [CallbackQuery](https://core.telegram.org/bots/api#callbackquery)), which have different fields, and 
+    the message itself is just a part of it. Also, note that `message` is the message to which the 
+    button was attached (i.e., the sender of such a message is the bot itself). If you want to know who pressed the button, look at 
+    the `from` field (in your code, it will be `callback.from_user`, as the word `from` is reserved in Python).
+
+!!! warning "About the `message` object in the callback"
+    If the message was sent from [inline mode](inline-mode.md), the `message` field in the callback will be empty. 
+    You will not be able to get the content of such a message unless you save it somewhere in advance.
+
+Let's move on to a more complex example. Suppose the user is offered a message with the number 0, and below it are three buttons: +1, -1, and Confirm. 
+With the first two, they can edit the number, and the last one removes the entire keyboard, fixing the changes. We will store the values in 
+memory in a dictionary (we will talk about finite state machines _another time_).
+
+```python
+# This is where user data is stored.
+# Since this is an in-memory dictionary, it will be cleared upon restart
+user_data = {}
+
+def get_keyboard():
+    buttons = [
+        [
+            types.InlineKeyboardButton(text="-1", callback_data="num_decr"),
+            types.InlineKeyboardButton(text="+1", callback_data="num_incr")
+        ],
+        [types.InlineKeyboardButton(text="Confirm", callback_data="num_finish")]
+    ]
+    keyboard = types.InlineKeyboardMarkup(inline_keyboard=buttons)
+    return keyboard
+
+
+async def update_num_text(message: types.Message, new_value: int):
+    await message.edit_text(
+        f"Specify the number: {new_value}",
+        reply_markup=get_keyboard()
+    )
+
+        
+@dp.message(Command("numbers"))
+async def cmd_numbers(message: types.Message):
+    user_data[message.from_user.id] = 0
+    await message.answer("Specify the number: 0", reply_markup=get_keyboard())
+
+    
+@dp.callback_query(F.data.startswith("num_"))
+async def callbacks_num(callback: types.CallbackQuery):
+    user_value = user_data.get(callback.from_user.id, 0)
+    action = callback.data.split("_")[1]
+
+    if action == "incr":
+        user_data[callback.from_user.id] = user_value+1
+        await update_num_text(callback.message, user_value+1)
+    elif action == "decr":
+        user_data[callback.from_user.id] = user_value-1
+        await update_num_text(callback.message, user_value-1)
+    elif action == "finish":
+        await callback.message.edit_text(f"Total: {user_value}")
+
+    await callback.answer()
+```
+
+And it seems to work:
+
+![Everything works?](../images/en/buttons/l03_7.png)
+
+But now imagine that a cunning user did the following: called the `/numbers` command (value 0), increased the value 
+to 1, called `/numbers` again (the value reset to 0), and edited and pressed the "+1" button on the first message. 
+What will happen? The bot will honestly send a request to edit the text with the value 1, but since the message 
+already has the number 1, the Bot API will return an error that the old and new texts match, and the bot will catch an exception: 
+`Bad Request: message is not modified: specified new message content and reply markup are exactly the same 
+as a current content and reply markup of the message`
+
+![BadRequest error under certain circumstances](../images/en/buttons/l03_8.png)
+
+You will likely encounter this error often at first when trying to edit messages. 
+Generally speaking, such an error often indicates problems with the logic of generating/updating data in the message, but sometimes, 
+as in the example above, it can be expected behavior. 
+
+In this case, we will ignore the error entirely, as we only care about 
+the final result, which will definitely be correct. The **MessageNotModified** error belongs to the Bad Request category, 
+so we have a choice: ignore the entire class of such errors, or catch the entire BadRequest class 
+and try to identify the specific cause by the error text. 
+To avoid complicating the example too much, we will use the first method and slightly update the `update_num_text()` function:
+
+```python
+# New imports!
+from contextlib import suppress
+from aiogram.exceptions import TelegramBadRequest
+
+async def update_num_text(message: types.Message, new_value: int):
+    with suppress(TelegramBadRequest):
+        await message.edit_text(
+            f"Specify the number: {new_value}",
+            reply_markup=get_keyboard()
+        )
+```
+
+If you now try to repeat the example above, the bot will simply ignore the specified exception in this block of code.
+
+### Callback Factory {: id="callback-factory" }
+
+When you operate with some simple callbacks with a common prefix, like `order_1`, `order_2`... it may seem 
+easy to call `split()` and split the string by some delimiter. But now imagine that you need 
+to store not one value, but three: `order_1_1994_2731519`. What is the article, price, quantity here? Or maybe it's the year of release? 
+And splitting the string starts to look scary: `.split("_")[2]`. Why not 1 or 3? 
+
+At some point, there is a need to structure the content of such callback data, and aiogram has a solution! 
+You create `CallbackData` objects, specify a prefix, describe the structure, and then the framework independently assembles 
+the string with callback data and, more importantly, correctly parses the incoming value. Let's understand this with a specific example; 
+we will create a `NumbersCallbackFactory` class with the prefix `fabnum` and two fields `action` and `value`. The `action` field determines 
+what to do, change the value (change) or fix it (finish), and the `value` field shows by how much to change 
+the value. By default, it will be None, as the "finish" action does not require a change delta. Code:
+
+```python
+# new imports!
+from typing import Optional
+from aiogram.filters.callback_data import CallbackData
+
+class NumbersCallbackFactory(CallbackData, prefix="fabnum"):
+    action: str
+    value: Optional[int] = None
+```
+
+Our class must inherit from `CallbackData` and accept the prefix value. The prefix is 
+a common substring at the beginning by which the framework will determine which structure is in the callback. 
+
+Now let's write the function to generate the keyboard. Here we will use the `button()` method, which will automatically 
+create a button with the required type, and we only need to pass the arguments. 
+As the `callback_data` argument, instead of a string, we will specify 
+an instance of our `NumbersCallbackFactory` class:
+
+```python
+def get_keyboard_fab():
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text="-2", callback_data=NumbersCallbackFactory(action="change", value=-2)
+    )
+    builder.button(
+        text="-1", callback_data=NumbersCallbackFactory(action="change", value=-1)
+    )
+    builder.button(
+        text="+1", callback_data=NumbersCallbackFactory(action="change", value=1)
+    )
+    builder.button(
+        text="+2", callback_data=NumbersCallbackFactory(action="change", value=2)
+    )
+    builder.button(
+        text="Confirm", callback_data=NumbersCallbackFactory(action="finish")
+    )
+    # Align buttons 4 per row to get 4 + 1
+    builder.adjust(4)
+    return builder.as_markup()
+```
+
+We leave the message sending and editing methods the same (we will add the `_fab` suffix to the names and commands):
+
+```python
+async def update_num_text_fab(message: types.Message, new_value: int):
+    with suppress(TelegramBadRequest):
+        await message.edit_text(
+            f"Specify the number: {new_value}",
+            reply_markup=get_keyboard_fab()
+        )
+
+@dp.message(Command("numbers_fab"))
+async def cmd_numbers_fab(message: types.Message):
+    user_data[message.from_user.id] = 0
+    await message.answer("Specify the number: 0", reply_markup=get_keyboard_fab())
+```
+
+Finally, we move on to the main part — handling callbacks. To do this, we need to pass the class whose callbacks we are catching 
+to the decorator with the `filter()` method called. There is also an additional argument named `callback_data` 
+(the name must be exactly this!), and it has the same type as the filtered class:
+
+```python
+@dp.callback_query(NumbersCallbackFactory.filter())
+async def callbacks_num_change_fab(
+        callback: types.CallbackQuery, 
+        callback_data: NumbersCallbackFactory
+):
+    # Current value
+    user_value = user_data.get(callback.from_user.id, 0)
+    # If the number needs to be changed
+    if callback_data.action == "change":
+        user_data[callback.from_user.id] = user_value + callback_data.value
+        await update_num_text_fab(callback.message, user_value + callback_data.value)
+    # If the number needs to be fixed
+    else:
+        await callback.message.edit_text(f"Total: {user_value}")
+    await callback.answer()
+```
+
+Let's further specify our handlers and make a separate handler 
+for numeric buttons and for the "Confirm" button. We will filter by the `action` value, and the "magic filters" of aiogram 3.x will help us with this. 
+Seriously, they are called that: Magic Filter. We will discuss this magic in more detail 
+in another chapter, but for now, let's just use the "magic" and take it on faith:
+
+```python
+# new import!
+from magic_filter import F
+
+# Pressing one of the buttons: -2, -1, +1, +2
+@dp.callback_query(NumbersCallbackFactory.filter(F.action == "change"))
+async def callbacks_num_change_fab(
+        callback: types.CallbackQuery, 
+        callback_data: NumbersCallbackFactory
+):
+    # Current value
+    user_value = user_data.get(callback.from_user.id, 0)
+
+    user_data[callback.from_user.id] = user_value + callback_data.value
+    await update_num_text_fab(callback.message, user_value + callback_data.value)
+    await callback.answer()
+
+
+# Pressing the "confirm" button
+@dp.callback_query(NumbersCallbackFactory.filter(F.action == "finish"))
+async def callbacks_num_finish_fab(callback: types.CallbackQuery):
+    # Current value
+    user_value = user_data.get(callback.from_user.id, 0)
+
+    await callback.message.edit_text(f"Total: {user_value}")
+    await callback.answer()
+```
+
+![Callback Factory](../images/en/buttons/callback_factory.png)
+
+At first glance, what we did may seem complicated, but in reality, the callback factory allows 
+you to create advanced callback buttons and conveniently break the code into logical entities. You can see the application of the factory 
+in practice in the [Minesweeper game bot](https://github.com/MasterGroosha/telegram-bombsweeper-bot), 
+written by your favorite author :)
+
+### Auto-reply to Callbacks {: id="callback-autoreply" }
+
+If you have a lot of callback handlers that need either a simple reply or a uniform reply, you can 
+simplify your life a bit by using a special middleware. We will talk about such things 
+[separately](filters-and-middlewares.md#middlewares), but for now, let's get acquainted.
+
+So, the simplest option is to add this line after creating the dispatcher:
+
+```python
+# don't forget the new import
+from aiogram.utils.callback_answer import CallbackAnswerMiddleware
+
+dp = Dispatcher()
+dp.callback_query.middleware(CallbackAnswerMiddleware())
+```
+
+In this case, after the handler is executed, aiogram will automatically respond to the callback. 
+You can override 
+[default settings](https://github.com/aiogram/aiogram/blob/5adaf7a567e976da64e418eee5df31682ad2496c/aiogram/utils/callback_answer.py#L133-L137) 
+and specify your own, for example: 
+
+```python
+dp.callback_query.middleware(
+    CallbackAnswerMiddleware(
+        pre=True, text="Done!", show_alert=True
+    )
+)
+```
+
+Unfortunately, situations where all callback handlers have the same response are quite rare. Fortunately, overriding 
+the middleware behavior in a specific handler is quite simple: just pass the `callback_answer` argument 
+and set new values for it:
+
+```python
+# new import!
+from aiogram.utils.callback_answer import CallbackAnswer
+
+@dp.callback_query()
+async def my_handler(callback: CallbackQuery, callback_answer: CallbackAnswer):
+    ... # some code here
+    if <everything is ok>:
+        callback_answer.text = "Great!"
+    else:
+        callback_answer.text = "Something went wrong. Try again later"
+        callback_answer.cache_time = 10
+    ... # some code here
+```
+
+**Important**: this method will not work if the middleware has the `pre=True` flag set. In this case, you need to completely 
+override the middleware parameter set through flags, which we will discuss 
+[later](filters-and-middlewares.md#flags):
+
+```python
+from aiogram import flags
+from aiogram.utils.callback_answer import CallbackAnswer
+
+@dp.callback_query()
+@flags.callback_answer(pre=False)  # override the pre flag
+async def my_handler(callback: CallbackQuery, callback_answer: CallbackAnswer):
+    ... # some code here
+    if <everything is ok>:
+        callback_answer.text = "Now this text will be visible!"
+    ... # some code here
+```
+
+For now, we will conclude our acquaintance with buttons.
+
