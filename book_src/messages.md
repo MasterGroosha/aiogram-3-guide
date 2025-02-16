@@ -79,7 +79,6 @@ bot = Bot(
         # тут ещё много других интересных настроек
     )
 )
-bot = Bot(token="123:abcxyz", parse_mode="HTML")
 
 # где-то в функции...
 await message.answer("Сообщение с <u>HTML-разметкой</u>")
