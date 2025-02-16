@@ -1,0 +1,1240 @@
+
+<!doctype html>
+<html lang="ru" class="no-js">
+  <head>
+    
+  <script src="https://telegram.org/js/telegram-web-app.js?35"></script>
+    <script type="text/javascript">
+      const webapp = window.Telegram.WebApp;
+      webapp.disableVerticalSwipes()
+      webapp.ready();
+      webapp.expand();
+      const initData = webapp.initDataUnsafe;
+      if (window.location.pathname === "/aiogram-3-guide/" && Object.hasOwn(initData, 'auth_date')) {
+        if (initData.start_param) {
+          let additionalParam = '';
+          switch (initData.start_param) {
+            case 'quickstart':
+            case 'messages':
+            case 'buttons':
+            case 'routers':
+            case 'special-updates':
+            case 'fsm':
+            case 'inline-mode':
+              additionalParam = initData.start_param;
+              break;
+            case 'filters':
+              additionalParam = 'filters-and-middlewares/#filters';
+              break
+            case 'middlewares':
+              additionalParam = 'filters-and-middlewares/#middlewares';
+              break
+            case 'magic-filter':
+            case 'magic':
+              additionalParam = 'filters-and-middlewares/#magic-filters';
+              break
+            case 'entities':
+              additionalParam = 'messages/#message-entities';
+              break;
+            case 'escaping':
+              additionalParam = 'messages/#input-escaping';
+              break;
+            case 'keep-formatting':
+              additionalParam = 'messages/#keep-formatting';
+              break
+            case 'send-files':
+            case 'upload':
+              additionalParam = 'messages/#uploading-media';
+              break;
+            case 'download-files':
+            case 'download':
+              additionalParam = 'messages/#downloading-media';
+              break;
+            case 'hide-image':
+              additionalParam = 'messages/#bonus';
+              break
+            case 'callback-factory':
+              additionalParam = 'buttons/#callback-factory';
+              break
+            case 'my-chat-member':
+              additionalParam = 'special-updates/#my-chat-member';
+              break
+            case 'chat-member':
+              additionalParam = 'special-updates/#chat-member';
+              break
+            default:
+              additionalParam = '/';
+          }
+          window.location.href = (`${window.location.origin}${window.location.pathname}${additionalParam}`);
+        }
+      }
+  </script>
+
+  
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Платежи в Telegram">
+      
+      
+        <meta name="author" content="MasterGroosha">
+      
+      
+        <link rel="canonical" href="https://mastergroosha.github.io/aiogram-3-guide/payments/">
+      
+      
+        <link rel="prev" href="../inline-mode/">
+      
+      
+        <link rel="next" href="../advanced-teaser/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.25">
+    
+
+    
+      
+        <title>Платежи в Telegram - Пишем Telegram-ботов с aiogram 3.x</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.6543a935.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  
+  
+    
+  
+
+  
+  
+    
+  
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Пишем Telegram-ботов с aiogram 3.x" />
+  <meta property="og:description" content="Платежи в Telegram" />
+  <meta property="og:url" content="https://mastergroosha.github.io/aiogram-3-guide/payments/" />
+  <meta property="og:image" content="https://mastergroosha.github.io/aiogram-3-guide/images/social.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="512" />
+  <meta property="og:image:height" content="512" />
+
+  <!-- Twitter Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://mastergroosha.github.io/aiogram-3-guide/payments/">
+  <meta name="twitter:title" content="Пишем Telegram-ботов с aiogram 3.x">
+  <meta name="twitter:description" content="Платежи в Telegram">
+  <meta name="twitter:image" content="https://mastergroosha.github.io/aiogram-3-guide/images/social.png">
+
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#payments" class="md-skip">
+          Перейти к содержанию
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Верхний колонтитул">
+    <a href=".." title="Пишем Telegram-ботов с aiogram 3.x" class="md-header__button md-logo" aria-label="Пишем Telegram-ботов с aiogram 3.x" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2M7.5 13A2.5 2.5 0 0 0 5 15.5 2.5 2.5 0 0 0 7.5 18a2.5 2.5 0 0 0 2.5-2.5A2.5 2.5 0 0 0 7.5 13m9 0a2.5 2.5 0 0 0-2.5 2.5 2.5 2.5 0 0 0 2.5 2.5 2.5 2.5 0 0 0 2.5-2.5 2.5 2.5 0 0 0-2.5-2.5Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Пишем Telegram-ботов с aiogram 3.x
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Платежи в Telegram
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Поиск" placeholder="Поиск" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Поиск">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Очистить" aria-label="Очистить" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Инициализация поиска
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/MasterGroosha/aiogram-3-guide" title="Перейти к репозиторию" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    MasterGroosha/aiogram-3-guide
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<!-- Determine classes -->
+
+
+
+
+<!-- Navigation -->
+<nav
+  class="md-nav md-nav--primary"
+  aria-label="Навигация"
+  data-md-level="0"
+>
+
+  <!-- Site title -->
+  <label class="md-nav__title" for="__drawer">
+    <a
+      href=".."
+      title="Пишем Telegram-ботов с aiogram 3.x"
+      class="md-nav__button md-logo"
+      aria-label="Пишем Telegram-ботов с aiogram 3.x"
+      data-md-component="logo"
+    >
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2M7.5 13A2.5 2.5 0 0 0 5 15.5 2.5 2.5 0 0 0 7.5 18a2.5 2.5 0 0 0 2.5-2.5A2.5 2.5 0 0 0 7.5 13m9 0a2.5 2.5 0 0 0-2.5 2.5 2.5 2.5 0 0 0 2.5 2.5 2.5 2.5 0 0 0 2.5-2.5 2.5 2.5 0 0 0-2.5-2.5Z"/></svg>
+
+    </a>
+    Оглавление
+  </label>
+
+  <!-- Repository information -->
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/MasterGroosha/aiogram-3-guide" title="Перейти к репозиторию" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    MasterGroosha/aiogram-3-guide
+  </div>
+</a>
+    </div>
+  
+
+  <!-- Navigation list -->
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Введение
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quickstart/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Знакомство с aiogram
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../messages/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Работа с сообщениями
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../buttons/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Кнопки
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../routers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Роутеры. Структура
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../filters-and-middlewares/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Фильтры и мидлвари
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../special-updates/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Особые апдейты
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fsm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Конечные автоматы
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../inline-mode/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Инлайн-режим
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Платежи
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Платежи
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Содержание">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Содержание
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pay-with-stars" class="md-nav__link">
+    <span class="md-ellipsis">
+      Платежи при помощи Stars
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Платежи при помощи Stars">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      План работ
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#technologies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Технологии
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#command-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      Пишем код. Команда /start
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#commands-donate" class="md-nav__link">
+    <span class="md-ellipsis">
+      Команды /donate
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pre-checkout" class="md-nav__link">
+    <span class="md-ellipsis">
+      Проверка перед оплатой
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#after-payment" class="md-nav__link">
+    <span class="md-ellipsis">
+      После оплаты
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#refunds" class="md-nav__link">
+    <span class="md-ellipsis">
+      Возвраты покупок
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced-teaser/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    🔒 Продвинутый уровень
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Содержание">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Содержание
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pay-with-stars" class="md-nav__link">
+    <span class="md-ellipsis">
+      Платежи при помощи Stars
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Платежи при помощи Stars">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      План работ
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#technologies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Технологии
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#command-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      Пишем код. Команда /start
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#commands-donate" class="md-nav__link">
+    <span class="md-ellipsis">
+      Команды /donate
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pre-checkout" class="md-nav__link">
+    <span class="md-ellipsis">
+      Проверка перед оплатой
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#after-payment" class="md-nav__link">
+    <span class="md-ellipsis">
+      После оплаты
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#refunds" class="md-nav__link">
+    <span class="md-ellipsis">
+      Возвраты покупок
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<div><h1 id="payments">Платежи в Telegram<a class="headerlink" href="#payments" title="Permanent link">¶</a></h1>
+<div class="admonition info">
+<p>Используемая версия aiogram: 3.7.0</p>
+</div>
+<p>Из этой главы вы узнаете, как можно реализовать покупки в своих Telegram-ботах с помощью внутренней валюты 
+<a href="https://telegram.org/blog/telegram-stars">Telegram Stars</a>. </p>
+<h2 id="pay-with-stars">Платежи при помощи Stars<a class="headerlink" href="#pay-with-stars" title="Permanent link">¶</a></h2>
+<p>Начиная с июня 2024 года, все платежи за <strong>цифровые продукты и услуги</strong> в Telegram должны осуществляться с помощью новой 
+цифровой валюты Telegram Stars. Мы не будем подробно останавливаться на описании «Звёздочек», тем более, что детали могут 
+меняться со временем. Нововведение довольно спорное, но судя по всему, разработчикам ботов придётся с этим как-то жить 
+дальше, поэтому стоит разобраться в технологии.</p>
+<h3 id="plan">План работ<a class="headerlink" href="#plan" title="Permanent link">¶</a></h3>
+<p>Для наглядности разработаем бота для приёма добровольных пожертвований (донатов). Должны поддерживаться пресеты
+(<code>/⁠donate_1</code>, <code>/⁠donate_25</code>, <code>/⁠donate_50</code>), 
+а также ввод произвольного числа звёздочек (<code>/⁠donate 777</code>, здесь число передаётся как аргумент команды). 
+Также сделаем команду <code>/⁠refund</code>, чтобы пользователь мог вернуть потраченные Stars на свой телеграм-аккаунт. 
+По <a href="https://telegram.org/tos/bot-developers#6-2-1-payment-disputes-for-digital-goods-and-services">требованию Telegram</a>, 
+все боты, принимающие оплату за цифровые продукты и услуги, <strong>обязаны</strong> поддерживать команду <code>/⁠paysupport</code>, но поскольку 
+на этот счёт нет дополнительных разъяснений, то в ней будем лишний уведомлять пользователя о команде <code>/⁠refund</code>.</p>
+<h3 id="technologies">Технологии<a class="headerlink" href="#technologies" title="Permanent link">¶</a></h3>
+<p>Прежде всего, aiogram, причём версии не ниже 3.7.0. Несмотря на то, что поддержка метода 
+<a href="https://core.telegram.org/bots/api#sendinvoice">sendInvoice</a> существует уже давно, метод 
+<a href="https://core.telegram.org/bots/api#refundstarpayment">refundStarPayment</a> был добавлен только в Bot API 7.4, что 
+соответствует версии 3.7 у aiogram.</p>
+<p>Для отображения логов используется библиотека <a href="https://www.structlog.org/en/stable/">structlog</a>. 
+Её не будет видно в сниппетах в этом тексте, но в <a href="https://github.com/MasterGroosha/aiogram-3-guide/tree/master/code/09_payments">исходных текстах к главе</a> 
+она есть.</p>
+<p>Информационные тексты, отправляемые ботом, используют <a href="https://projectfluent.org/">Project Fluent</a> от Mozilla. 
+Помимо сниппета с Python-кодом вы будете видеть соответствующие строки локализации. Дабы упростить себе задачу, 
+а вам помочь сфокусироваться на новом материале, условимся, что язык пользователя роли не играет; бот всегда будет 
+отдавать строки на русском языке из одного файла.</p>
+<div class="admonition info">
+<p>Если вы хотите узнать больше о локализации Telegram-ботов на разные языки без вышеописанных самоограничений, 
+приглашаем вас на наш <a href="https://stepik.org/a/153850?utm_source=aiogram3guide&amp;utm_medium=web&amp;utm_campaign=payments_chapter">платный курс</a> 
+на платформе Stepik.</p>
+</div>
+<h3 id="command-start">Пишем код. Команда /start<a class="headerlink" href="#command-start" title="Permanent link">¶</a></h3>
+<p>По команде <code>/⁠start</code> бот должен выдавать вот такой красивый текст</p>
+<div class="highlight"><pre><span></span><code>cmd-start =
+    Здравствуйте! Спасибо, что решили воспользоваться ботом. 
+    Доступны следующие команды:
+
+    • /donate_1: подарить 1 звезду.
+    • /donate_25: подарить 25 звёзд.
+    • /donate_50: подарить 50 звёзд.
+    • /donate &lt;число&gt;: подарить &lt;число&gt; звёзд.
+    • /paysupport: помощь с покупками.
+    • /refund: возврат платежа (рефанд).
+</code></pre></div>
+<p>Код:</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">CommandStart</span><span class="p">())</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_start</span><span class="p">(</span>
+    <span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span>
+    <span class="n">l10n</span><span class="p">:</span> <span class="n">FluentLocalization</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="n">l10n</span><span class="o">.</span><span class="n">format_value</span><span class="p">(</span><span class="s2">"cmd-start"</span><span class="p">),</span>
+        <span class="n">parse_mode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>У этого бота по умолчанию включен режим разметки HTML, но стартовое сообщение нельзя отправить с этим режимом, поскольку 
+используется подстрока <code>&lt;⁠число⁠&gt;</code>. Поэтому <code>parse_mode</code> выставляется в <code>None</code>. Параметр <code>l10n</code> – 
+это мидлварь для локализации, подкладывающая в хэндлер объект <code>FluentLocalization</code>. В любой непонятной ситуации смотрите 
+в <a href="https://github.com/MasterGroosha/aiogram-3-guide/tree/master/code/09_payments">исходники</a> к главе.</p>
+<h3 id="commands-donate">Команды /donate<a class="headerlink" href="#commands-donate" title="Permanent link">¶</a></h3>
+<p>Далее нужно сделать команду <code>/⁠donate</code> с произвольным выбором суммы, а также несколько готовых пресетов. 
+По состоянию на июнь 2024 года максимальное число звёзд для покупки – 2500, при создани инвойса на бóльшую сумму 
+Telegram-клиенты начинают «ломаться» и не дают приобрести новые звёзды прямо перед покупкой. Так что ограничимся 
+суммой в интервале [1;2500] включительно.</p>
+<p>Разница между командой-пресетом и обычной минимальная; можно объединить всё в один обработчик. Начнём его писать: 
+получим команду и распарсим содержимое. Для пресетов надо разбить текст самой команды по подчёркиванию и вытащить 
+правую половину как число, а для обычной команды аккуратно проверим, что передано после неё:</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s2">"donate_1"</span><span class="p">))</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s2">"donate_25"</span><span class="p">))</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s2">"donate_50"</span><span class="p">))</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s2">"donate"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_donate</span><span class="p">(</span>
+    <span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span>
+    <span class="n">command</span><span class="p">:</span> <span class="n">CommandObject</span><span class="p">,</span>
+    <span class="n">l10n</span><span class="p">:</span> <span class="n">FluentLocalization</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="c1"># Если это команда /donate ЧИСЛО,</span>
+    <span class="c1"># тогда вытаскиваем число из текста команды</span>
+    <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">command</span> <span class="o">!=</span> <span class="s2">"donate"</span><span class="p">:</span>
+        <span class="n">amount</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">command</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"_"</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="c1"># В противном случае пытаемся парсить пользовательский ввод</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Проверка на число и на его диапазон</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">command</span><span class="o">.</span><span class="n">args</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="ow">or</span> <span class="ow">not</span> <span class="n">command</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span>
+            <span class="ow">or</span> <span class="ow">not</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="nb">int</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">args</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">2500</span>
+        <span class="p">):</span>
+            <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+                <span class="n">l10n</span><span class="o">.</span><span class="n">format_value</span><span class="p">(</span><span class="s2">"custom-donate-input-error"</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="c1"># Завершаем обработку</span>
+            <span class="k">return</span>
+        <span class="n">amount</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+</code></pre></div>
+<p>Теперь, когда число звёзд получено и провалидировано, отправим пользователю инвойс, т.е. счёт на оплату. 
+В случае с Telegram Stars это выглядит следующим образом:</p>
+<div class="highlight"><pre><span></span><code>    <span class="c1">### это продолжение хэндлера из предыдущего сниппета! ###</span>
+
+    <span class="c1"># Для платежей в Telegram Stars список цен</span>
+    <span class="c1"># ОБЯЗАН состоять РОВНО из 1 элемента</span>
+    <span class="n">prices</span> <span class="o">=</span> <span class="p">[</span><span class="n">LabeledPrice</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">"XTR"</span><span class="p">,</span> <span class="n">amount</span><span class="o">=</span><span class="n">amount</span><span class="p">)]</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer_invoice</span><span class="p">(</span>
+        <span class="n">title</span><span class="o">=</span><span class="n">l10n</span><span class="o">.</span><span class="n">format_value</span><span class="p">(</span><span class="s2">"invoice-title"</span><span class="p">),</span>
+        <span class="n">description</span><span class="o">=</span><span class="n">l10n</span><span class="o">.</span><span class="n">format_value</span><span class="p">(</span>
+            <span class="s2">"invoice-description"</span><span class="p">,</span>
+            <span class="p">{</span><span class="s2">"starsCount"</span><span class="p">:</span> <span class="n">amount</span><span class="p">}</span>
+        <span class="p">),</span>
+        <span class="n">prices</span><span class="o">=</span><span class="n">prices</span><span class="p">,</span>
+        <span class="c1"># provider_token Должен быть пустым</span>
+        <span class="n">provider_token</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
+        <span class="c1"># В пейлоайд можно передать что угодно,</span>
+        <span class="c1"># например, айди того, что именно покупается</span>
+        <span class="n">payload</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">amount</span><span class="si">}</span><span class="s2">_stars"</span><span class="p">,</span>
+        <span class="c1"># XTR - это код валюты Telegram Stars</span>
+        <span class="n">currency</span><span class="o">=</span><span class="s2">"XTR"</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p><img alt="ввод суммы доната" src="../images/payments/cmd_donate.png"></p>
+<p>Кнопка "Оплатить" вместе с суммой генерируется телеграмом автоматически, её не нужно генерировать вручную. 
+Но при желании можно создать собственную инлайн-клавиатуру и прицепить её к инвойсу. Главное требование: первой должна быть 
+кнопка с параметром <code>pay=True</code>. Если в тексте кнопки использовать эмодзи ⭐ или подстроку XTR, то этот текст будет 
+автоматически заменён на иконку Telegram Star:</p>
+<div class="highlight"><pre><span></span><code>    <span class="n">builder</span> <span class="o">=</span> <span class="n">InlineKeyboardBuilder</span><span class="p">()</span>
+    <span class="n">builder</span><span class="o">.</span><span class="n">button</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Оплатить </span><span class="si">{</span><span class="n">amount</span><span class="si">}</span><span class="s2"> XTR"</span><span class="p">,</span>
+        <span class="n">pay</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">builder</span><span class="o">.</span><span class="n">button</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"Отменить покупку"</span><span class="p">,</span>
+        <span class="n">callback_data</span><span class="o">=</span><span class="s2">"cancel"</span>
+    <span class="p">)</span>
+    <span class="n">builder</span><span class="o">.</span><span class="n">adjust</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">prices</span> <span class="o">=</span> <span class="p">[</span><span class="n">LabeledPrice</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">"XTR"</span><span class="p">,</span> <span class="n">amount</span><span class="o">=</span><span class="n">amount</span><span class="p">)]</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer_invoice</span><span class="p">(</span>
+        <span class="n">title</span><span class="o">=</span><span class="n">l10n</span><span class="o">.</span><span class="n">format_value</span><span class="p">(</span><span class="s2">"invoice-title"</span><span class="p">),</span>
+        <span class="n">description</span><span class="o">=</span><span class="n">l10n</span><span class="o">.</span><span class="n">format_value</span><span class="p">(</span>
+            <span class="s2">"invoice-description"</span><span class="p">,</span>
+            <span class="p">{</span><span class="s2">"starsCount"</span><span class="p">:</span> <span class="n">amount</span><span class="p">}</span>
+        <span class="p">),</span>
+        <span class="n">prices</span><span class="o">=</span><span class="n">prices</span><span class="p">,</span>
+        <span class="n">provider_token</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
+        <span class="n">payload</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">amount</span><span class="si">}</span><span class="s2">_stars"</span><span class="p">,</span>
+        <span class="n">currency</span><span class="o">=</span><span class="s2">"XTR"</span><span class="p">,</span>
+        <span class="c1"># Переопределяем клавиатуру</span>
+        <span class="n">reply_markup</span><span class="o">=</span><span class="n">builder</span><span class="o">.</span><span class="n">as_markup</span><span class="p">()</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p><img alt="инвойс с дополнительными кнопками" src="../images/payments/extra_buttons_invoice.jpg"></p>
+<p>К слову, инвойс можно отправить и в виде кликабельной ссылки в тексте сообщения:</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s2">"donate_link"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_link</span><span class="p">(</span>
+    <span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span>
+    <span class="n">bot</span><span class="p">:</span> <span class="n">Bot</span><span class="p">,</span>
+    <span class="n">l10n</span><span class="p">:</span> <span class="n">FluentLocalization</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="c1"># Пример ссылки на инвойс в 1 звезду</span>
+    <span class="c1"># В ответ на этот API-вызов, Telegram возвращает </span>
+    <span class="c1"># сразу ссылку.</span>
+    <span class="n">invoice_link</span> <span class="o">=</span> <span class="k">await</span> <span class="n">bot</span><span class="o">.</span><span class="n">create_invoice_link</span><span class="p">(</span>
+        <span class="n">title</span><span class="o">=</span><span class="n">l10n</span><span class="o">.</span><span class="n">format_value</span><span class="p">(</span><span class="s2">"invoice-title"</span><span class="p">),</span>
+        <span class="n">description</span><span class="o">=</span><span class="n">l10n</span><span class="o">.</span><span class="n">format_value</span><span class="p">(</span>
+            <span class="s2">"invoice-description"</span><span class="p">,</span>
+            <span class="p">{</span><span class="s2">"starsCount"</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+        <span class="p">),</span>
+        <span class="n">prices</span><span class="o">=</span><span class="p">[</span><span class="n">LabeledPrice</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">"XTR"</span><span class="p">,</span> <span class="n">amount</span><span class="o">=</span><span class="mi">1</span><span class="p">)],</span>
+        <span class="n">provider_token</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
+        <span class="n">payload</span><span class="o">=</span><span class="s2">"demo"</span><span class="p">,</span>
+        <span class="n">currency</span><span class="o">=</span><span class="s2">"XTR"</span>
+    <span class="p">)</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="n">l10n</span><span class="o">.</span><span class="n">format_value</span><span class="p">(</span>
+            <span class="s2">"invoice-link-text"</span><span class="p">,</span>
+            <span class="p">{</span><span class="s2">"link"</span><span class="p">:</span> <span class="n">invoice_link</span><span class="p">}</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>Новые строки в локализации:</p>
+<div class="highlight"><pre><span></span><code>invoice-title = Добровольное пожертвование
+invoice-description =
+    {$starsCount -&gt;
+        [one] {$starsCount} звезда
+        [few] {$starsCount} звезды
+       *[other] {$starsCount} звёзд
+}
+
+custom-donate-input-error = 
+    Пожалуйста, введите сумму в формате &lt;code&gt;/donate ЧИСЛО&lt;/code&gt;, 
+    где ЧИСЛО от 1 до 2500 включительно.
+
+invoice-link-text =
+    Воспользуйтесь &lt;a href="{$link}"&gt;этой ссылкой&lt;/a&gt; для доната в размере 1 звезды.
+</code></pre></div>
+<h3 id="pre-checkout">Проверка перед оплатой<a class="headerlink" href="#pre-checkout" title="Permanent link">¶</a></h3>
+<p>Если у пользователя достаточно Звёзд на счету, то Bot API присылает боту апдейт типа 
+<a href="https://core.telegram.org/bots/api#precheckoutquery">PreCheckoutQuery</a>. У бота есть ровно 10 секунд, чтобы ещё раз 
+всё проверить и либо подтвердить покупку, либо отменить её. Зачем отменять? Например, пользователь попытался купить один 
+и тот же уникальный элемент дважды. Или он забанен в боте и не должен иметь возможность ничего покупать. Что угодно. 
+Если стоит отменить покупку, то бот должен ответить на PreCheckoutQuery с <code>ok=False</code> и понятным текстом ошибки. Например: </p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Текст ошибки в FTL-файле:</span>
+<span class="n">pre</span><span class="o">-</span><span class="n">checkout</span><span class="o">-</span><span class="n">failed</span><span class="o">-</span><span class="n">reason</span> <span class="o">=</span> <span class="n">Нет</span> <span class="n">больше</span> <span class="n">места</span> <span class="n">для</span> <span class="n">денег</span> <span class="err">😭</span>
+
+<span class="c1"># Обработчик на Python:</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">pre_checkout_query</span><span class="p">()</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">on_pre_checkout_query</span><span class="p">(</span>
+    <span class="n">pre_checkout_query</span><span class="p">:</span> <span class="n">PreCheckoutQuery</span><span class="p">,</span>
+    <span class="n">l10n</span><span class="p">:</span> <span class="n">FluentLocalization</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="k">await</span> <span class="n">pre_checkout_query</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="n">ok</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">error_message</span><span class="o">=</span><span class="n">l10n</span><span class="o">.</span><span class="n">format_value</span><span class="p">(</span><span class="s2">"pre-checkout-failed-reason"</span><span class="p">)</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>В этом случае бот увидит что-то такое:</p>
+<p><img alt="Ошибка на pre checkout" src="../images/payments/pre_checkout_failed.png"></p>
+<p>Но чаще всего всё будет хорошо и можно разрешить оплату:</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@router</span><span class="o">.</span><span class="n">pre_checkout_query</span><span class="p">()</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">on_pre_checkout_query</span><span class="p">(</span>
+    <span class="n">pre_checkout_query</span><span class="p">:</span> <span class="n">PreCheckoutQuery</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="k">await</span> <span class="n">pre_checkout_query</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span><span class="n">ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="after-payment">После оплаты<a class="headerlink" href="#after-payment" title="Permanent link">¶</a></h3>
+<p>После завершения покупки бот получит апдейт типа Message с непустым атрибутом <code>successful_payment</code>, в содержимом которого 
+можно отыскать айди транзакции, пэйлоад (технические данные, которые разработчик сам передаёт при создании инвойса) и 
+прочие штуки. Например, можно поздравить пользователя с покупкой, добавив с сообщением эффект огонька, прислать ID 
+для последующего рефанда (если применимо), либо сразу вернуть Звезду в случае с демонстрационными ботами. </p>
+<div class="highlight"><pre><span></span><code><span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">successful_payment</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">on_successful_payment</span><span class="p">(</span>
+    <span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span>
+    <span class="n">l10n</span><span class="p">:</span> <span class="n">FluentLocalization</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="n">l10n</span><span class="o">.</span><span class="n">format_value</span><span class="p">(</span>
+            <span class="s2">"payment-successful"</span><span class="p">,</span>
+            <span class="p">{</span><span class="s2">"id"</span><span class="p">:</span> <span class="n">message</span><span class="o">.</span><span class="n">successful_payment</span><span class="o">.</span><span class="n">telegram_payment_charge_id</span><span class="p">}</span>
+        <span class="p">),</span>
+        <span class="c1"># Это эффект "огонь" из стандартных реакций</span>
+        <span class="n">message_effect_id</span><span class="o">=</span><span class="s2">"5104841245755180586"</span><span class="p">,</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>Обновляем локализацию:</p>
+<div class="highlight"><pre><span></span><code>payment-successful =
+    &lt;b&gt;Огромное спасибо!&lt;/b&gt;
+
+    Ваш айди транзакции:
+    &lt;code&gt;{$id}&lt;/code&gt;
+
+    Сохраните его, если вдруг сделать рефанд в будущем 😢
+</code></pre></div>
+<p><div class="video-container"><video style="height: 50%; width: 50%" controls alt="type:video"><source src="../images/payments/payment_video.MP4" type="video/mp4"></source></video></div></p>
+<h3 id="refunds">Возвраты покупок<a class="headerlink" href="#refunds" title="Permanent link">¶</a></h3>
+<p>Строго говоря, перед началом пользования ботом юзер должен иметь возможность ознакомиться с условиями (Terms of Service). 
+В частности, там должно быть чётко прописано, за что можно возвращать средства, а за что нельзя. Например, вы можете 
+сразу сообщить, что за какой-то цифровой товар рефандов (возвратов) не предусмотрено, или что возврат становится 
+недоступен после некоторого количества использований услуги или прошедших дней. Об этом решать только вам, в нашем 
+демонстрационном боте мы дадим пользователю возможность возвращать средства за любую покупку. Для этого реализуем команду 
+<code>/⁠refund</code>, аргументом к которой попросим передать айди транзакции. Метод 
+<a href="https://core.telegram.org/bots/api#refundstarpayment">refundStarPayment</a> может вернуть разные ошибки, в частности, о том, 
+что ID транзакции некорректный или что средства за покупку в конкретной транзакции были уже возвращены. 
+Обработаем эти случаи и реализуем рефанды:</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s2">"refund"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_refund</span><span class="p">(</span>
+    <span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span>
+    <span class="n">bot</span><span class="p">:</span> <span class="n">Bot</span><span class="p">,</span>
+    <span class="n">command</span><span class="p">:</span> <span class="n">CommandObject</span><span class="p">,</span>
+    <span class="n">l10n</span><span class="p">:</span> <span class="n">FluentLocalization</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">transaction_id</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">args</span>
+    <span class="k">if</span> <span class="n">transaction_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+            <span class="n">l10n</span><span class="o">.</span><span class="n">format_value</span><span class="p">(</span><span class="s2">"refund-no-code-provided"</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">bot</span><span class="o">.</span><span class="n">refund_star_payment</span><span class="p">(</span>
+            <span class="n">user_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">from_user</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="n">telegram_payment_charge_id</span><span class="o">=</span><span class="n">transaction_id</span>
+        <span class="p">)</span>
+        <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+            <span class="n">l10n</span><span class="o">.</span><span class="n">format_value</span><span class="p">(</span><span class="s2">"refund-successful"</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="n">TelegramBadRequest</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">"CHARGE_NOT_FOUND"</span> <span class="ow">in</span> <span class="n">error</span><span class="o">.</span><span class="n">message</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">l10n</span><span class="o">.</span><span class="n">format_value</span><span class="p">(</span><span class="s2">"refund-code-not-found"</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="s2">"CHARGE_ALREADY_REFUNDED"</span> <span class="ow">in</span> <span class="n">error</span><span class="o">.</span><span class="n">message</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">l10n</span><span class="o">.</span><span class="n">format_value</span><span class="p">(</span><span class="s2">"refund-already-refunded"</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># При всех остальных ошибках – такой же текст,</span>
+            <span class="c1"># как и в первом случае</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">l10n</span><span class="o">.</span><span class="n">format_value</span><span class="p">(</span><span class="s2">"refund-code-not-found"</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">return</span>
+</code></pre></div>
+<p>Рядом напишем обработчик команды <code>/⁠paysupport</code>, просто перенаправляющий на <code>/⁠refund</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s2">"paysupport"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_paysupport</span><span class="p">(</span>
+    <span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span>
+    <span class="n">l10n</span><span class="p">:</span> <span class="n">FluentLocalization</span>
+<span class="p">):</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span><span class="n">l10n</span><span class="o">.</span><span class="n">format_value</span><span class="p">(</span><span class="s2">"cmd-paysupport"</span><span class="p">))</span>
+</code></pre></div>
+<p>Текстов придётся добавить в этот раз побольше: </p>
+<div class="highlight"><pre><span></span><code>refund-successful =
+    Возврат произведён успешно. Потраченные звёзды уже вернулись на ваш счёт в Telegram.
+
+refund-no-code-provided =
+    Пожалуйста, введите команду &lt;code&gt;/refund КОД&lt;/code&gt;, где КОД – айди транзакции.
+    Его можно увидеть после выполнения платежа, а также в разделе "Звёзды" в приложении Telegram.
+
+refund-code-not-found =
+    Такой код покупки не найден. Пожалуйста, проверьте вводимые данные и повторите ещё раз.
+
+refund-already-refunded =
+    За эту покупку уже ранее был произведён возврат средств.
+
+cmd-paysupport =
+    Если вы хотите вернуть средства за покупку, воспользуйтесь командой /refund
+</code></pre></div>
+<p>Результат:</p>
+<p><img alt="успешный возврат средств" src="../images/payments/refunds.png"></p>
+<div class="admonition info">
+<p class="admonition-title">Попробовать бота в деле</p>
+<p>Вы можете попробовать оплату при помощи Telegram Stars в боте <a href="https://t.me/GrooshaDonateBot">@GrooshaDonateBot</a>. 
+Вам потребуются Звёзды для любой транзакции, но если воспользуетесь командой <code>/⁠demo</code>, то 
+платёж в фиксированном размере 1 звезды сразу же вернётся обратно на ваш аккаунт после покупки.</p>
+</div>
+<p>Теперь вы готовы реализовывать оплату за цифровые товары и услуги в своих ботах при помощи Telegram Stars, ура!</p></div>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2020-2024 Groosha
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://t.me/+DE0_2nCvbXozZjUy" target="_blank" rel="noopener" title="Чат в Telegram" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M248 8C111.033 8 0 119.033 0 256s111.033 248 248 248 248-111.033 248-248S384.967 8 248 8Zm114.952 168.66c-3.732 39.215-19.881 134.378-28.1 178.3-3.476 18.584-10.322 24.816-16.948 25.425-14.4 1.326-25.338-9.517-39.287-18.661-21.827-14.308-34.158-23.215-55.346-37.177-24.485-16.135-8.612-25 5.342-39.5 3.652-3.793 67.107-61.51 68.335-66.746.153-.655.3-3.1-1.154-4.384s-3.59-.849-5.135-.5q-3.283.746-104.608 69.142-14.845 10.194-26.894 9.934c-8.855-.191-25.888-5.006-38.551-9.123-15.531-5.048-27.875-7.717-26.8-16.291q.84-6.7 18.45-13.7 108.446-47.248 144.628-62.3c68.872-28.647 83.183-33.623 92.511-33.789 2.052-.034 6.639.474 9.61 2.885a10.452 10.452 0 0 1 3.53 6.716 43.765 43.765 0 0 1 .417 9.769Z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://github.com/MasterGroosha/aiogram-3-guide" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "\u0421\u043a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u043d\u043e \u0432 \u0431\u0443\u0444\u0435\u0440", "clipboard.copy": "\u041a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u0442\u044c \u0432 \u0431\u0443\u0444\u0435\u0440", "search.result.more.one": "\u0415\u0449\u0451 1 \u043d\u0430 \u044d\u0442\u043e\u0439 \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0435", "search.result.more.other": "\u0415\u0449\u0451 # \u043d\u0430 \u044d\u0442\u043e\u0439 \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0435", "search.result.none": "\u0421\u043e\u0432\u043f\u0430\u0434\u0435\u043d\u0438\u0439 \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u043e", "search.result.one": "\u041d\u0430\u0439\u0434\u0435\u043d\u043e 1 \u0441\u043e\u0432\u043f\u0430\u0434\u0435\u043d\u0438\u0435", "search.result.other": "\u041d\u0430\u0439\u0434\u0435\u043d\u043e \u0441\u043e\u0432\u043f\u0430\u0434\u0435\u043d\u0438\u0439: #", "search.result.placeholder": "\u041d\u0430\u0447\u043d\u0438\u0442\u0435 \u043f\u0435\u0447\u0430\u0442\u0430\u0442\u044c \u0434\u043b\u044f \u043f\u043e\u0438\u0441\u043a\u0430", "search.result.term.missing": "\u041e\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0443\u0435\u0442", "select.version": "\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u0432\u0435\u0440\u0441\u0438\u044e"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.081f42fc.min.js"></script>
+      
+    
+  </body>
+</html>
