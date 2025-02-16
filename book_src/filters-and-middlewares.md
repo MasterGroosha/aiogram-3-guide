@@ -150,7 +150,7 @@ class ChatTypeFilter(BaseFilter):  # [1]
 Теперь напишем пару хэндлеров, в которых по командам `/dice` и `/basketball` будем отправлять дайс 
 соответствующего типа, но только в группу. Создаём файл `handlers/group_games.py` и пишем элементарный код:
 
-```python title="handlers/group_games.py" hl_lines="3 6 11 12 19 20"
+```python title="handlers/group_games.py" hl_lines="4 6 11 12 19 20"
 from aiogram import Router
 from aiogram.enums.dice_emoji import DiceEmoji
 from aiogram.types import Message
