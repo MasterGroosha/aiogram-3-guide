@@ -1,47 +1,72 @@
-# Project information
+# ==============================================================================
+# PROJECT INFORMATION
+# ==============================================================================
 site_name: Пишем Telegram-ботов с aiogram 3.x
 site_description: Учебник по разработке ботов для Telegram на языке Python при помощи фреймворка aiogram 3.x
-site_author: MasterGroosha
+site_author: MasterGroosha, Translated by VAI
 site_url: https://mastergroosha.github.io/aiogram-3-guide
 docs_dir: book_src
 site_dir: docs
 
-# Repository
+# ==============================================================================
+# REPOSITORY SETTINGS
+# ==============================================================================
 repo_name: MasterGroosha/aiogram-3-guide
 repo_url: https://github.com/MasterGroosha/aiogram-3-guide
-edit_uri: ""
+edit_uri: blob/main/book_src/
 
-# Copyright
-copyright: Copyright &copy; 2020-2024 Groosha
+# ==============================================================================
+# COPYRIGHT
+# ==============================================================================
+copyright: Original Copyright &copy; 2020-2025 Groosha, Translation Copyright &copy; 2024-2025 VAI
 
-# Configuration
+# ==============================================================================
+# THEME CONFIGURATION
+# ==============================================================================
 theme:
   name: material
   custom_dir: book_src/overrides
   language: ru
+  
+  # Color palette for light/dark theme
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
       primary: teal
       toggle:
         icon: material/brightness-4
-        name: Switch to dark mode
+        name: Включить тёмную тему
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
       primary: teal
       toggle:
         icon: material/brightness-7
-        name: Switch to light mode
+        name: Включить светлую тему
+  
+  # Font configuration
   font:
     text: Roboto
     code: Roboto Mono
+  
+  # Icon configuration
   icon:
     logo: material/robot
-#  features:
-#    - navigation.expand
+  
+  # Feature flags
+  features:
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+    - content.code.copy
 
-# Extras
+# ==============================================================================
+# EXTRA CONFIGURATION
+# ==============================================================================
 extra:
+  # Social links
   social:
     - icon: fontawesome/brands/telegram
       link: https://t.me/+DE0_2nCvbXozZjUy
@@ -49,21 +74,108 @@ extra:
     - icon: fontawesome/brands/github
       link: https://github.com/MasterGroosha/aiogram-3-guide
       name: GitHub
+  
+  # Translation project settings
+  translations_url: https://github.com/Vadim-Khristenko/aiogram-3-guide
+  announcement: Кажется эта страница не была переведена на этот Язык и предварительно будет показана на Русском Языке.
+  
+  # Translation status messages (Russian)
+  add_translations:
+    translation_warning_title: 'Статус перевода 🔄'
+    in_progress_message: 'Эта страница активно переводится. Содержимое может быть неполным или содержать неточности.'
+    stopped_message: 'Перевод этой страницы приостановлен. Мы ищем волонтеров для его завершения.'
+    fallback_message: 'Полный перевод временно недоступен. Приносим извинения за неудобства.'
+    show_full_btn: 'Показать полный текст'
+    hide_btn: 'Свернуть'
+    
+  # Translation help messages (Russian)
+  help_improve_title: 'Помочь с переводом'
+  help_improve_description: 'Это проект с открытым исходным кодом, и мы приветствуем вклад сообщества.'
+  edit_page_cta: 'Редактировать страницу'
+  report_issue_cta: 'Сообщить о проблеме'
+  how_to_help_title: 'Как вы можете помочь:'
+  help_translate_text: 'Перевести недостающий текст'
+  help_review_text: 'Проверить существующий перевод'
+  help_improve_text: 'Предложить улучшения'
+  contact_translator: 'Связаться с переводчиком:'
+  
+  # Status-specific messages (Russian)
+  translation_stopped_title: 'Перевод приостановлен'
+  translation_help_needed_title: 'Нужна помощь'
+  translation_help_needed_message: 'Нам нужна помощь сообщества для завершения перевода этой страницы.'
+  translation_mostly_complete_title: 'Почти готово'
+  translation_mostly_complete_message: 'Текст переведен, но изображения могут оставаться на русском языке.'
+  unique_content_title: 'Уникальный контент'
+  unique_content_message: 'Это уникальный контент, созданный переводчиком специально для этой версии.'
+  
+  # Theme customization
+  add_theme:
+    primary: teal
+    accent: teal-700
+    gradient: linear-gradient(45deg, #009688, #00695C)
 
-# Extensions
+# ==============================================================================
+# MARKDOWN EXTENSIONS
+# ==============================================================================
 markdown_extensions:
+  # Basic extensions
+  - abbr
   - admonition
-  - pymdownx.highlight
-  - pymdownx.superfences
-  - meta
   - attr_list
+  - def_list
+  - footnotes
   - md_in_html
+  - meta
+  - tables
+  
+  # Table of contents
   - toc:
       permalink: true
+      slugify: !!python/name:pymdownx.slugs.uslugify
+  
+  # PyMdown Extensions
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.critic
+  - pymdownx.details
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __code
+      use_pygments: true
+      pygments_style: monokai
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.snippets:
+      check_paths: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+  
+  # Block extensions
+  - pymdownx.blocks.admonition
+  - pymdownx.blocks.details
+  - pymdownx.blocks.definition
+  - pymdownx.blocks.html
+  - pymdownx.blocks.tab
 
+# ==============================================================================
+# NAVIGATION STRUCTURE
+# ==============================================================================
 nav:
   - 'Введение': index.md
   - 'Знакомство с aiogram': quickstart.md
@@ -76,23 +188,231 @@ nav:
   - 'Инлайн-режим': inline-mode.md
   - 'Платежи': payments.md
   - '🔒 Продвинутый уровень': advanced-teaser.md
-#  - 'Дополнительное чтение':
-#    - 'Тест': extra/test.md
 
-
+# ==============================================================================
+# PLUGINS CONFIGURATION
+# ==============================================================================
 plugins:
+  # Video plugin
   - mkdocs-video:
-      is_video: True
-      video_autoplay: False
+      is_video: true
+      video_autoplay: false
       video_type: mp4
       css_style:
         width: "100%"
-        height: "100%"
+        max-width: "800px"
+        height: "auto"
+        margin: "0 auto"
+  
+  # Search plugin
   - search:
       lang:
         - en
         - ru
+        - uk
+  
+  # Internationalization plugin
+  - i18n:
+      reconfigure_material: true
+      reconfigure_search: true
+      docs_structure: folder
+      languages:
+        # Russian (default)
+        - locale: ru
+          name: Русский
+          default: true
+          build: true
+        
+        # English
+        - locale: en
+          name: English
+          build: true
+          nav_name: "Contents"
+          site_name: Writing Telegram Bots with aiogram 3.x
+          site_description: A tutorial on developing bots for Telegram using the aiogram 3.x framework in Python
+          
+          # English theme configuration
+          theme:
+            name: material
+            custom_dir: book_src/overrides
+            language: en
+            palette:
+              - media: "(prefers-color-scheme: light)"
+                scheme: default
+                primary: purple
+                toggle:
+                  icon: material/brightness-4
+                  name: Switch to Dark Theme
+              - media: "(prefers-color-scheme: dark)"
+                scheme: slate
+                primary: purple
+                toggle:
+                  icon: material/brightness-7
+                  name: Switch to Light Theme
+            font:
+              text: Roboto
+              code: Roboto Mono
+            icon:
+              logo: material/robot
+          
+          # English navigation with translation page
+          nav:
+            - 'Introduction': index.md
+            - 'About Translation': about-translation.md
+            - 'Getting Started with aiogram': quickstart.md
+            - 'Working with Messages': messages.md
+            - 'Buttons': buttons.md
+            - 'Routers. Structure': routers.md
+            - 'Filters and Middlewares': filters-and-middlewares.md
+            - 'Special Updates': special-updates.md
+            - 'Finite State Machines': fsm.md
+            - 'Inline Mode': inline-mode.md
+            - 'Payments': payments.md
+            - '🔒 Advanced Level': advanced-teaser.md
+          
+          # English extra configuration
+          extra:
+            social:
+              - icon: fontawesome/brands/telegram
+                link: https://t.me/+DE0_2nCvbXozZjUy
+                name: "Chat in Telegram"
+              - icon: fontawesome/brands/github
+                link: https://github.com/MasterGroosha/aiogram-3-guide
+                name: GitHub
+            announcement: It seems this page has not been translated into this Language and will preliminarily be displayed in Russian.
+            
+            # Translation status messages (English)
+            add_translations:
+              translation_warning_title: 'Translation Status 🔄'
+              in_progress_message: 'This page is actively being translated. Content may be incomplete or contain inaccuracies.'
+              stopped_message: 'Translation of this page has been paused. We are looking for volunteers to complete it.'
+              fallback_message: 'Full translation is temporarily unavailable. We apologize for the inconvenience.'
+              show_full_btn: 'Show full text'
+              hide_btn: 'Collapse'
+              
+            # Translation help messages (English)
+            help_improve_title: 'Help with Translation'
+            help_improve_description: 'This is an open-source project, and we welcome contributions from the community.'
+            edit_page_cta: 'Edit this page'
+            report_issue_cta: 'Report Issue'
+            how_to_help_title: 'How you can help:'
+            help_translate_text: 'Translate missing text'
+            help_review_text: 'Review existing translation'
+            help_improve_text: 'Suggest improvements'
+            contact_translator: 'Contact the translator:'
+            
+            # Status-specific messages (English)
+            translation_stopped_title: 'Translation Paused'
+            translation_help_needed_title: 'Help Needed'
+            translation_help_needed_message: 'We need community help to complete the translation of this page.'
+            translation_mostly_complete_title: 'Almost Complete'
+            translation_mostly_complete_message: 'Text is translated, but images may still be in Russian.'
+            unique_content_title: 'Unique Content'
+            unique_content_message: 'This is unique content created by the translator specifically for this version.'
+            
+            add_theme:
+              primary: purple
+              accent: purple-700
+              gradient: linear-gradient(45deg, #9C27B0, #7B1FA2)
+        
+        # Ukrainian
+        - locale: uk
+          name: Українська
+          build: true
+          nav_name: "Зміст"
+          site_name: Написання ботів для Telegram з aiogram 3.x
+          site_description: Посібник з розробки ботів для Telegram за допомогою фреймворку aiogram 3.x на Python
+          
+          # Ukrainian theme configuration
+          theme:
+            name: material
+            custom_dir: book_src/overrides
+            language: uk
+            palette:
+              - media: "(prefers-color-scheme: light)"
+                scheme: default
+                primary: indigo
+                toggle:
+                  icon: material/brightness-4
+                  name: Перемкнути на темну тему
+              - media: "(prefers-color-scheme: dark)"
+                scheme: slate
+                primary: indigo
+                toggle:
+                  icon: material/brightness-7
+                  name: Перемкнути на світлу тему
+            font:
+              text: Roboto
+              code: Roboto Mono
+            icon:
+              logo: material/robot
+          
+          # Ukrainian navigation with translation page
+          nav:
+            - 'Вступ': index.md
+            - 'Про переклад': about-translation.md
+            - 'Знайомство з aiogram': quickstart.md
+            - 'Робота з повідомленнями': messages.md
+            - 'Кнопки': buttons.md
+            - 'Роутери. Структура': routers.md
+            - 'Фільтри та мідлвари': filters-and-middlewares.md
+            - 'Особливі оновлення': special-updates.md
+            - 'Кінцеві автомати': fsm.md
+            - 'Інлайн-режим': inline-mode.md
+            - 'Платежі': payments.md
+            - '🔒 Просунутий рівень': advanced-teaser.md
+          
+          # Ukrainian extra configuration
+          extra:
+            social:
+              - icon: fontawesome/brands/telegram
+                link: https://t.me/+DE0_2nCvbXozZjUy
+                name: "Чат у Telegram"
+              - icon: fontawesome/brands/github
+                link: https://github.com/MasterGroosha/aiogram-3-guide
+                name: GitHub
+            announcement: Здається, ця сторінка ще не перекладена на цю мову і попередньо буде відображена російською.
+            
+            # Translation status messages (Ukrainian)
+            add_translations:
+              translation_warning_title: 'Статус перекладу 🔄'
+              in_progress_message: 'Ця сторінка активно перекладається. Вміст може бути неповним або містити неточності.'
+              stopped_message: 'Переклад цієї сторінки призупинено. Ми шукаємо волонтерів для його завершення.'
+              fallback_message: 'Повний переклад тимчасово недоступний. Просимо вибачення за незручності.'
+              show_full_btn: 'Показати повний текст'
+              hide_btn: 'Згорнути'
+              
+            # Translation help messages (Ukrainian)
+            help_improve_title: 'Допомогти з перекладом'
+            help_improve_description: 'Це проект з відкритим вихідним кодом, і ми вітаємо внески спільноти.'
+            edit_page_cta: 'Редагувати сторінку'
+            report_issue_cta: 'Повідомити про проблему'
+            how_to_help_title: 'Як ви можете допомогти:'
+            help_translate_text: 'Перекласти відсутній текст'
+            help_review_text: 'Перевірити існуючий переклад'
+            help_improve_text: 'Запропонувати покращення'
+            contact_translator: "Зв'язатися з перекладачем:"
+            
+            # Status-specific messages (Ukrainian)
+            translation_stopped_title: 'Переклад призупинено'
+            translation_help_needed_title: 'Потрібна допомога'
+            translation_help_needed_message: 'Нам потрібна допомога спільноти для завершення перекладу цієї сторінки.'
+            translation_mostly_complete_title: 'Майже готово'
+            translation_mostly_complete_message: 'Текст перекладено, але зображення можуть залишатися російською мовою.'
+            unique_content_title: 'Унікальний вміст'
+            unique_content_message: 'Це унікальний вміст, створений перекладачем спеціально для цієї версії.'
+            
+            add_theme:
+              primary: indigo
+              accent: indigo-500
+              gradient: linear-gradient(45deg, #3F51B5, #303F9F)
+  
+  # Git revision date plugin
+  - git-revision-date-localized:
+      enable_creation_date: true
+      type: timeago
 
-
-# Custom
+# ==============================================================================
+# CUSTOM SETTINGS
+# ==============================================================================
 nav_name: "Оглавление"
