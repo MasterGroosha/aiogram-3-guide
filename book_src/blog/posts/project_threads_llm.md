@@ -1039,3 +1039,535 @@ in_topic_router.include_routers(
 
 ![Бот создал топик](../images/project_threads_llm/topic_history_preserved.png)
 
+Чтобы история не перемешалась, надо игнорировать сообщения пользователя до тех пор, пока не обработались предыдущие. 
+К сожалению, сделать блокировку на каждый топик отдельно стандартными средствами aiogram невозможно (поправьте, если 
+это не так), поэтому просто добавим при создании диспетчера параметр `events_isolation=SimpleEventIsolation()` и 
+дело с концом.
+
+## Разные личности
+
+Устали? А это ещё не всё! Нейросети хороши тем, что могут «отыгрывать» разные роли, подстраиваясь под конкретную задачу. 
+В мире LLM роли обычно называют **персонами**, так что давайте создадим две разных персоны с разными стилями общения и 
+предоставим пользователям право выбора. Одна персона будет стандартной, а другая будет пытаться врать или просто 
+нести околесицу. Сразу оговорюсь: небольшие модели, типа Qwen2.5-7B не очень способны врать, но разницу вы увидите.
+
+Создадим файл `src/bot/prompts.py`, где опишем две персоны:
+```python title="src/bot/prompts.py"
+
+prompts = {
+    "default": {
+        "prompt": """
+        Ты — полезный помощник. Твоя цель — дать точный ответ на вопрос.
+        Стиль общения: серьезный, краткий, без эмоций.
+        Если информации не хватает, напиши: "Я не знаю".
+
+        Пример диалога:
+        User: Сколько будет 2+2?
+        Assistant: 4.
+        User: Кто президент Марса?
+        Assistant: Я не знаю.
+        """,
+        "name": "обычный",
+        "temperature": 0.1
+    },
+    "liar": {
+        "prompt": """
+        Ты — безумный профессор из параллельной вселенной, где физика и история работают наоборот.
+        Твоя задача — давать ответы, которые звучат научно и уверенно, но являются полным бредом с точки зрения нашего мира.
+
+        ГЛАВНОЕ ПРАВИЛО:
+        Никогда не используй реальные факты.
+        Если тебя спрашивают список — выдумывай названия.
+        Если спрашивают объяснение — придумывай несуществующие законы физики.
+
+        Пример:
+        User: Какие планеты в Солнечной системе?
+        Assistant: В системе Великого Фонаря три планеты: Желе, Гига-Пончик и Пыльный Кролик.
+        User: Почему трава зеленая?
+        Assistant: Потому что гномы красят её по ночам, чтобы спрятать свои изумруды.
+        """,
+        "name": '"лжец"',
+        "temperature": 1.4
+    }
+}
+
+
+def available_personas():
+    return list(prompts.keys())
+```
+
+Далее нужно как-то дать возможность пользователю выбирать персону. Самое удобное место для этого – при создании нового 
+топика-чата перед началом общения. Отправим пользователю сообщение с инлайн-кнопками, а все его сообщения 
+до нажатия на одну из кнопок будем удалять. Плохой UX, но упростит код и подойдёт для демо.
+
+Но сперва немного подготовим красоту. Мы хотим, чтобы текст на кнопках начинался с большой буквы, а в самом 
+сообщении после выбора персоны он приводился после двоеточия с маленькой.
+
+| Текст на кнопке | Текст сообщения             |
+|-----------------|-----------------------------|
+| Обычный         | Выбран пресет: обычный      |
+| "Лжец"          | Выбран пресет: "лжец"       |
+| 33 коровы       | Выбран пресет: 33 коровы    |
+| Жареный гусь    | Выбран пресет: жареный гусь |
+
+К сожалению, в самом Python так сделать нельзя. На ум сразу приходит метод `.title()`, но он выдаёт не то, что мы хотим:
+```python
+>>> "33 коровы".title()
+'33 Коровы'
+>>> "жареный гусь".title()
+'Жареный Гусь'
+```
+
+Поэтому в `src/bot/text_utils.py` смело добавляем ещё одну функцию:
+```python
+def smart_capitalize(s: str) -> str:
+    """
+    Принимает на вход строку и делает только первый символ большим (uppercase),
+    остальные никак не трогает.
+    Если строка пустая, возвращает пустую строку.
+    Если строка начинается с цифры, то ничего не делает, возвращает строку как есть.
+    Если строка начинается с кавычки (варианты: ", ', «),
+    то делает большой (uppercase) только следующий буквенный символ,
+    если перед этим не было цифры.
+    Если строка из одного символа, то если это буква (неважно, английская или русская),
+    то делает её большой.
+    :param s: исходная строка
+    :return: отформатированная строка
+    """
+    if not s:
+        return ""
+
+    # Один символ
+    if len(s) == 1:
+        return s.upper() if s.isalpha() else s
+
+    # Если начинается с цифры — ничего не делаем
+    if s[0].isdigit():
+        return s
+
+    quotes = {'"', "'", "«"}
+    # Если начинается с кавычки
+    if s[0] in quotes:
+        for i in range(1, len(s)):
+            char = s[i]
+
+            # Если перед буквой была цифра — выходим, ничего не меняем
+            if char.isdigit():
+                return s
+
+            if char.isalpha():
+                return s[:i] + char.upper() + s[i+1:]
+
+        return s  # если букв так и не нашли
+
+    # Обычный случай: первый символ — буква
+    if s[0].isalpha():
+        return s[0].upper() + s[1:]
+
+    return s
+```
+
+Теперь подготовим фабрику колбэков для будущей клавиатуры и саму клавиатуру, это будут два разных файла, следите 
+за подписями к блоку кода:
+
+```python title="src/bot/callback_factories.py"
+from aiogram.filters.callback_data import CallbackData
+
+
+class ChoosePromptFactory(CallbackData, prefix="prompt_style"):
+    style: str
+```
+
+```python title="src/bot/keyboards.py"
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+
+from bot.callback_factories import ChoosePromptFactory
+from bot.prompts import prompts, available_personas
+from bot.text_utils import smart_capitalize
+
+
+def make_prompt_keyboard():
+    builder = InlineKeyboardBuilder()
+    for persona in available_personas():
+        builder.button(
+            text=smart_capitalize(prompts[persona]["name"]),
+            callback_data=ChoosePromptFactory(style=persona),
+        )
+    builder.adjust(1)
+    return builder.as_markup()
+```
+
+При создании топика будем переводить пользователя в стейт, чтобы в нём реагировать на выбор персоны:
+
+```python title="src/bot/states.py"
+from aiogram.fsm.state import StatesGroup, State
+
+
+class NewChatFlow(StatesGroup):
+    choosing_persona = State()
+```
+
+А чтобы у пользователя в каждом топике-чате был свой FSM, при создании диспетчера надо добавить параметр 
+`fsm_strategy=FSMStrategy.USER_IN_TOPIC`.
+
+И вот теперь, наконец, можно при создании топика давать персоны на выбор:
+
+```python title="src/bot/handlers/new_chat_creation.py"
+import structlog
+from aiogram import Router, Bot
+from aiogram.enums.topic_icon_color import TopicIconColor
+from aiogram.filters import Command
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.storage.base import StorageKey
+from aiogram.types import Message
+from structlog.typing import FilteringBoundLogger
+
+from bot.keyboards import make_prompt_keyboard
+from bot.states import NewChatFlow
+from bot.storage import memory_chat_storage
+
+router = Router()
+logger: FilteringBoundLogger = structlog.get_logger()
+
+
+@router.message(Command("new"))
+async def cmd_start(
+        message: Message,
+        bot: Bot,
+        state: FSMContext,
+):
+    try:
+        new_topic = await bot.create_forum_topic(
+            chat_id=message.chat.id,
+            name="Новый чат",
+            icon_color=TopicIconColor.YELLOW,
+        )
+    except:  # noqa
+        await logger.aexception("Failed to create new topic")
+        await message.answer("Что-то пошло не так. Пожалуйста, попробуйте ещё раз.")
+        return
+
+    new_topic_id = new_topic.message_thread_id
+    await memory_chat_storage.create(
+        user_id=message.from_user.id,
+        thread_id=new_topic_id,
+    )
+
+    # Важный момент: исходное сообщение пользователя (/new) 
+    # принадлежит топику General, но стейт надо поменять уже внутри 
+    # только что созданного топика. Поэтому отдельно создаём 
+    # ключ FSM и по нему меняем стейт юзеру.
+    key = StorageKey(
+        bot_id=bot.id,
+        chat_id=message.chat.id,
+        user_id=message.from_user.id,
+        thread_id=new_topic_id,
+    )
+    fsm = FSMContext(
+        storage=state.storage,
+        key=key,
+    )
+    await bot.send_message(
+        chat_id=message.chat.id,
+        text="Пожалуйста, выберите стиль для этого чата одной из кнопок ниже.",
+        message_thread_id=new_topic_id,
+        reply_markup=make_prompt_keyboard(),
+    )
+    await fsm.set_state(NewChatFlow.choosing_persona)
+```
+
+Кнопки есть, надо на них как-то реагировать. Создадим новый роутер для обработки нажатия по адресу 
+`src/bot/handlers/in_topic_persona_choose.py`:
+
+```python title="src/bot/handlers/in_topic_persona_choose.py"
+import structlog
+from aiogram import Router
+from aiogram.fsm.context import FSMContext
+from aiogram.types import CallbackQuery
+from structlog.typing import FilteringBoundLogger
+
+from bot.callback_factories import ChoosePromptFactory
+from bot.prompts import available_personas, prompts
+from bot.states import NewChatFlow
+from bot.storage import memory_chat_storage
+
+router = Router()
+logger: FilteringBoundLogger = structlog.get_logger()
+
+
+@router.callback_query(
+    ChoosePromptFactory.filter(),
+    NewChatFlow.choosing_persona,
+)
+async def prompt_chosen_correct_state(
+        callback: CallbackQuery,
+        callback_data: ChoosePromptFactory,
+        state: FSMContext,
+):
+    # Проверяем, что такая персона ещё существует
+    if callback_data.style not in available_personas():
+        await callback.answer(
+            text="Что-то пошло не так. Пожалуйста, создайте новый чат.",
+            show_alert=True,
+        )
+        return
+    # Получаем виртуальный чат для этого топика и сохраняем выбранные данные
+    llm_chat = await memory_chat_storage.get(
+        user_id=callback.from_user.id,
+        thread_id=callback.message.message_thread_id,
+    )
+    llm_chat.meta.prompt_key = callback_data.style
+    temperature = prompts[callback_data.style]["temperature"]
+    llm_chat.meta.temperature = temperature
+    await memory_chat_storage.update(
+        user_id=callback.from_user.id,
+        thread_id=callback.message.message_thread_id,
+        new_version=llm_chat,
+    )
+    await state.set_state(None)
+    await callback.message.edit_text(
+        f"Выбран пресет: {prompts[callback_data.style]["name"]}\n\n"
+        f"Пожалуйста, теперь напишите ваш запрос боту.",
+        reply_markup=None,
+    )
+    await callback.answer()
+```
+
+Теперь в `chat_in_topic.py` можно добавить хэндлер на случаи, когда пользователь пишет сообщение до выбора персоны.
+
+```python title="src/bot/handlers/chat_in_topic.py"
+@router.message(
+    F.text,
+    NewChatFlow.choosing_persona,
+)
+async def handle_text_before_persona_select(
+        message: Message,
+):
+    try:
+        await message.delete()
+    except:
+        await logger.aexception(
+            "Failed to delete persona select message",
+        )
+
+
+@router.message(
+    F.text,
+    StateFilter("*"),
+)
+async def handle_message(
+        message: Message,
+        llm_client: LLMClient,
+        bot: Bot,
+):
+    # тут ваш имеющийся код
+```
+
+А также обновим немного код функции `handle_message()`, чтобы использовался соответствующий промт:
+
+```python title="src/bot/handlers/chat_in_topic.py"
+from bot.prompts import prompts
+
+async def handle_message(
+        message: Message,
+        llm_client: LLMClient,
+        bot: Bot,
+):
+    # часть кода пропущена
+    prompt = {
+        "role": "system",
+        "content": prompts[llm_chat.meta.prompt_key]["prompt"],
+    }
+    # часть кода пропущена
+        async for delta in await llm_client.generate_response(
+        messages=[prompt] + chat_history,
+        stream=True,
+        temperature=llm_chat.meta.temperature,  # обновлено!
+    ):
+    # часть кода пропущена
+```
+
+Теперь можно снова запустить бота и сравнить, как себя ведут разные персоны:
+
+![type:video](../images/project_threads_llm/personas_demo.mp4)
+
+!!! info "Примечание"
+    На видео выше правая половина немного ускорена для большей синхронизации картинки
+
+## Генерация заголовка чата
+
+Вы могли обратить внимание, на то как некрасиво смотрятся заголовки топиков: Новый чат, Новый чат, Новый чат, 
+Новый ча.. а хватит это терпеть! Пусть LLM ещё и заголовок чата генерирует. Идея простая: берём сообщение пользователя, 
+скармливаем модели и после генерации основного текста дополнительно обновляем заголовок топика. Если вы будете использовать 
+не self-hosted модель, а что-то более умное и облачное, то это можно делать параллельно с основным ответом, плюс 
+использовать более дешёвую модель, типа GPT-5-nano, которая плохо ведёт разговор, зато отлично суммаризует (подытоживает) 
+текст.
+
+Обновим всё тот же `chat_in_topic.py`, в начало модуля добавим отдельную функцию для обновления заголовка топика, 
+а в `handle_message()` добавим запуск этой задачи в отдельной asyncio-таске, чтобы завершить хэндлер пораньше, 
+ведь у нас уже настроен `SimpleEventIsolation()` с виртуальной очередью обработки.
+
+```python title="src/bot/handlers/chat_in_topic.py"
+async def update_topic_title(
+        llm_client: LLMClient,
+        message: Message,
+        bot: Bot,
+):
+    title: str | None = await llm_client.generate_topic_title(message.text)
+    if title:
+        try:
+            await bot.edit_forum_topic(
+                chat_id=message.chat.id,
+                message_thread_id=message.message_thread_id,
+                name=title
+            )
+        except Exception:
+            await logger.aexception(
+                "Failed to rename topic",
+            )
+
+async def handle_message(
+        message: Message,
+        llm_client: LLMClient,
+        bot: Bot,
+):
+    # часть кода пропущена
+    # далее в самом конце функции:
+    
+    # Если это самое начало топика-чата,
+    # то генерируем название.
+    if llm_chat.is_chat_start:
+        asyncio.create_task(update_topic_title(
+            llm_client=llm_client,
+            message=message,
+            bot=bot,
+        ))
+```
+
+Также надо обновить класс `LLMClient`. Промт сделаем неизменяемым и с учётом особенностей Telegram 
+(длина текста до 128 символов, без форматирования):
+
+```python title="src/bot/llm.py"
+class LLMClient:
+    # тут имеющийся код
+
+    async def generate_topic_title(
+        self,
+        text: str,
+    ) -> str | None:
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "Задача: придумай краткий заголовок темы по сообщению пользователя.\n"
+                    "Требования к заголовку:\n"
+                    "- Язык: русский\n"
+                    "- Длина: до 128 символов\n"
+                    "- 1 строка, без кавычек и без точки в конце\n"
+                    "- Отражает суть запроса (что пользователь хочет сделать/узнать/исправить)\n"
+                    "- Перефразируй: не копируй и не повторяй текст пользователя дословно, избегай одинаковых формулировок\n"
+                    "- Без вводных слов типа «Пользователь спрашивает…»\n"
+                    "- Без лишних деталей, имён, ссылок, дат и чисел, если они не критичны для смысла\n"
+                    "Если запрос неоднозначный или слишком общий — дай нейтральный, но конкретный заголовок."
+                ),
+            },
+            {"role": "user", "content": text},
+        ]
+    
+        try:
+            response = await self.generate_response(
+                model="local",
+                messages=messages,
+                stream=False,
+                temperature=0.2,  # уменьшаем креативность
+            )
+            if isinstance(response, str):
+                title = response.strip()
+                return title[:128] if title else None
+            return None
+        except:
+            # Тут можно что-нибудь залогировать
+            return None
+```
+
+Здесь пригодился старый код генерации ответа без стриминга, поскольку заменить заголовок топика нужно сразу целиком. 
+
+Снова запустите код, отправьте что-то своему боту, подождите, увидите, как топик-чат стал чуточку приятнее:
+
+![Автоматическое переименование топика](../images/project_threads_llm/topic_auto_rename.png)
+
+## Приятные мелочи
+
+С обязательной программой закончили, можно перейти к мелким фичам. Сейчас все иконки топиков-чатов выглядят одинаково, 
+в них сложно ориентироваться. Плюс название может сгенерироваться не всегда удачное без учёта контекста. Давайте 
+дадим возможность пользователю помечать топик-чат как «избранное», а заодно менять заголовок беседы.
+
+Создайте новый роутер по адресу `src/bot/handlers/commands_in_topic.py`:
+
+```python title="src/bot/handlers/commands_in_topic.py"
+import structlog
+from aiogram import Router, Bot
+from aiogram.filters import Command, CommandObject
+from aiogram.types import Message
+from structlog.typing import FilteringBoundLogger
+
+router = Router()
+logger: FilteringBoundLogger = structlog.get_logger()
+
+
+@router.message(Command("rename_topic"))
+async def cmd_rename_topic(
+        message: Message,
+        command: CommandObject,
+        bot: Bot,
+):
+    if command.args is None:
+        await message.answer(
+            "Ошибка. Вы должны указать новое название топика через пробел.\n"
+            "Например: /rename_topic Новый топик"
+        )
+        return
+    new_topic_name = command.args
+    try:
+        await bot.edit_forum_topic(
+            chat_id=message.chat.id,
+            message_thread_id=message.message_thread_id,
+            name=new_topic_name,
+        )
+    except:  # noqa
+        await message.answer(
+            "Ошибка. Не удалось изменить название топика. Пожалуйста, попробуйте ещё раз."
+        )
+        await logger.aexception(
+            "Failed to rename topic",
+            new_name=new_topic_name,
+        )
+
+
+@router.message(Command("favorite"))
+async def cmd_favorite(
+        message: Message,
+        bot: Bot,
+):
+    try:
+        await bot.edit_forum_topic(
+            chat_id=message.chat.id,
+            message_thread_id=message.message_thread_id,
+            icon_custom_emoji_id="5235579393115438657",
+        )
+    except:  # noqa
+        await message.answer(
+            "Ошибка. Не удалось пометить топик как избранное. Пожалуйста, попробуйте ещё раз."
+        )
+        await logger.aexception(
+            "Failed to mark topic as favorite",
+        )
+
+```
+
+Стоит ли напоминать, что роутер нужно зарегистрировать? Так или иначе, теперь топик-чат выделяется красиво:
+
+![Переименование и избранное](../images/project_threads_llm/rename_and_favorite.png)
+
+Вот теперь действительно всё. Надеюсь, вам понравилось это приключение в мир ботов с нейронками так же, как и мне. 
+Но в следующий раз я, пожалуй, возьму облачную LLM за недорого, они гораздо умнее. 
