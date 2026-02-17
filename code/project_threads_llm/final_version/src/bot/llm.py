@@ -56,7 +56,7 @@ class LLMClient:
             self,
             payload: dict,
     ) -> str:
-        response = await self.http_client.post(self.llm_url, json=payload, timeout=500)
+        response = await self.http_client.post(self.llm_url, json=payload)
         response.raise_for_status()
         data = response.json()
         return data["choices"][0]["message"]["content"]
