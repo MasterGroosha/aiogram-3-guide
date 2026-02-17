@@ -1,0 +1,1427 @@
+
+<!doctype html>
+<html lang="ru" class="no-js">
+  <head>
+    
+  <script src="https://telegram.org/js/telegram-web-app.js?35"></script>
+    <script type="text/javascript">
+      const webapp = window.Telegram.WebApp;
+      webapp.disableVerticalSwipes()
+      webapp.ready();
+      webapp.expand();
+      const initData = webapp.initDataUnsafe;
+      if (window.location.pathname === "/aiogram-3-guide/" && Object.hasOwn(initData, 'auth_date')) {
+        if (initData.start_param) {
+          let additionalParam = '';
+          switch (initData.start_param) {
+            case 'quickstart':
+            case 'messages':
+            case 'buttons':
+            case 'routers':
+            case 'special-updates':
+            case 'fsm':
+            case 'inline-mode':
+              additionalParam = initData.start_param;
+              break;
+            case 'filters':
+              additionalParam = 'filters-and-middlewares/#filters';
+              break
+            case 'middlewares':
+              additionalParam = 'filters-and-middlewares/#middlewares';
+              break
+            case 'magic-filter':
+            case 'magic':
+              additionalParam = 'filters-and-middlewares/#magic-filters';
+              break
+            case 'entities':
+              additionalParam = 'messages/#message-entities';
+              break;
+            case 'escaping':
+              additionalParam = 'messages/#input-escaping';
+              break;
+            case 'keep-formatting':
+              additionalParam = 'messages/#keep-formatting';
+              break
+            case 'send-files':
+            case 'upload':
+              additionalParam = 'messages/#uploading-media';
+              break;
+            case 'download-files':
+            case 'download':
+              additionalParam = 'messages/#downloading-media';
+              break;
+            case 'hide-image':
+              additionalParam = 'messages/#bonus';
+              break
+            case 'callback-factory':
+              additionalParam = 'buttons/#callback-factory';
+              break
+            case 'my-chat-member':
+              additionalParam = 'special-updates/#my-chat-member';
+              break
+            case 'chat-member':
+              additionalParam = 'special-updates/#chat-member';
+              break
+            default:
+              additionalParam = '/';
+          }
+          window.location.href = (`${window.location.origin}${window.location.pathname}${additionalParam}`);
+        }
+      }
+  </script>
+
+  
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Конечные автоматы (FSM)">
+      
+      
+        <meta name="author" content="MasterGroosha">
+      
+      
+        <link rel="canonical" href="https://mastergroosha.github.io/aiogram-3-guide/fsm/">
+      
+      
+        <link rel="prev" href="../special-updates/">
+      
+      
+        <link rel="next" href="../inline-mode/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+
+    
+      
+        <title>Конечные автоматы (FSM) - Пишем Telegram-ботов с aiogram 3.x</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+  
+    
+  
+
+  
+  
+    
+  
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Пишем Telegram-ботов с aiogram 3.x" />
+  <meta property="og:description" content="Конечные автоматы (FSM)" />
+  <meta property="og:url" content="https://mastergroosha.github.io/aiogram-3-guide/fsm/" />
+  <meta property="og:image" content="https://mastergroosha.github.io/aiogram-3-guide/images/social.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="512" />
+  <meta property="og:image:height" content="512" />
+
+  <!-- Twitter Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://mastergroosha.github.io/aiogram-3-guide/fsm/">
+  <meta name="twitter:title" content="Пишем Telegram-ботов с aiogram 3.x">
+  <meta name="twitter:description" content="Конечные автоматы (FSM)">
+  <meta name="twitter:image" content="https://mastergroosha.github.io/aiogram-3-guide/images/social.png">
+
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#fsm-start" class="md-skip">
+          Перейти к содержанию
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Верхний колонтитул">
+    <a href=".." title="Пишем Telegram-ботов с aiogram 3.x" class="md-header__button md-logo" aria-label="Пишем Telegram-ботов с aiogram 3.x" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2M7.5 13A2.5 2.5 0 0 0 5 15.5 2.5 2.5 0 0 0 7.5 18a2.5 2.5 0 0 0 2.5-2.5A2.5 2.5 0 0 0 7.5 13m9 0a2.5 2.5 0 0 0-2.5 2.5 2.5 2.5 0 0 0 2.5 2.5 2.5 2.5 0 0 0 2.5-2.5 2.5 2.5 0 0 0-2.5-2.5"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Пишем Telegram-ботов с aiogram 3.x
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Конечные автоматы (FSM)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Поиск" placeholder="Поиск" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Поиск">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Очистить" aria-label="Очистить" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Инициализация поиска
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/MasterGroosha/aiogram-3-guide" title="Перейти к репозиторию" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    MasterGroosha/aiogram-3-guide
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<!-- Determine classes -->
+
+
+
+
+<!-- Navigation -->
+<nav
+  class="md-nav md-nav--primary"
+  aria-label="Навигация"
+  data-md-level="0"
+>
+
+  <!-- Site title -->
+  <label class="md-nav__title" for="__drawer">
+    <a
+      href=".."
+      title="Пишем Telegram-ботов с aiogram 3.x"
+      class="md-nav__button md-logo"
+      aria-label="Пишем Telegram-ботов с aiogram 3.x"
+      data-md-component="logo"
+    >
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2M7.5 13A2.5 2.5 0 0 0 5 15.5 2.5 2.5 0 0 0 7.5 18a2.5 2.5 0 0 0 2.5-2.5A2.5 2.5 0 0 0 7.5 13m9 0a2.5 2.5 0 0 0-2.5 2.5 2.5 2.5 0 0 0 2.5 2.5 2.5 2.5 0 0 0 2.5-2.5 2.5 2.5 0 0 0-2.5-2.5"/></svg>
+
+    </a>
+    Оглавление
+  </label>
+
+  <!-- Repository information -->
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/MasterGroosha/aiogram-3-guide" title="Перейти к репозиторию" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    MasterGroosha/aiogram-3-guide
+  </div>
+</a>
+    </div>
+  
+
+  <!-- Navigation list -->
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Введение
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Знакомство с aiogram
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../messages/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Работа с сообщениями
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../buttons/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Кнопки
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../routers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Роутеры. Структура
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../filters-and-middlewares/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Фильтры и мидлвари
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../special-updates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Особые апдейты
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Конечные автоматы
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Конечные автоматы
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Содержание">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Содержание
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#theory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Теория
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#practice" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Практика
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Практика">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#define-states" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Создание шагов
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Обработка шага 1
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Обработка шага 2
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#common-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Общие команды
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#entrypoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Файл bot.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strategies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Различные стратегии FSM
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../inline-mode/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Инлайн-режим
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../payments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Платежи
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+  
+  
+    <li class="md-nav__item">
+      <a href="../blog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Дополнительные материалы
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced-teaser/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    🔒 Продвинутый уровень
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Содержание">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Содержание
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#theory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Теория
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#practice" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Практика
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Практика">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#define-states" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Создание шагов
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Обработка шага 1
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Обработка шага 2
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#common-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Общие команды
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#entrypoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Файл bot.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strategies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Различные стратегии FSM
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<div><h1 id="fsm-start">Конечные автоматы (FSM)<a class="headerlink" href="#fsm-start" title="Permanent link">¶</a></h1>
+<div class="admonition info">
+<p>Используемая версия aiogram: 3.7.0</p>
+</div>
+<h2 id="theory">Теория<a class="headerlink" href="#theory" title="Permanent link">¶</a></h2>
+<p>В этой главе мы поговорим о ещё одной важной возможности ботов: о <strong>системе диалогов</strong>. К сожалению, далеко не все 
+действия в боте можно выполнить за одно сообщение или команду. Предположим, есть бот для знакомств, где при регистрации нужно 
+указать имя, возраст и отправить фотографию с лицом. Можно, конечно, попросить пользователя отправить фотографию, а в подписи 
+к ней указать все данные, но это неудобно для обработки и запроса повторного ввода.<br>
+Теперь представим пошаговый ввод данных, где в начале бот «включает» режим ожидания определённой информации от конкретного 
+юзера, далее на каждом этапе проверяет вводимые данные, а по команде <code>/cancel</code> прекращает ожидать очередной шаг и 
+возвращается в основной режим. Взгляните на схему ниже:</p>
+<p><img alt="Процесс, состоящий из трёх этапов" src="../images/fsm/l04_1.svg"></p>
+<p><strong>Зелёной</strong> стрелкой обозначен процесс перехода по шагам без ошибок, <strong>синие</strong> стрелки означают сохранение текущего состояния и 
+ожидание повторного ввода (например, если юзер указал, что ему 250 лет, следует запросить возраст заново), а <strong>красные</strong> 
+показывают выход из всего процесса из-за команды <code>/cancel</code> или любой другой, означающей отмену.</p>
+<p>Процесс со схемы выше в теории алгоритмов называется <strong>конечным автоматом</strong> (или FSM — Finite State Machine). Подробнее об этом можно 
+прочесть <a href="https://tproger.ru/translations/finite-state-machines-theory-and-implementation/">здесь</a>.</p>
+<div class="admonition info">
+<p class="admonition-title">Конструктор диалогов</p>
+<p>После того, как попрактикуетесь с FSM в этой главе, вы наверняка ощутите, как много всего придётся сделать, чтобы 
+получить сложноразветвлённую цепочку действий. К счастью, существует библиотека 
+<a href="https://github.com/Tishka17/aiogram_dialog"><strong>aiogram-dialog</strong></a> от <strong>Tishka17</strong>, упрощающая работу с машиной состояний.</p>
+</div>
+<h2 id="practice">Практика<a class="headerlink" href="#practice" title="Permanent link">¶</a></h2>
+<p>В механизм конечных автоматов в aiogram уже встроена поддержка различных бэкендов для хранения состояний 
+между этапами диалога с ботом (впрочем, никто не мешает написать свой), а помимо, собственно, состояний 
+можно хранить произвольные данные, например, вышеописанные имя и возраст для последующего использования 
+где-либо. Список имеющихся хранилищ FSM можно найти 
+<a href="https://github.com/aiogram/aiogram/tree/dev-3.x/aiogram/fsm/storage">в репозитории aiogram</a>, 
+а в этой главе мы будем пользоваться самым простым бэкендом 
+<a href="https://github.com/aiogram/aiogram/blob/dev-3.x/aiogram/fsm/storage/memory.py">MemoryStorage</a>, который 
+хранит все данные в оперативной памяти. Он идеально подходит для примеров, но <strong>не рекомендуется</strong> использовать его в реальных 
+проектах, т.к. MemoryStorage хранит все данные в оперативной памяти без сброса на диск. Также стоит отметить, что конечные 
+автоматы можно использовать не только с обработчиками сообщений (<code>message_handler</code>, <code>edited_message_handler</code>), но также 
+с колбэками и инлайн-режимом.</p>
+<p>В качестве примера мы напишем имитатор заказа еды и напитков в кафе. </p>
+<h3 id="define-states">Создание шагов<a class="headerlink" href="#define-states" title="Permanent link">¶</a></h3>
+<p>Прежде, чем приступим непосредственно к FSM, опишем по-быстрому простую функцию, которая будет генерировать 
+обычную клавиатуру с кнопками в один ряд, она пригодится нам в дальнейшем:</p>
+<div class="highlight"><span class="filename">keyboards/simple_row.py</span><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReplyKeyboardMarkup</span><span class="p">,</span> <span class="n">KeyboardButton</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">make_row_keyboard</span><span class="p">(</span><span class="n">items</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ReplyKeyboardMarkup</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Создаёт реплай-клавиатуру с кнопками в один ряд</span>
+<span class="sd">    :param items: список текстов для кнопок</span>
+<span class="sd">    :return: объект реплай-клавиатуры</span>
+<span class="sd">    """</span>
+    <span class="n">row</span> <span class="o">=</span> <span class="p">[</span><span class="n">KeyboardButton</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">ReplyKeyboardMarkup</span><span class="p">(</span><span class="n">keyboard</span><span class="o">=</span><span class="p">[</span><span class="n">row</span><span class="p">],</span> <span class="n">resize_keyboard</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+<p>Рассмотрим описание шагов для «заказа» еды. Создадим файл <code>handlers/ordering_food.py</code>, где опишем списки блюд и их размеров 
+(в реальной жизни эта информация может динамически подгружаться из какой-либо БД):</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Эти значения далее будут подставляться в итоговый текст, отсюда </span>
+<span class="c1"># такая на первый взгляд странная форма прилагательных</span>
+<span class="n">available_food_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"Суши"</span><span class="p">,</span> <span class="s2">"Спагетти"</span><span class="p">,</span> <span class="s2">"Хачапури"</span><span class="p">]</span>
+<span class="n">available_food_sizes</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"Маленькую"</span><span class="p">,</span> <span class="s2">"Среднюю"</span><span class="p">,</span> <span class="s2">"Большую"</span><span class="p">]</span>
+</code></pre></div>
+<p>Теперь опишем все возможные «состояния» конкретного процесса (выбор еды). На словах можно описать так: пользователь вызывает 
+команду <code>/food</code>, бот отвечает сообщением с просьбой выбрать блюдо и встаёт в состояние *ожидает выбор блюда* для конкретного 
+пользователя. Как только юзер делает выбор, бот, находясь в этом состоянии, проверяет корректность ввода, а затем принимает решение, 
+запросить ввод повторно (без смены состояния) или перейти к следующему шагу *ожидает выбор размера порции*. Когда пользователь 
+и здесь вводит корректные данные, бот отображает итоговый результат (содержимое заказа) и сбрасывает состояние. Позднее 
+в этой главе мы научимся делать принудительный сброс состояния на любом этапе командой <code>/cancel</code>.</p>
+<h3 id="step-1">Обработка шага 1<a class="headerlink" href="#step-1" title="Permanent link">¶</a></h3>
+<p>Итак, перейдём непосредственно к описанию состояний. Для хранения состояний необходимо создать класс, наследующийся 
+от класса <code>StatesGroup</code>, внутри него нужно создать переменные, присвоив им экземпляры класса <code>State</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">OrderFood</span><span class="p">(</span><span class="n">StatesGroup</span><span class="p">):</span>
+    <span class="n">choosing_food_name</span> <span class="o">=</span> <span class="n">State</span><span class="p">()</span>
+    <span class="n">choosing_food_size</span> <span class="o">=</span> <span class="n">State</span><span class="p">()</span>
+</code></pre></div>
+<p>Напишем обработчик первого шага, реагирующий на команду <code>/food</code> в случае, если у пользователя не установлен никакой стейт:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">StateFilter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.fsm.context</span><span class="w"> </span><span class="kn">import</span> <span class="n">FSMContext</span>
+
+<span class="hll"><span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">StateFilter</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="n">Command</span><span class="p">(</span><span class="s2">"food"</span><span class="p">))</span>
+</span><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_food</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">FSMContext</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"Выберите блюдо:"</span><span class="p">,</span>
+        <span class="n">reply_markup</span><span class="o">=</span><span class="n">make_row_keyboard</span><span class="p">(</span><span class="n">available_food_names</span><span class="p">)</span>
+    <span class="p">)</span>
+<span class="hll">    <span class="c1"># Устанавливаем пользователю состояние "выбирает название"</span>
+</span>    <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">OrderFood</span><span class="o">.</span><span class="n">choosing_food_name</span><span class="p">)</span>
+</code></pre></div>
+<p>Чтобы работать с механизмом FSM, в хэндлер необходимо прокинуть аргумент с именем <code>state</code>, который будет иметь 
+тип <code>FSMContext</code>. А в последней строке мы явно говорим боту встать в состояние <code>choosing_food_name</code> из группы <code>OrderFood</code>. </p>
+<div class="admonition warning">
+<p class="admonition-title">Отличие от aiogram 2.x</p>
+<p>В aiogram 2.x отсутствие фильтра на state означало «только при отсутствии явно выставленного состояния» 
+(иными словами, <code>state=None</code>). В aiogram 3.x отсутствие фильтра означает «при любом стейте». Напомню, что аналогичный 
+подход в «тройке» используется с контент-тайпами сообщений.</p>
+</div>
+<p>Далее напишем хэндлер, который ловит один из вариантов блюд из нашего списка:</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span>
+    <span class="n">OrderFood</span><span class="o">.</span><span class="n">choosing_food_name</span><span class="p">,</span> 
+    <span class="n">F</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">in_</span><span class="p">(</span><span class="n">available_food_names</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">food_chosen</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">FSMContext</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">update_data</span><span class="p">(</span><span class="n">chosen_food</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"Спасибо. Теперь, пожалуйста, выберите размер порции:"</span><span class="p">,</span>
+        <span class="n">reply_markup</span><span class="o">=</span><span class="n">make_row_keyboard</span><span class="p">(</span><span class="n">available_food_sizes</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">OrderFood</span><span class="o">.</span><span class="n">choosing_food_size</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+<p>Рассмотрим подробнее некоторые элементы хэндлера. Фильтры (строки 2-3) сообщают, что нижестоящая функция сработает 
+тогда и только тогда, когда пользователь будет в состоянии <code>OrderFood.choosing_food_name</code> и текст сообщения будет 
+совпадать с одним из элементов списка <code>available_food_names</code>. В строке 6 мы пишем данные (текст сообщения) 
+в хранилище FSM, и эти данные уникальны для пары <code>(chat_id, user_id)</code> (есть нюанс, о нём позже). Наконец, 
+в строке 11 мы переводим пользователя в состояние <code>OrderFood.choosing_food_size</code>.</p>
+<p>А если пользователь решит ввести что-то самостоятельно, без клавиатуры? В этом случае надо сообщить пользователю 
+об ошибке и дать ему ещё попытку. Очень часто начинающие разработчки ботов на этом моменте задают вопрос: 
+«а как оставить юзера в том же состоянии?». Ответ простой: чтобы оставить пользователя в текущем состоянии, достаточно 
+его [состояние] не менять, т.е. буквально <em>ничего не делать</em>. </p>
+<p>Напишем дополнительный хэндлер, у которого будет фильтр только на состояние <code>OrderFood.choosing_food_name</code>, а фильтра 
+на текст не будет. Если расположить его под функцией <code>food_chosen()</code>, 
+то получится «реагируй в состоянии choosing_food_name, на все тексты, кроме тех, что ловит предыдущий хэндлер» 
+(иными словами, «лови все неправильные варианты»).</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">OrderFood</span><span class="o">.</span><span class="n">choosing_food_name</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">food_chosen_incorrectly</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"Я не знаю такого блюда.</span><span class="se">\n\n</span><span class="s2">"</span>
+             <span class="s2">"Пожалуйста, выберите одно из названий из списка ниже:"</span><span class="p">,</span>
+        <span class="n">reply_markup</span><span class="o">=</span><span class="n">make_row_keyboard</span><span class="p">(</span><span class="n">available_food_names</span><span class="p">)</span>
+    <span class="p">)</span>
+</code></pre></div>
+<h3 id="step-2">Обработка шага 2<a class="headerlink" href="#step-2" title="Permanent link">¶</a></h3>
+<p>Второй и последний этап — обработать ввод размера порции юзером. Аналогично предыдущему этапу сделаем два хэндлера 
+(на верный и неверный ответы), но в первом из них добавим выбор сводной информации о заказе:</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">OrderFood</span><span class="o">.</span><span class="n">choosing_food_size</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">in_</span><span class="p">(</span><span class="n">available_food_sizes</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">food_size_chosen</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">FSMContext</span><span class="p">):</span>
+<span class="hll">    <span class="n">user_data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+</span>    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Вы выбрали </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2"> порцию </span><span class="si">{</span><span class="n">user_data</span><span class="p">[</span><span class="s1">'chosen_food'</span><span class="p">]</span><span class="si">}</span><span class="s2">.</span><span class="se">\n</span><span class="s2">"</span>
+             <span class="sa">f</span><span class="s2">"Попробуйте теперь заказать напитки: /drinks"</span><span class="p">,</span>
+        <span class="n">reply_markup</span><span class="o">=</span><span class="n">ReplyKeyboardRemove</span><span class="p">()</span>
+    <span class="p">)</span>
+<span class="hll">    <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+</span>
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">OrderFood</span><span class="o">.</span><span class="n">choosing_food_size</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">food_size_chosen_incorrectly</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"Я не знаю такого размера порции.</span><span class="se">\n\n</span><span class="s2">"</span>
+             <span class="s2">"Пожалуйста, выберите один из вариантов из списка ниже:"</span><span class="p">,</span>
+        <span class="n">reply_markup</span><span class="o">=</span><span class="n">make_row_keyboard</span><span class="p">(</span><span class="n">available_food_sizes</span><span class="p">)</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>Вызов <code>get_data()</code> в строке №3 возвращает объект хранилища для конкретного пользователя в конкретном чате. Из него 
+[хранилища] мы достаём сохранённое значение название блюда и подставляем в сообщение. Метод <code>clear()</code> у стейта 
+возвращает пользователя в «пустое» состояние и удаляет все сохранённые данные. Что делать, если нужно только очистить 
+состояние или только затереть данные? Для этого провалимся в определение функции <code>clear()</code> в исходниках aiogram 3.x:</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FSMContext</span><span class="p">:</span>
+    <span class="c1"># Часть кода пропущена</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_data</span><span class="p">({})</span>
+</code></pre></div>
+<p>Теперь вы знаете, как очистить что-то одно :)</p>
+<p>Шаги для выбора напитков делаются совершенно аналогично. Попробуйте сделать самостоятельно или загляните в исходные тексты 
+к этой главе.</p>
+<p>Полный текст файла с хэндлерами для заказа еды:</p>
+<div class="highlight"><span class="filename">handlers/ordering_food.py</span><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">aiogram</span><span class="w"> </span><span class="kn">import</span> <span class="n">Router</span><span class="p">,</span> <span class="n">F</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">StateFilter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.fsm.context</span><span class="w"> </span><span class="kn">import</span> <span class="n">FSMContext</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.fsm.state</span><span class="w"> </span><span class="kn">import</span> <span class="n">StatesGroup</span><span class="p">,</span> <span class="n">State</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Message</span><span class="p">,</span> <span class="n">ReplyKeyboardRemove</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">keyboards.simple_row</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_row_keyboard</span>
+
+<span class="n">router</span> <span class="o">=</span> <span class="n">Router</span><span class="p">()</span>
+
+<span class="c1"># Эти значения далее будут подставляться в итоговый текст, отсюда</span>
+<span class="c1"># такая на первый взгляд странная форма прилагательных</span>
+<span class="n">available_food_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"Суши"</span><span class="p">,</span> <span class="s2">"Спагетти"</span><span class="p">,</span> <span class="s2">"Хачапури"</span><span class="p">]</span>
+<span class="n">available_food_sizes</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"Маленькую"</span><span class="p">,</span> <span class="s2">"Среднюю"</span><span class="p">,</span> <span class="s2">"Большую"</span><span class="p">]</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">OrderFood</span><span class="p">(</span><span class="n">StatesGroup</span><span class="p">):</span>
+    <span class="n">choosing_food_name</span> <span class="o">=</span> <span class="n">State</span><span class="p">()</span>
+    <span class="n">choosing_food_size</span> <span class="o">=</span> <span class="n">State</span><span class="p">()</span>
+
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s2">"food"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_food</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">FSMContext</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"Выберите блюдо:"</span><span class="p">,</span>
+        <span class="n">reply_markup</span><span class="o">=</span><span class="n">make_row_keyboard</span><span class="p">(</span><span class="n">available_food_names</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="c1"># Устанавливаем пользователю состояние "выбирает название"</span>
+    <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">OrderFood</span><span class="o">.</span><span class="n">choosing_food_name</span><span class="p">)</span>
+
+<span class="c1"># Этап выбора блюда #</span>
+
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">OrderFood</span><span class="o">.</span><span class="n">choosing_food_name</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">in_</span><span class="p">(</span><span class="n">available_food_names</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">food_chosen</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">FSMContext</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">update_data</span><span class="p">(</span><span class="n">chosen_food</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"Спасибо. Теперь, пожалуйста, выберите размер порции:"</span><span class="p">,</span>
+        <span class="n">reply_markup</span><span class="o">=</span><span class="n">make_row_keyboard</span><span class="p">(</span><span class="n">available_food_sizes</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">OrderFood</span><span class="o">.</span><span class="n">choosing_food_size</span><span class="p">)</span>
+
+
+<span class="c1"># В целом, никто не мешает указывать стейты полностью строками</span>
+<span class="c1"># Это может пригодиться, если по какой-то причине </span>
+<span class="c1"># ваши названия стейтов генерируются в рантайме (но зачем?)</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">StateFilter</span><span class="p">(</span><span class="s2">"OrderFood:choosing_food_name"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">food_chosen_incorrectly</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"Я не знаю такого блюда.</span><span class="se">\n\n</span><span class="s2">"</span>
+             <span class="s2">"Пожалуйста, выберите одно из названий из списка ниже:"</span><span class="p">,</span>
+        <span class="n">reply_markup</span><span class="o">=</span><span class="n">make_row_keyboard</span><span class="p">(</span><span class="n">available_food_names</span><span class="p">)</span>
+    <span class="p">)</span>
+
+<span class="c1"># Этап выбора размера порции и отображение сводной информации #</span>
+
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">OrderFood</span><span class="o">.</span><span class="n">choosing_food_size</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">in_</span><span class="p">(</span><span class="n">available_food_sizes</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">food_size_chosen</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">FSMContext</span><span class="p">):</span>
+    <span class="n">user_data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Вы выбрали </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2"> порцию </span><span class="si">{</span><span class="n">user_data</span><span class="p">[</span><span class="s1">'chosen_food'</span><span class="p">]</span><span class="si">}</span><span class="s2">.</span><span class="se">\n</span><span class="s2">"</span>
+             <span class="sa">f</span><span class="s2">"Попробуйте теперь заказать напитки: /drinks"</span><span class="p">,</span>
+        <span class="n">reply_markup</span><span class="o">=</span><span class="n">ReplyKeyboardRemove</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="c1"># Сброс состояния и сохранённых данных у пользователя</span>
+    <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">OrderFood</span><span class="o">.</span><span class="n">choosing_food_size</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">food_size_chosen_incorrectly</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"Я не знаю такого размера порции.</span><span class="se">\n\n</span><span class="s2">"</span>
+             <span class="s2">"Пожалуйста, выберите один из вариантов из списка ниже:"</span><span class="p">,</span>
+        <span class="n">reply_markup</span><span class="o">=</span><span class="n">make_row_keyboard</span><span class="p">(</span><span class="n">available_food_sizes</span><span class="p">)</span>
+    <span class="p">)</span>
+</code></pre></div>
+<h3 id="common-commands">Общие команды<a class="headerlink" href="#common-commands" title="Permanent link">¶</a></h3>
+<p>Раз уж заговорили о сбросе состояний, давайте в файле <code>handlers/common.py</code> реализуем обработчики команды <code>/start</code> и 
+действия «отмены». В первом случае должен показываться некий приветственный/справочный текст, а для отмены напишем 
+два хэндлера: когда пользователь не находится ни в каком стейте, и когда находится в каком-либо.</p>
+<p>Все функции гарантируют отсутствие состояние и данных, убирают обычную клавиатуру, если вдруг она есть:</p>
+<div class="highlight"><span class="filename">handlers/common.py</span><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">aiogram</span><span class="w"> </span><span class="kn">import</span> <span class="n">F</span><span class="p">,</span> <span class="n">Router</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">StateFilter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.fsm.context</span><span class="w"> </span><span class="kn">import</span> <span class="n">FSMContext</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.fsm.state</span><span class="w"> </span><span class="kn">import</span> <span class="n">default_state</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Message</span><span class="p">,</span> <span class="n">ReplyKeyboardRemove</span>
+
+<span class="n">router</span> <span class="o">=</span> <span class="n">Router</span><span class="p">()</span>
+
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="n">commands</span><span class="o">=</span><span class="p">[</span><span class="s2">"start"</span><span class="p">]))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_start</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">FSMContext</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"Выберите, что хотите заказать: "</span>
+             <span class="s2">"блюда (/food) или напитки (/drinks)."</span><span class="p">,</span>
+        <span class="n">reply_markup</span><span class="o">=</span><span class="n">ReplyKeyboardRemove</span><span class="p">()</span>
+    <span class="p">)</span>
+
+
+<span class="c1"># Нетрудно догадаться, что следующие два хэндлера можно </span>
+<span class="c1"># спокойно объединить в один, но для полноты картины оставим так</span>
+
+<span class="c1"># default_state - это то же самое, что и StateFilter(None)</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">StateFilter</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="n">Command</span><span class="p">(</span><span class="n">commands</span><span class="o">=</span><span class="p">[</span><span class="s2">"cancel"</span><span class="p">]))</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">default_state</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"отмена"</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_cancel_no_state</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">FSMContext</span><span class="p">):</span>
+    <span class="c1"># Стейт сбрасывать не нужно, удалим только данные</span>
+    <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">set_data</span><span class="p">({})</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"Нечего отменять"</span><span class="p">,</span>
+        <span class="n">reply_markup</span><span class="o">=</span><span class="n">ReplyKeyboardRemove</span><span class="p">()</span>
+    <span class="p">)</span>
+
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="n">commands</span><span class="o">=</span><span class="p">[</span><span class="s2">"cancel"</span><span class="p">]))</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"отмена"</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_cancel</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">FSMContext</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"Действие отменено"</span><span class="p">,</span>
+        <span class="n">reply_markup</span><span class="o">=</span><span class="n">ReplyKeyboardRemove</span><span class="p">()</span>
+    <span class="p">)</span>
+</code></pre></div>
+<h3 id="entrypoint">Файл bot.py<a class="headerlink" href="#entrypoint" title="Permanent link">¶</a></h3>
+<p>Напоследок рассмотрим точку входа — файл <code>bot.py</code> со всеми импортами и подключенными роутерами:</p>
+<div class="highlight"><span class="filename">bot.py</span><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bot</span><span class="p">,</span> <span class="n">Dispatcher</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.fsm.storage.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemoryStorage</span>
+
+<span class="c1"># файл config_reader.py можно взять из репозитория</span>
+<span class="c1"># пример — в первой главе</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">config_reader</span><span class="w"> </span><span class="kn">import</span> <span class="n">config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">handlers</span><span class="w"> </span><span class="kn">import</span> <span class="n">common</span><span class="p">,</span> <span class="n">ordering_food</span>
+
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span>
+        <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
+        <span class="nb">format</span><span class="o">=</span><span class="s2">"</span><span class="si">%(asctime)s</span><span class="s2"> - </span><span class="si">%(levelname)s</span><span class="s2"> - </span><span class="si">%(name)s</span><span class="s2"> - </span><span class="si">%(message)s</span><span class="s2">"</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Если не указать storage, то по умолчанию всё равно будет MemoryStorage</span>
+    <span class="c1"># Но явное лучше неявного =]</span>
+    <span class="n">dp</span> <span class="o">=</span> <span class="n">Dispatcher</span><span class="p">(</span><span class="n">storage</span><span class="o">=</span><span class="n">MemoryStorage</span><span class="p">())</span>
+    <span class="n">bot</span> <span class="o">=</span> <span class="n">Bot</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">bot_token</span><span class="o">.</span><span class="n">get_secret_value</span><span class="p">())</span>
+
+    <span class="n">dp</span><span class="o">.</span><span class="n">include_router</span><span class="p">(</span><span class="n">common</span><span class="o">.</span><span class="n">router</span><span class="p">)</span>
+    <span class="n">dp</span><span class="o">.</span><span class="n">include_router</span><span class="p">(</span><span class="n">ordering_food</span><span class="o">.</span><span class="n">router</span><span class="p">)</span>
+    <span class="c1"># сюда импортируйте ваш собственный роутер для напитков</span>
+
+    <span class="k">await</span> <span class="n">dp</span><span class="o">.</span><span class="n">start_polling</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">'__main__'</span><span class="p">:</span>
+    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</code></pre></div>
+<h3 id="strategies">Различные стратегии FSM<a class="headerlink" href="#strategies" title="Permanent link">¶</a></h3>
+<p>Aiogram 3.x привнёс необычное, но интересное нововведение в механизм конечных автоматов — стратегии FSM. Они позволяют 
+переопределить логику формирования пар для стейтов и данных. Всего стратегий пять, вот они:</p>
+<ul>
+<li><strong>USER_IN_CHAT</strong> — стратегия по умолчанию. Стейт и данные разные у каждого юзера в каждом чате. То есть, у юзера будут 
+разные состояния и данные в разных группах, а также в ЛС с ботом.</li>
+<li><strong>CHAT</strong> — стейт и данные общие для всего чата целиком. В ЛС разница незаметна, но в группе у всех участников будет 
+один стейт и общие данные.</li>
+<li><strong>GLOBAL_USER</strong> — во всех чатах у одного и того же юзера будет один и тот же стейт и данные.</li>
+<li><strong>USER_IN_TOPIC</strong> — у юзера могут быть разные стейты в зависимости от топика 
+в <a href="https://telegram.org/blog/topics-in-groups-collectible-usernames#topics-in-groups">супергруппе-форуме</a>.</li>
+<li><strong>CHAT_TOPIC</strong> — у каждого топика свой стейт без разделения на пользователей в этом топике.</li>
+</ul>
+<p>Честно говоря, я не могу придумать хороший use-case для <strong>GLOBAL_USER</strong>, однако <strong>CHAT</strong> может пригодиться для ботов, 
+которые реализуют различные игры в группах. Если вы знаете интересные применения, пожалуйста, расскажите о них 
+в нашем чатике!</p>
+<p>В качестве примера рассмотрим ситуацию, когда бот для заказа еды почему-то оказался в группе и имеет стратегию <strong>CHAT</strong>. 
+А чтобы это случилось, необходимо внести небольшие правки в файл <code>bot.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># новый импорт</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.fsm.strategy</span><span class="w"> </span><span class="kn">import</span> <span class="n">FSMStrategy</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="c1"># тут код</span>
+    <span class="n">dp</span> <span class="o">=</span> <span class="n">Dispatcher</span><span class="p">(</span><span class="n">storage</span><span class="o">=</span><span class="n">MemoryStorage</span><span class="p">(),</span> <span class="n">fsm_strategy</span><span class="o">=</span><span class="n">FSMStrategy</span><span class="o">.</span><span class="n">CHAT</span><span class="p">)</span>
+    <span class="c1"># тут тоже код</span>
+</code></pre></div>
+<p>После запуска бота попросим людей в группе повзаимодействовать с ним:</p>
+<p><img alt="Все пользователи для бота на одно лицо" src="../images/fsm/fsm_chat_strategy.png"></p>
+<p>Выглядит странно, не правда ли?</p>
+<p>Теперь, вооружившись знаниями о конечных автоматах, вы можете безбоязненно писать ботов с системой диалогов.</p></div>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2020-2026 Groosha
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://t.me/+DE0_2nCvbXozZjUy" target="_blank" rel="noopener" title="Чат в Telegram" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M256 8a248 248 0 1 0 0 496 248 248 0 1 0 0-496m115 168.7c-3.7 39.2-19.9 134.4-28.1 178.3-3.5 18.6-10.3 24.8-16.9 25.4-14.4 1.3-25.3-9.5-39.3-18.7-21.8-14.3-34.2-23.2-55.3-37.2-24.5-16.1-8.6-25 5.3-39.5 3.7-3.8 67.1-61.5 68.3-66.7.2-.7.3-3.1-1.2-4.4s-3.6-.8-5.1-.5c-2.2.5-37.1 23.5-104.6 69.1-9.9 6.8-18.9 10.1-26.9 9.9-8.9-.2-25.9-5-38.6-9.1-15.5-5-27.9-7.7-26.8-16.3.6-4.5 6.7-9 18.4-13.7 72.3-31.5 120.5-52.3 144.6-62.3 68.9-28.6 83.2-33.6 92.5-33.8 2.1 0 6.6.5 9.6 2.9 2 1.7 3.2 4.1 3.5 6.7.5 3.2.6 6.5.4 9.8z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://github.com/MasterGroosha/aiogram-3-guide" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u0421\u043a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u043d\u043e \u0432 \u0431\u0443\u0444\u0435\u0440", "clipboard.copy": "\u041a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u0442\u044c \u0432 \u0431\u0443\u0444\u0435\u0440", "search.result.more.one": "\u0415\u0449\u0451 1 \u043d\u0430 \u044d\u0442\u043e\u0439 \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0435", "search.result.more.other": "\u0415\u0449\u0451 # \u043d\u0430 \u044d\u0442\u043e\u0439 \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0435", "search.result.none": "\u0421\u043e\u0432\u043f\u0430\u0434\u0435\u043d\u0438\u0439 \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u043e", "search.result.one": "\u041d\u0430\u0439\u0434\u0435\u043d\u043e 1 \u0441\u043e\u0432\u043f\u0430\u0434\u0435\u043d\u0438\u0435", "search.result.other": "\u041d\u0430\u0439\u0434\u0435\u043d\u043e \u0441\u043e\u0432\u043f\u0430\u0434\u0435\u043d\u0438\u0439: #", "search.result.placeholder": "\u041d\u0430\u0447\u043d\u0438\u0442\u0435 \u043f\u0435\u0447\u0430\u0442\u0430\u0442\u044c \u0434\u043b\u044f \u043f\u043e\u0438\u0441\u043a\u0430", "search.result.term.missing": "\u041e\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0443\u0435\u0442", "select.version": "\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u0432\u0435\u0440\u0441\u0438\u044e"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1645 @@
+
+<!doctype html>
+<html lang="ru" class="no-js">
+  <head>
+    
+  <script src="https://telegram.org/js/telegram-web-app.js?35"></script>
+    <script type="text/javascript">
+      const webapp = window.Telegram.WebApp;
+      webapp.disableVerticalSwipes()
+      webapp.ready();
+      webapp.expand();
+      const initData = webapp.initDataUnsafe;
+      if (window.location.pathname === "/aiogram-3-guide/" && Object.hasOwn(initData, 'auth_date')) {
+        if (initData.start_param) {
+          let additionalParam = '';
+          switch (initData.start_param) {
+            case 'quickstart':
+            case 'messages':
+            case 'buttons':
+            case 'routers':
+            case 'special-updates':
+            case 'fsm':
+            case 'inline-mode':
+              additionalParam = initData.start_param;
+              break;
+            case 'filters':
+              additionalParam = 'filters-and-middlewares/#filters';
+              break
+            case 'middlewares':
+              additionalParam = 'filters-and-middlewares/#middlewares';
+              break
+            case 'magic-filter':
+            case 'magic':
+              additionalParam = 'filters-and-middlewares/#magic-filters';
+              break
+            case 'entities':
+              additionalParam = 'messages/#message-entities';
+              break;
+            case 'escaping':
+              additionalParam = 'messages/#input-escaping';
+              break;
+            case 'keep-formatting':
+              additionalParam = 'messages/#keep-formatting';
+              break
+            case 'send-files':
+            case 'upload':
+              additionalParam = 'messages/#uploading-media';
+              break;
+            case 'download-files':
+            case 'download':
+              additionalParam = 'messages/#downloading-media';
+              break;
+            case 'hide-image':
+              additionalParam = 'messages/#bonus';
+              break
+            case 'callback-factory':
+              additionalParam = 'buttons/#callback-factory';
+              break
+            case 'my-chat-member':
+              additionalParam = 'special-updates/#my-chat-member';
+              break
+            case 'chat-member':
+              additionalParam = 'special-updates/#chat-member';
+              break
+            default:
+              additionalParam = '/';
+          }
+          window.location.href = (`${window.location.origin}${window.location.pathname}${additionalParam}`);
+        }
+      }
+  </script>
+
+  
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Кнопки">
+      
+      
+        <meta name="author" content="MasterGroosha">
+      
+      
+        <link rel="canonical" href="https://mastergroosha.github.io/aiogram-3-guide/buttons/">
+      
+      
+        <link rel="prev" href="../messages/">
+      
+      
+        <link rel="next" href="../routers/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+
+    
+      
+        <title>Кнопки - Пишем Telegram-ботов с aiogram 3.x</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+  
+    
+  
+
+  
+  
+    
+  
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Пишем Telegram-ботов с aiogram 3.x" />
+  <meta property="og:description" content="Кнопки" />
+  <meta property="og:url" content="https://mastergroosha.github.io/aiogram-3-guide/buttons/" />
+  <meta property="og:image" content="https://mastergroosha.github.io/aiogram-3-guide/images/social.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="512" />
+  <meta property="og:image:height" content="512" />
+
+  <!-- Twitter Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://mastergroosha.github.io/aiogram-3-guide/buttons/">
+  <meta name="twitter:title" content="Пишем Telegram-ботов с aiogram 3.x">
+  <meta name="twitter:description" content="Кнопки">
+  <meta name="twitter:image" content="https://mastergroosha.github.io/aiogram-3-guide/images/social.png">
+
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          Перейти к содержанию
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Верхний колонтитул">
+    <a href=".." title="Пишем Telegram-ботов с aiogram 3.x" class="md-header__button md-logo" aria-label="Пишем Telegram-ботов с aiogram 3.x" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2M7.5 13A2.5 2.5 0 0 0 5 15.5 2.5 2.5 0 0 0 7.5 18a2.5 2.5 0 0 0 2.5-2.5A2.5 2.5 0 0 0 7.5 13m9 0a2.5 2.5 0 0 0-2.5 2.5 2.5 2.5 0 0 0 2.5 2.5 2.5 2.5 0 0 0 2.5-2.5 2.5 2.5 0 0 0-2.5-2.5"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Пишем Telegram-ботов с aiogram 3.x
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Кнопки
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Поиск" placeholder="Поиск" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Поиск">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Очистить" aria-label="Очистить" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Инициализация поиска
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/MasterGroosha/aiogram-3-guide" title="Перейти к репозиторию" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    MasterGroosha/aiogram-3-guide
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<!-- Determine classes -->
+
+
+
+
+<!-- Navigation -->
+<nav
+  class="md-nav md-nav--primary"
+  aria-label="Навигация"
+  data-md-level="0"
+>
+
+  <!-- Site title -->
+  <label class="md-nav__title" for="__drawer">
+    <a
+      href=".."
+      title="Пишем Telegram-ботов с aiogram 3.x"
+      class="md-nav__button md-logo"
+      aria-label="Пишем Telegram-ботов с aiogram 3.x"
+      data-md-component="logo"
+    >
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2M7.5 13A2.5 2.5 0 0 0 5 15.5 2.5 2.5 0 0 0 7.5 18a2.5 2.5 0 0 0 2.5-2.5A2.5 2.5 0 0 0 7.5 13m9 0a2.5 2.5 0 0 0-2.5 2.5 2.5 2.5 0 0 0 2.5 2.5 2.5 2.5 0 0 0 2.5-2.5 2.5 2.5 0 0 0-2.5-2.5"/></svg>
+
+    </a>
+    Оглавление
+  </label>
+
+  <!-- Repository information -->
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/MasterGroosha/aiogram-3-guide" title="Перейти к репозиторию" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    MasterGroosha/aiogram-3-guide
+  </div>
+</a>
+    </div>
+  
+
+  <!-- Navigation list -->
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Введение
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Знакомство с aiogram
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../messages/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Работа с сообщениями
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Кнопки
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Кнопки
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Содержание">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Содержание
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#reply-buttons" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Обычные кнопки
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Обычные кнопки">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reply-as-text" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Кнопки как шаблоны
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reply-builder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Keyboard Builder
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reply-special" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Специальные обычные кнопки
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inline-buttons" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Инлайн-кнопки
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Инлайн-кнопки">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#url-buttons" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        URL-кнопки
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#callback-buttons" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Колбэки
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#callback-factory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Фабрика колбэков
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#callback-autoreply" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Автоответ на колбэки
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../routers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Роутеры. Структура
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../filters-and-middlewares/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Фильтры и мидлвари
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../special-updates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Особые апдейты
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fsm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Конечные автоматы
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../inline-mode/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Инлайн-режим
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../payments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Платежи
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+  
+  
+    <li class="md-nav__item">
+      <a href="../blog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Дополнительные материалы
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced-teaser/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    🔒 Продвинутый уровень
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Содержание">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Содержание
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#reply-buttons" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Обычные кнопки
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Обычные кнопки">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reply-as-text" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Кнопки как шаблоны
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reply-builder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Keyboard Builder
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reply-special" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Специальные обычные кнопки
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inline-buttons" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Инлайн-кнопки
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Инлайн-кнопки">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#url-buttons" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        URL-кнопки
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#callback-buttons" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Колбэки
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#callback-factory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Фабрика колбэков
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#callback-autoreply" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Автоответ на колбэки
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<div><h1 id="_1">Кнопки<a class="headerlink" href="#_1" title="Permanent link">¶</a></h1>
+<div class="admonition info">
+<p>Используемая версия aiogram: 3.7.0</p>
+</div>
+<p>В этой главе мы познакомимся с такой замечательной фичей Telegram-ботов как кнопки. Прежде всего, чтобы избежать 
+путаницы, определимся с названиями. То, что цепляется к низу экрана вашего устройства, будем называть <strong>обычными</strong> 
+кнопками, а то, что цепляется непосредственно к сообщениям, назовём <strong>инлайн</strong>-кнопками. Ещё раз картинкой:  </p>
+<p><img alt="Два вида кнопок" src="../images/buttons/l03_1.png"></p>
+<h2 id="reply-buttons">Обычные кнопки<a class="headerlink" href="#reply-buttons" title="Permanent link">¶</a></h2>
+<h3 id="reply-as-text">Кнопки как шаблоны<a class="headerlink" href="#reply-as-text" title="Permanent link">¶</a></h3>
+<p>Этот вид кнопок появился вместе с Bot API в далёком 2015 году и представляет собой не что иное, как шаблоны сообщений 
+(за исключением нескольких особых случаев, но о них позже). Принцип простой: что написано на кнопке, то и будет отправлено 
+в текущий чат. Соответственно, чтобы обработать нажатие такой кнопки, бот должен распознавать входящие текстовые сообщения. </p>
+<p>Напишем хэндлер, который будет при нажатии на команду <code>/start</code> отправлять сообщение с двумя кнопками:</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s2">"start"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_start</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
+    <span class="n">kb</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">[</span><span class="n">types</span><span class="o">.</span><span class="n">KeyboardButton</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">"С пюрешкой"</span><span class="p">)],</span>
+        <span class="p">[</span><span class="n">types</span><span class="o">.</span><span class="n">KeyboardButton</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">"Без пюрешки"</span><span class="p">)]</span>
+    <span class="p">]</span>
+    <span class="n">keyboard</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">ReplyKeyboardMarkup</span><span class="p">(</span><span class="n">keyboard</span><span class="o">=</span><span class="n">kb</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span><span class="s2">"Как подавать котлеты?"</span><span class="p">,</span> <span class="n">reply_markup</span><span class="o">=</span><span class="n">keyboard</span><span class="p">)</span>
+</code></pre></div>
+<div class="admonition info">
+<p>Несмотря на то, что Telegram Bot API <a href="https://core.telegram.org/bots/api#keyboardbutton">допускает</a> указывать 
+просто строки вместо объектов <code>KeyboardButton</code>, при попытке использовать строку aiogram 3.x выкинет ошибку 
+валидации и это не баг, а <a href="https://t.me/aiogram_ru/920453">фича</a>.<br>
+Живите теперь с этим 🤷‍♂️</p>
+</div>
+<p>Что ж, запустим бота и обалдеем от громадных кнопок:</p>
+<p><img alt="Очень большие обычные кнопки" src="../images/buttons/l03_2.png"></p>
+<p>Как-то некрасиво. Во-первых, хочется сделать кнопки поменьше, а во-вторых, расположить их горизонтально.<br>
+Почему вообще они такие большие? Дело в том, что по умолчанию «кнопочная» клавиатура должна занимать на смартфонах столько 
+же места, сколько и обычная буквенная. Для уменьшения кнопок к объекту клавиатуры надо указать дополнительный 
+параметр <code>resize_keyboard=True</code>.<br>
+Но как заменить вертикальные кнопки на горизонтальные? С точки зрения Bot API, клавиатура — это 
+<a href="https://core.telegram.org/bots/api#replykeyboardmarkup">массив массивов</a> кнопок, а если говорить проще, массив рядов. 
+Перепишем наш код, чтобы было красиво, а для 
+пущей важности добавим параметр <code>input_field_placeholder</code>, который заменит текст в пустой строке ввода, 
+когда активна обычная клавиатура:</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s2">"start"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_start</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
+    <span class="n">kb</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">[</span>
+            <span class="n">types</span><span class="o">.</span><span class="n">KeyboardButton</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">"С пюрешкой"</span><span class="p">),</span>
+            <span class="n">types</span><span class="o">.</span><span class="n">KeyboardButton</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">"Без пюрешки"</span><span class="p">)</span>
+        <span class="p">],</span>
+    <span class="p">]</span>
+    <span class="n">keyboard</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">ReplyKeyboardMarkup</span><span class="p">(</span>
+        <span class="n">keyboard</span><span class="o">=</span><span class="n">kb</span><span class="p">,</span>
+        <span class="n">resize_keyboard</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">input_field_placeholder</span><span class="o">=</span><span class="s2">"Выберите способ подачи"</span>
+    <span class="p">)</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span><span class="s2">"Как подавать котлеты?"</span><span class="p">,</span> <span class="n">reply_markup</span><span class="o">=</span><span class="n">keyboard</span><span class="p">)</span>
+</code></pre></div>
+<p>Смотрим — действительно красиво:</p>
+<p><img alt="Кнопки в один ряд" src="../images/buttons/l03_3.png"></p>
+<p>Осталось научить бота реагировать на нажатие таких кнопок. Как уже было сказано выше, необходимо делать проверку 
+на полное совпадение текста. Сделаем это при помощи <em>магического фильтра</em> F, подробнее о котором 
+поговорим в <a href="../filters-and-middlewares/#magic-filters">другой главе</a>:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># новый импорт!</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram</span><span class="w"> </span><span class="kn">import</span> <span class="n">F</span>
+
+<span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"с пюрешкой"</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">with_puree</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">reply</span><span class="p">(</span><span class="s2">"Отличный выбор!"</span><span class="p">)</span>
+
+<span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"без пюрешки"</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">without_puree</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">reply</span><span class="p">(</span><span class="s2">"Так невкусно!"</span><span class="p">)</span>
+</code></pre></div>
+<p><img alt="Реакция на нажатие кнопок" src="../images/buttons/l03_4.png"></p>
+<p>Чтобы удалить кнопки, необходимо отправить новое сообщение со специальной «удаляющей» клавиатурой типа 
+<code>ReplyKeyboardRemove</code>. Например: <code>await message.reply("Отличный выбор!", reply_markup=types.ReplyKeyboardRemove())</code></p>
+<h3 id="reply-builder">Keyboard Builder<a class="headerlink" href="#reply-builder" title="Permanent link">¶</a></h3>
+<p>Для более динамической генерации кнопок можно воспользоваться сборщиком клавиатур. Нам пригодятся 
+следующие методы:</p>
+<ul>
+<li><code>add(&lt;KeyboardButton&gt;)</code> — добавляет кнопку в память сборщика;</li>
+<li><code>adjust(int1, int2, int3...)</code> — делает строки по <code>int1, int2, int3...</code> кнопок;</li>
+<li><code>as_markup()</code> — возвращает готовый объект клавиатуры;</li>
+<li><code>button(&lt;params&gt;)</code> — добавляет кнопку с заданными параметрами, тип кнопки (Reply или Inline) определяется автоматически.</li>
+</ul>
+<p>Создадим пронумерованную клавиатуру размером 4×4:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># новый импорт!</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.utils.keyboard</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReplyKeyboardBuilder</span>
+
+<span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s2">"reply_builder"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">reply_builder</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
+    <span class="n">builder</span> <span class="o">=</span> <span class="n">ReplyKeyboardBuilder</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">17</span><span class="p">):</span>
+        <span class="n">builder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">types</span><span class="o">.</span><span class="n">KeyboardButton</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span>
+    <span class="n">builder</span><span class="o">.</span><span class="n">adjust</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="s2">"Выберите число:"</span><span class="p">,</span>
+        <span class="n">reply_markup</span><span class="o">=</span><span class="n">builder</span><span class="o">.</span><span class="n">as_markup</span><span class="p">(</span><span class="n">resize_keyboard</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p><img alt="Результат работы сборщика кнопок" src="../images/buttons/reply_builder.png"></p>
+<div class="admonition info">
+<p>У <a href="https://core.telegram.org/bots/api#replykeyboardmarkup">объекта обычной клавиатуры</a> есть ещё две полезных опции: 
+<code>one_time_keyboard</code> для автоматического скрытия кнопок после нажатия и <code>selective</code> для показа клавиатуры 
+лишь некоторым участникам группы. Их использование остаётся для самостоятельного изучения.</p>
+</div>
+<h3 id="reply-special">Специальные обычные кнопки<a class="headerlink" href="#reply-special" title="Permanent link">¶</a></h3>
+<p>На момент написания этой главы в Telegram существует шесть специальных видов обычных кнопок, не являющихся 
+обычными шаблонами сообщений. Они предназначены для:</p>
+<ul>
+<li>отправки текущей геолокации; </li>
+<li>отправки своего контакта с номером телефона; </li>
+<li>создания опроса/викторины; </li>
+<li>выбора и отправки боту данных пользователя с нужными критериями;</li>
+<li>выбора и отправки боту данных (супер)группы или канала с нужными критериями;</li>
+<li>запуска веб-приложения (WebApp).</li>
+</ul>
+<p>Поговорим про них подробнее.</p>
+<p><strong>Отправка текущей геолокации</strong>. Здесь всё просто: где пользователь находится, те координаты и отправляет. 
+Это будет статическое гео, а не Live Location, который обновляется автоматически. Разумеется, хитрые юзеры 
+могут подменить своё местонахождение, иногда даже на уровне всей системы (Android).  </p>
+<p><strong>Отправка своего контакта с номером телефона</strong>. При нажатии на кнопку (с предварительным подтверждением) 
+пользователь отправляет свой контакт с номером телефона боту. Те же хитрые юзеры могут проигнорировать кнопку 
+и отправить любой контакт, но в этом случае на них можно найти управу: достаточно проверить в хэндлере или 
+в фильтре равенство <code>message.contact.user_id == message.from_user.id</code>.</p>
+<p><strong>Создание опроса/викторины</strong>. По нажатию на кнопку пользователю предлагается создать опрос или викторину, которые 
+потом отправятся в текущий чат. Необходимо передать 
+объект <a href="https://core.telegram.org/bots/api#keyboardbuttonpolltype">KeyboardButtonPollType</a>, 
+необязательный аргумент <code>type</code> служит для уточнения типа опроса (опрос или викторина).</p>
+<p><strong>Выбор и отправка боту данных пользователя с нужными критериями</strong>. Показывает окно выбора пользователя из списка чатов 
+юзера, нажавшего на кнопку. Необходимо передать объект 
+<a href="https://core.telegram.org/bots/api#keyboardbuttonrequestuser">KeyboardButtonRequestUser</a>, в котором надо указать 
+сгенерированный любым способом айди запроса и критерии, например, "бот", "есть подписка Telegram Premium" и т.д. 
+После выбора юзера бот получит сервисное сообщение с типом <a href="https://core.telegram.org/bots/api#usershared">UserShared</a>.</p>
+<p><strong>Выбор и отправка боту чата с нужными критериями</strong>. Показывает окно выбора пользователя из списка чатов 
+юзера, нажавшего на кнопку. Необходимо передать объект 
+<a href="https://core.telegram.org/bots/api#keyboardbuttonrequestchat">KeyboardButtonRequestChat</a>, в котором надо указать 
+сгенерированный любым способом айди запроса и критерии, например, "группа или канал", "юзер — создатель чата" и т.д.
+После выбора юзера бот получит сервисное сообщение с типом <a href="https://core.telegram.org/bots/api#chatshared">ChatShared</a>.</p>
+<p><strong>Запуск веб-приложения (WebApp)</strong>. При нажатии на кнопку открывает <a href="https://core.telegram.org/bots/webapps">WebApp</a>. 
+Необходимо передать объект <a href="https://core.telegram.org/bots/api#webappinfo">WebAppInfo</a>. 
+В этой книге веб-аппы пока рассматриваться не будут.</p>
+<p>Впрочем, проще один раз увидеть код:
+</p><div class="highlight"><pre><span></span><code><span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s2">"special_buttons"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_special_buttons</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
+    <span class="n">builder</span> <span class="o">=</span> <span class="n">ReplyKeyboardBuilder</span><span class="p">()</span>
+    <span class="c1"># метод row позволяет явным образом сформировать ряд</span>
+    <span class="c1"># из одной или нескольких кнопок. Например, первый ряд</span>
+    <span class="c1"># будет состоять из двух кнопок...</span>
+    <span class="n">builder</span><span class="o">.</span><span class="n">row</span><span class="p">(</span>
+        <span class="n">types</span><span class="o">.</span><span class="n">KeyboardButton</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">"Запросить геолокацию"</span><span class="p">,</span> <span class="n">request_location</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="n">types</span><span class="o">.</span><span class="n">KeyboardButton</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">"Запросить контакт"</span><span class="p">,</span> <span class="n">request_contact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="c1"># ... второй из одной ...</span>
+    <span class="n">builder</span><span class="o">.</span><span class="n">row</span><span class="p">(</span><span class="n">types</span><span class="o">.</span><span class="n">KeyboardButton</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"Создать викторину"</span><span class="p">,</span>
+        <span class="n">request_poll</span><span class="o">=</span><span class="n">types</span><span class="o">.</span><span class="n">KeyboardButtonPollType</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s2">"quiz"</span><span class="p">))</span>
+    <span class="p">)</span>
+    <span class="c1"># ... а третий снова из двух</span>
+    <span class="n">builder</span><span class="o">.</span><span class="n">row</span><span class="p">(</span>
+        <span class="n">types</span><span class="o">.</span><span class="n">KeyboardButton</span><span class="p">(</span>
+            <span class="n">text</span><span class="o">=</span><span class="s2">"Выбрать премиум пользователя"</span><span class="p">,</span>
+            <span class="n">request_user</span><span class="o">=</span><span class="n">types</span><span class="o">.</span><span class="n">KeyboardButtonRequestUser</span><span class="p">(</span>
+                <span class="n">request_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="n">user_is_premium</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+        <span class="p">),</span>
+        <span class="n">types</span><span class="o">.</span><span class="n">KeyboardButton</span><span class="p">(</span>
+            <span class="n">text</span><span class="o">=</span><span class="s2">"Выбрать супергруппу с форумами"</span><span class="p">,</span>
+            <span class="n">request_chat</span><span class="o">=</span><span class="n">types</span><span class="o">.</span><span class="n">KeyboardButtonRequestChat</span><span class="p">(</span>
+                <span class="n">request_id</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="n">chat_is_channel</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">chat_is_forum</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="c1"># WebApp-ов пока нет, сорри :(</span>
+
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="s2">"Выберите действие:"</span><span class="p">,</span>
+        <span class="n">reply_markup</span><span class="o">=</span><span class="n">builder</span><span class="o">.</span><span class="n">as_markup</span><span class="p">(</span><span class="n">resize_keyboard</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p><img alt="Специальные обычные кнопки" src="../images/buttons/special_buttons.png"></p>
+<p>Напоследок, две заготовки хэндлеров на приём нажатий от нижних двух кнопок:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># новый импорт</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram</span><span class="w"> </span><span class="kn">import</span> <span class="n">F</span>
+
+<span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">user_shared</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">on_user_shared</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"Request </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">user_shared</span><span class="o">.</span><span class="n">request_id</span><span class="si">}</span><span class="s2">. "</span>
+        <span class="sa">f</span><span class="s2">"User ID: </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">user_shared</span><span class="o">.</span><span class="n">user_id</span><span class="si">}</span><span class="s2">"</span>
+    <span class="p">)</span>
+
+
+<span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">chat_shared</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">on_user_shared</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"Request </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">chat_shared</span><span class="o">.</span><span class="n">request_id</span><span class="si">}</span><span class="s2">. "</span>
+        <span class="sa">f</span><span class="s2">"User ID: </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">chat_shared</span><span class="o">.</span><span class="n">chat_id</span><span class="si">}</span><span class="s2">"</span>
+    <span class="p">)</span>
+</code></pre></div>
+<h2 id="inline-buttons">Инлайн-кнопки<a class="headerlink" href="#inline-buttons" title="Permanent link">¶</a></h2>
+<h3 id="url-buttons">URL-кнопки<a class="headerlink" href="#url-buttons" title="Permanent link">¶</a></h3>
+<p>В отличие от обычных кнопок, инлайновые цепляются не к низу экрана, а к сообщению, с которым были отправлены. 
+В этой главе мы рассмотрим два типа таких кнопок: URL и Callback. Ещё один — Switch — будет рассмотрен 
+в главе про <a href="../inline-mode/">инлайн-режим</a>.</p>
+<div class="admonition info">
+<p>Login- и Pay-кнопки в книге рассматриваться не будут вообще. Если у кого-то есть желание помочь хотя бы 
+с рабочим кодом для авторизации или оплаты, пожалуйста, создайте Pull Request на 
+<a href="https://github.com/MasterGroosha/aiogram-3-guide">GitHub</a>. Спасибо!</p>
+</div>
+<p>Самые простые инлайн-кнопки относятся к типу URL, т.е. «ссылка». Поддерживаются только протоколы HTTP(S) и tg://</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># новый импорт</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.utils.keyboard</span><span class="w"> </span><span class="kn">import</span> <span class="n">InlineKeyboardBuilder</span>
+
+<span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s2">"inline_url"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_inline_url</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">Message</span><span class="p">,</span> <span class="n">bot</span><span class="p">:</span> <span class="n">Bot</span><span class="p">):</span>
+    <span class="n">builder</span> <span class="o">=</span> <span class="n">InlineKeyboardBuilder</span><span class="p">()</span>
+    <span class="n">builder</span><span class="o">.</span><span class="n">row</span><span class="p">(</span><span class="n">types</span><span class="o">.</span><span class="n">InlineKeyboardButton</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"GitHub"</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="s2">"https://github.com"</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">builder</span><span class="o">.</span><span class="n">row</span><span class="p">(</span><span class="n">types</span><span class="o">.</span><span class="n">InlineKeyboardButton</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"Оф. канал Telegram"</span><span class="p">,</span>
+        <span class="n">url</span><span class="o">=</span><span class="s2">"tg://resolve?domain=telegram"</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Чтобы иметь возможность показать ID-кнопку,</span>
+    <span class="c1"># У юзера должен быть False флаг has_private_forwards</span>
+    <span class="n">user_id</span> <span class="o">=</span> <span class="mi">1234567890</span>
+    <span class="n">chat_info</span> <span class="o">=</span> <span class="k">await</span> <span class="n">bot</span><span class="o">.</span><span class="n">get_chat</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">chat_info</span><span class="o">.</span><span class="n">has_private_forwards</span><span class="p">:</span>
+        <span class="n">builder</span><span class="o">.</span><span class="n">row</span><span class="p">(</span><span class="n">types</span><span class="o">.</span><span class="n">InlineKeyboardButton</span><span class="p">(</span>
+            <span class="n">text</span><span class="o">=</span><span class="s2">"Какой-то пользователь"</span><span class="p">,</span>
+            <span class="n">url</span><span class="o">=</span><span class="sa">f</span><span class="s2">"tg://user?id=</span><span class="si">{</span><span class="n">user_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="s1">'Выберите ссылку'</span><span class="p">,</span>
+        <span class="n">reply_markup</span><span class="o">=</span><span class="n">builder</span><span class="o">.</span><span class="n">as_markup</span><span class="p">(),</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>Отдельно остановимся на среднем блоке кода. Дело в том, что в марте 2019 года разработчики Telegram 
+<a href="https://telegram.org/blog/unsend-privacy-emoji#anonymous-forwarding">добавили возможность</a> отключать переход 
+к профилю пользователя у пересланного сообщения. При попытке создать URL-кнопку с ID юзера, у которого отключен 
+переход по форварду, бот получит ошибку <code>Bad Request: BUTTON_USER_PRIVACY_RESTRICTED</code>. Соответственно, прежде чем 
+показывать такую кнопку, необходимо выяснить состояние упомянутой настройки. Для этого можно вызвать метод 
+<a href="https://core.telegram.org/bots/api#getchat">getChat</a> и в ответе проверить состояние поля <code>has_private_forwards</code>. 
+Если оно равно <code>True</code>, значит, попытка добавить URL-ID кнопку приведёт к ошибке. </p>
+<h3 id="callback-buttons">Колбэки<a class="headerlink" href="#callback-buttons" title="Permanent link">¶</a></h3>
+<p>С URL-кнопками больше обсуждать, по сути, нечего, поэтому перейдём к гвоздю сегодняшней программы — Callback-кнопкам. 
+Это очень мощная штука, которую вы можете встретить практически везде. Кнопки-реакции у постов (лайки), меню у @BotFather 
+и т.д. Суть в чём: у колбэк-кнопок есть специальное значение (data), по которому ваше приложение опознаёт, что нажато и что надо сделать. 
+И выбор правильного data <strong>очень важен</strong>! Стоит также отметить, что, в отличие от обычных кнопок, нажатие на колбэк-кнопку 
+позволяет сделать практически что угодно, от заказа пиццы до запуска вычислений на кластере суперкомпьютеров.</p>
+<p>Напишем хэндлер, который по команде <code>/random</code> будет отправлять сообщение с колбэк-кнопкой:
+</p><div class="highlight"><pre><span></span><code><span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s2">"random"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_random</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
+    <span class="n">builder</span> <span class="o">=</span> <span class="n">InlineKeyboardBuilder</span><span class="p">()</span>
+    <span class="n">builder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">types</span><span class="o">.</span><span class="n">InlineKeyboardButton</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"Нажми меня"</span><span class="p">,</span>
+        <span class="n">callback_data</span><span class="o">=</span><span class="s2">"random_value"</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="s2">"Нажмите на кнопку, чтобы бот отправил число от 1 до 10"</span><span class="p">,</span>
+        <span class="n">reply_markup</span><span class="o">=</span><span class="n">builder</span><span class="o">.</span><span class="n">as_markup</span><span class="p">()</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>Но как же обработать нажатие? Если раньше мы использовали хэндлер на <code>message</code> для обработки входящих сообщений, то теперь 
+будем использовать хэндлер на <code>callback_query</code> для обработки колбэков. Ориентироваться будем на «значение» кнопки, т.е. на 
+её data:</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@dp</span><span class="o">.</span><span class="n">callback_query</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">data</span> <span class="o">==</span> <span class="s2">"random_value"</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">send_random_value</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">CallbackQuery</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">callback</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)))</span>
+</code></pre></div>
+<p><img alt="Реакция на нажатие колбэк-кнопки" src="../images/buttons/l03_5.png"></p>
+<p>Ой, а что это за часики? Оказывается, сервер Telegram ждёт от нас подтверждения о доставке колбэка, иначе в течение 30 
+секунд будет показывать специальную иконку. Чтобы скрыть часики, нужно вызвать метод <code>answer()</code> у колбэка (или использовать 
+метод API <code>answer_callback_query()</code>). В общем случае, в метод <code>answer()</code> можно ничего не передавать, но можно вызвать 
+специальное окошко (всплывающее сверху или поверх экрана):</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@dp</span><span class="o">.</span><span class="n">callback_query</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">data</span> <span class="o">==</span> <span class="s2">"random_value"</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">send_random_value</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">CallbackQuery</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">callback</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)))</span>
+    <span class="k">await</span> <span class="n">callback</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"Спасибо, что воспользовались ботом!"</span><span class="p">,</span>
+        <span class="n">show_alert</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="c1"># или просто await callback.answer()</span>
+</code></pre></div>
+<p><img alt="Всплывающее окно при нажатии на колбэк-кнопку" src="../images/buttons/l03_6.png"></p>
+<p>У читателя может возникнуть вопрос: в какой момент обработки отвечать на колбэк методом <code>answer()</code>? В общем случае, главное — просто не забыть сообщить Telegram о получении колбэк-запроса, но я рекомендую ставить 
+    вызов <code>answer()</code> в самом конце, и вот почему: если вдруг в процессе обработки колбэка случится какая-то ошибка и 
+    бот нарвётся на необработанное исключение, пользователь увидит неубирающиеся полминуты часики и поймёт, что что-то 
+    не так. В противном случае часики исчезнут, а пользователь останется в неведении, выполнился его запрос успешно или нет.</p>
+<div class="admonition info">
+<p class="admonition-title">Обратите внимание</p>
+<p>В функции <code>send_random_value</code> мы вызывали метод <code>answer()</code> не у <code>message</code>, а у <code>callback.message</code>. Это связано с тем, 
+что колбэк-хэндлеры работают не с сообщениями (тип <a href="https://core.telegram.org/bots/api#message">Message</a>), 
+а с колбэками (тип <a href="https://core.telegram.org/bots/api#callbackquery">CallbackQuery</a>), у которого другие поля, и 
+само сообщение — всего лишь его часть. Учтите также, что <code>message</code> — это сообщение, к которому была прицеплена 
+кнопка (т.е. отправитель такого сообщения — сам бот). Если хотите узнать, кто нажал на кнопку, смотрите 
+поле <code>from</code> (в вашем коде это будет <code>callback.from_user</code>, т.к. слово <code>from</code> зарезервировано в Python)</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Про объект <code>message</code> в колбэке</p>
+<p>Если сообщение отправлено из <a href="../inline-mode/">инлайн-режима</a>, то поле <code>message</code> у колбэка будет пустым. 
+У вас не будет возможности получить содержимое такого сообщения, если только заранее где-то его не сохранить.</p>
+</div>
+<p>Перейдём к примеру посложнее. Пусть пользователю предлагается сообщение с числом 0, а внизу три кнопки: +1, -1 и Подтвердить. 
+Первыми двумя он может редактировать число, а последняя удаляет всю клавиатуру, фиксируя изменения. Хранить значения будем 
+в памяти в словаре (про конечные автоматы поговорим как-нибудь <em>в другой раз</em>).</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Здесь хранятся пользовательские данные.</span>
+<span class="c1"># Т.к. это словарь в памяти, то при перезапуске он очистится</span>
+<span class="n">user_data</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_keyboard</span><span class="p">():</span>
+    <span class="n">buttons</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">[</span>
+            <span class="n">types</span><span class="o">.</span><span class="n">InlineKeyboardButton</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">"-1"</span><span class="p">,</span> <span class="n">callback_data</span><span class="o">=</span><span class="s2">"num_decr"</span><span class="p">),</span>
+            <span class="n">types</span><span class="o">.</span><span class="n">InlineKeyboardButton</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">"+1"</span><span class="p">,</span> <span class="n">callback_data</span><span class="o">=</span><span class="s2">"num_incr"</span><span class="p">)</span>
+        <span class="p">],</span>
+        <span class="p">[</span><span class="n">types</span><span class="o">.</span><span class="n">InlineKeyboardButton</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">"Подтвердить"</span><span class="p">,</span> <span class="n">callback_data</span><span class="o">=</span><span class="s2">"num_finish"</span><span class="p">)]</span>
+    <span class="p">]</span>
+    <span class="n">keyboard</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">InlineKeyboardMarkup</span><span class="p">(</span><span class="n">inline_keyboard</span><span class="o">=</span><span class="n">buttons</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">keyboard</span>
+
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">update_num_text</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">Message</span><span class="p">,</span> <span class="n">new_value</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">edit_text</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"Укажите число: </span><span class="si">{</span><span class="n">new_value</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+        <span class="n">reply_markup</span><span class="o">=</span><span class="n">get_keyboard</span><span class="p">()</span>
+    <span class="p">)</span>
+
+
+<span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s2">"numbers"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_numbers</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
+    <span class="n">user_data</span><span class="p">[</span><span class="n">message</span><span class="o">.</span><span class="n">from_user</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span><span class="s2">"Укажите число: 0"</span><span class="p">,</span> <span class="n">reply_markup</span><span class="o">=</span><span class="n">get_keyboard</span><span class="p">())</span>
+
+
+<span class="nd">@dp</span><span class="o">.</span><span class="n">callback_query</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"num_"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">callbacks_num</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">CallbackQuery</span><span class="p">):</span>
+    <span class="n">user_value</span> <span class="o">=</span> <span class="n">user_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">from_user</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">action</span> <span class="o">=</span> <span class="n">callback</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"_"</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">"incr"</span><span class="p">:</span>
+        <span class="n">user_data</span><span class="p">[</span><span class="n">callback</span><span class="o">.</span><span class="n">from_user</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_value</span><span class="o">+</span><span class="mi">1</span>
+        <span class="k">await</span> <span class="n">update_num_text</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> <span class="n">user_value</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">"decr"</span><span class="p">:</span>
+        <span class="n">user_data</span><span class="p">[</span><span class="n">callback</span><span class="o">.</span><span class="n">from_user</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_value</span><span class="o">-</span><span class="mi">1</span>
+        <span class="k">await</span> <span class="n">update_num_text</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> <span class="n">user_value</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">"finish"</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">callback</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">edit_text</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Итого: </span><span class="si">{</span><span class="n">user_value</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="k">await</span> <span class="n">callback</span><span class="o">.</span><span class="n">answer</span><span class="p">()</span>
+</code></pre></div>
+<p>И, казалось бы, всё работает: </p>
+<p><img alt="Всё работает?" src="../images/buttons/l03_7.png"></p>
+<p>Но теперь представим, что ушлый пользователь сделал следующее: вызвал команду <code>/numbers</code> (значение 0), увеличил значение 
+до 1, снова вызвал <code>/numbers</code> (значение сбросилось до 0) и отредактировал и нажал кнопку "+1" на первом сообщении. 
+Что произойдёт? Бот по-честному отправит запрос на редактирование текста со значением 1, но т.к. на том сообщении 
+уже стоит цифра 1, то Bot API вернёт ошибку, что старый и новый тексты совпадают, а бот словит исключение: 
+<code>Bad Request: message is not modified: specified new message content and reply markup are exactly the same 
+as a current content and reply markup of the message</code></p>
+<p><img alt="Ошибка BadRequest при определённых обстоятельствах" src="../images/buttons/l03_8.png"></p>
+<p>С этой ошибкой вы, скорее всего, будете поначалу часто сталкиваться, пытаясь редактировать сообщения. 
+Вообще говоря, подобная ошибка часто говорит о проблемах с логикой генерации/обновления данных в сообщении, но иногда, 
+как в примере выше, может быть ожидаемым поведением. </p>
+<p>В данном случае проигнорируем ошибку целиком, т.к. нам важен 
+лишь итоговый результат, который точно будет правильным. Ошибка <strong>MessageNotModified</strong> относится к категории Bad Request, 
+поэтому у нас есть выбор: проигнорировать весь подобный класс ошибок, либо отловить весь класс BadRequest 
+и попытаться по тексту ошибки опознать конкретную причину. 
+Чтобы не слишком усложнять пример, обойдёмся первым способом и немного обновим функцию <code>update_num_text()</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Новые импорты!</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">suppress</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TelegramBadRequest</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">update_num_text</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">Message</span><span class="p">,</span> <span class="n">new_value</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="n">TelegramBadRequest</span><span class="p">):</span>
+        <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">edit_text</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"Укажите число: </span><span class="si">{</span><span class="n">new_value</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+            <span class="n">reply_markup</span><span class="o">=</span><span class="n">get_keyboard</span><span class="p">()</span>
+        <span class="p">)</span>
+</code></pre></div>
+<p>Если теперь вы попробуете повторить пример выше, то указанное исключение в этом блоке кода бот просто-напросто проигнорирует.</p>
+<h3 id="callback-factory">Фабрика колбэков<a class="headerlink" href="#callback-factory" title="Permanent link">¶</a></h3>
+<p>Когда вы оперируете какими-то простыми колбэками с общим префиксом, типа <code>order_1</code>, <code>order_2</code>... вам может показаться, 
+что довольно легко вызывать <code>split()</code> и делить строку по какому-то разделителю. А теперь представьте, что вам нужно 
+хранить не одно значение, а три: <code>order_1_1994_2731519</code>. Что здесь артикул, цена, количество? А может быть, тут вообще 
+год выпуска? Да и разбиение строки начинает выглядеть страшно: <code>.split("_")[2]</code>. А почему не 1 или 3? </p>
+<p>В какой-то момент возникает необходимость структурировать содержимое таких callback data, и в aiogram есть решение! 
+Вы создаёте объекты типа <code>CallbackData</code>, указываете префикс, описываете структуру, а дальше фреймворк самостоятельно собирает 
+строку с данными колбэка и, что важнее, корректно разбирает входящее значение. Снова разберёмся на конкретном примере; 
+создадим класс <code>NumbersCallbackFactory</code> с префиксом <code>fabnum</code> и двумя полями <code>action</code> и <code>value</code>. Поле <code>action</code> определяет, 
+что делать, менять значение (change) или зафиксировать (finish), а поле <code>value</code> показывает, на сколько изменять 
+значение. По умолчанию оно будет None, т.к. для действия "finish" дельта изменения не требуется. Код:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># новые импорты!</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.filters.callback_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">CallbackData</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">NumbersCallbackFactory</span><span class="p">(</span><span class="n">CallbackData</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">"fabnum"</span><span class="p">):</span>
+    <span class="n">action</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">value</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div>
+<p>Наш класс обязательно должен наследоваться от <code>CallbackData</code> и принимать значение префикса. Префикс — это 
+общая подстрока в начале, по которой фреймворк будет определять, какая структура лежит в колбэке. </p>
+<p>Теперь напишем функцию генерации клавиатуры. Здесь нам пригодится метод <code>button()</code>, который автоматически 
+будет создавать кнопку с нужным типом, а от нас требуется только передать аргументы. 
+В качестве аргумента <code>callback_data</code> вместо строки будем указывать 
+экземпляр нашего класса <code>NumbersCallbackFactory</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_keyboard_fab</span><span class="p">():</span>
+    <span class="n">builder</span> <span class="o">=</span> <span class="n">InlineKeyboardBuilder</span><span class="p">()</span>
+    <span class="n">builder</span><span class="o">.</span><span class="n">button</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"-2"</span><span class="p">,</span> <span class="n">callback_data</span><span class="o">=</span><span class="n">NumbersCallbackFactory</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="s2">"change"</span><span class="p">,</span> <span class="n">value</span><span class="o">=-</span><span class="mi">2</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">builder</span><span class="o">.</span><span class="n">button</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"-1"</span><span class="p">,</span> <span class="n">callback_data</span><span class="o">=</span><span class="n">NumbersCallbackFactory</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="s2">"change"</span><span class="p">,</span> <span class="n">value</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">builder</span><span class="o">.</span><span class="n">button</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"+1"</span><span class="p">,</span> <span class="n">callback_data</span><span class="o">=</span><span class="n">NumbersCallbackFactory</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="s2">"change"</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">builder</span><span class="o">.</span><span class="n">button</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"+2"</span><span class="p">,</span> <span class="n">callback_data</span><span class="o">=</span><span class="n">NumbersCallbackFactory</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="s2">"change"</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">builder</span><span class="o">.</span><span class="n">button</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"Подтвердить"</span><span class="p">,</span> <span class="n">callback_data</span><span class="o">=</span><span class="n">NumbersCallbackFactory</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="s2">"finish"</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="c1"># Выравниваем кнопки по 4 в ряд, чтобы получилось 4 + 1</span>
+    <span class="n">builder</span><span class="o">.</span><span class="n">adjust</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">builder</span><span class="o">.</span><span class="n">as_markup</span><span class="p">()</span>
+</code></pre></div>
+<p>Методы отправки сообщения и его редактирования оставляем теми же (в названиях и командах добавим суффикс <code>_fab</code>):</p>
+<div class="highlight"><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">update_num_text_fab</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">Message</span><span class="p">,</span> <span class="n">new_value</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="n">TelegramBadRequest</span><span class="p">):</span>
+        <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">edit_text</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"Укажите число: </span><span class="si">{</span><span class="n">new_value</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+            <span class="n">reply_markup</span><span class="o">=</span><span class="n">get_keyboard_fab</span><span class="p">()</span>
+        <span class="p">)</span>
+
+<span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s2">"numbers_fab"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_numbers_fab</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
+    <span class="n">user_data</span><span class="p">[</span><span class="n">message</span><span class="o">.</span><span class="n">from_user</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span><span class="s2">"Укажите число: 0"</span><span class="p">,</span> <span class="n">reply_markup</span><span class="o">=</span><span class="n">get_keyboard_fab</span><span class="p">())</span>
+</code></pre></div>
+<p>Наконец, переходим к главному — обработке колбэков. Для этого в декоратор надо передать класс, колбэки с которым 
+мы ловим, с вызванным методом <code>filter()</code>. Также появляется дополнительный аргумент с названием <code>callback_data</code> 
+(имя должно быть именно таким!), и имеющим тот же тип, что и фильтруемый класс:</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@dp</span><span class="o">.</span><span class="n">callback_query</span><span class="p">(</span><span class="n">NumbersCallbackFactory</span><span class="o">.</span><span class="n">filter</span><span class="p">())</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">callbacks_num_change_fab</span><span class="p">(</span>
+        <span class="n">callback</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">CallbackQuery</span><span class="p">,</span> 
+        <span class="n">callback_data</span><span class="p">:</span> <span class="n">NumbersCallbackFactory</span>
+<span class="p">):</span>
+    <span class="c1"># Текущее значение</span>
+    <span class="n">user_value</span> <span class="o">=</span> <span class="n">user_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">from_user</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># Если число нужно изменить</span>
+    <span class="k">if</span> <span class="n">callback_data</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s2">"change"</span><span class="p">:</span>
+        <span class="n">user_data</span><span class="p">[</span><span class="n">callback</span><span class="o">.</span><span class="n">from_user</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_value</span> <span class="o">+</span> <span class="n">callback_data</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">await</span> <span class="n">update_num_text_fab</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> <span class="n">user_value</span> <span class="o">+</span> <span class="n">callback_data</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+    <span class="c1"># Если число нужно зафиксировать</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">callback</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">edit_text</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Итого: </span><span class="si">{</span><span class="n">user_value</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">callback</span><span class="o">.</span><span class="n">answer</span><span class="p">()</span>
+</code></pre></div>
+<p>Ещё немного конкретизируем наши хэндлеры и сделаем отдельный обработчик 
+для числовых кнопок и для кнопки «Подтвердить». Фильтровать будем по значению <code>action</code> и в этом нам помогут 
+«магические фильтры» aiogram 3.x. Серьёзно, они так и называются: Magic Filter. Подробнее сие чародейство рассмотрим 
+в другой главе, а сейчас просто воспользуемся «магией» и примем это на веру:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># новый импорт!</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">magic_filter</span><span class="w"> </span><span class="kn">import</span> <span class="n">F</span>
+
+<span class="c1"># Нажатие на одну из кнопок: -2, -1, +1, +2</span>
+<span class="nd">@dp</span><span class="o">.</span><span class="n">callback_query</span><span class="p">(</span><span class="n">NumbersCallbackFactory</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s2">"change"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">callbacks_num_change_fab</span><span class="p">(</span>
+        <span class="n">callback</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">CallbackQuery</span><span class="p">,</span> 
+        <span class="n">callback_data</span><span class="p">:</span> <span class="n">NumbersCallbackFactory</span>
+<span class="p">):</span>
+    <span class="c1"># Текущее значение</span>
+    <span class="n">user_value</span> <span class="o">=</span> <span class="n">user_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">from_user</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">user_data</span><span class="p">[</span><span class="n">callback</span><span class="o">.</span><span class="n">from_user</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_value</span> <span class="o">+</span> <span class="n">callback_data</span><span class="o">.</span><span class="n">value</span>
+    <span class="k">await</span> <span class="n">update_num_text_fab</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> <span class="n">user_value</span> <span class="o">+</span> <span class="n">callback_data</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">callback</span><span class="o">.</span><span class="n">answer</span><span class="p">()</span>
+
+
+<span class="c1"># Нажатие на кнопку "подтвердить"</span>
+<span class="nd">@dp</span><span class="o">.</span><span class="n">callback_query</span><span class="p">(</span><span class="n">NumbersCallbackFactory</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s2">"finish"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">callbacks_num_finish_fab</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">CallbackQuery</span><span class="p">):</span>
+    <span class="c1"># Текущее значение</span>
+    <span class="n">user_value</span> <span class="o">=</span> <span class="n">user_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">from_user</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">await</span> <span class="n">callback</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">edit_text</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Итого: </span><span class="si">{</span><span class="n">user_value</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">callback</span><span class="o">.</span><span class="n">answer</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="Фабрика колбэков" src="../images/buttons/callback_factory.png"></p>
+<p>На первый взгляд то, что мы сделали, может показаться сложным, но в действительности фабрика колбэков позволяет 
+создавать продвинутые колбэк-кнопки и удобно дробить код на логические сущности. Увидеть применение фабрики 
+на практике вы можете в <a href="https://github.com/MasterGroosha/telegram-bombsweeper-bot">боте для игры в «Сапёра»</a>, 
+написанным вашим любимым автором :)</p>
+<h3 id="callback-autoreply">Автоответ на колбэки<a class="headerlink" href="#callback-autoreply" title="Permanent link">¶</a></h3>
+<p>Если у вас очень много колбэк-хэндлеров, на которые нужно либо просто отвечать, либо отвечать однотипно, можно 
+немного упростить себе жизнь, воспользовавшись специальной мидлварью. В целом про такое мы поговорим 
+<a href="../filters-and-middlewares/#middlewares">отдельно</a>, а сейчас просто познакомимся.</p>
+<p>Итак, самый простой вариант — это добавить вот такую строчку после создания диспетчера:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># не забываем про новый импорт</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.utils.callback_answer</span><span class="w"> </span><span class="kn">import</span> <span class="n">CallbackAnswerMiddleware</span>
+
+<span class="n">dp</span> <span class="o">=</span> <span class="n">Dispatcher</span><span class="p">()</span>
+<span class="n">dp</span><span class="o">.</span><span class="n">callback_query</span><span class="o">.</span><span class="n">middleware</span><span class="p">(</span><span class="n">CallbackAnswerMiddleware</span><span class="p">())</span>
+</code></pre></div>
+<p>В этом случае после выполнения хэндлера aiogram будет автоматически отвечать на колбэк. 
+Можно переопределить 
+<a href="https://github.com/aiogram/aiogram/blob/5adaf7a567e976da64e418eee5df31682ad2496c/aiogram/utils/callback_answer.py#L133-L137">стандартные настройки</a> 
+и указать свои, например: </p>
+<div class="highlight"><pre><span></span><code><span class="n">dp</span><span class="o">.</span><span class="n">callback_query</span><span class="o">.</span><span class="n">middleware</span><span class="p">(</span>
+    <span class="n">CallbackAnswerMiddleware</span><span class="p">(</span>
+        <span class="n">pre</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">"Готово!"</span><span class="p">,</span> <span class="n">show_alert</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Увы, ситуации, когда на все колбэк-хэндлеры одинаковый ответ, довольно редки. К счастью, переопределить 
+поведение мидлвари в конкретном обработчике довольно просто: достаточно пробросить аргумент <code>callback_answer</code> 
+и выставить ему новые значения:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># новый импорт!</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.utils.callback_answer</span><span class="w"> </span><span class="kn">import</span> <span class="n">CallbackAnswer</span>
+
+<span class="nd">@dp</span><span class="o">.</span><span class="n">callback_query</span><span class="p">()</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">my_handler</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">CallbackQuery</span><span class="p">,</span> <span class="n">callback_answer</span><span class="p">:</span> <span class="n">CallbackAnswer</span><span class="p">):</span>
+    <span class="o">...</span> <span class="c1"># тут какой-то код</span>
+    <span class="k">if</span> <span class="o">&lt;</span><span class="n">everything</span> <span class="ow">is</span> <span class="n">ok</span><span class="o">&gt;</span><span class="p">:</span>
+        <span class="n">callback_answer</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">"Отлично!"</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">callback_answer</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">"Что-то пошло не так. Попробуйте позже"</span>
+        <span class="n">callback_answer</span><span class="o">.</span><span class="n">cache_time</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="o">...</span> <span class="c1"># тут какой-то код</span>
+</code></pre></div>
+<p><strong>Важно</strong>: этот способ не будет работать, если у мидлвари выставлен флаг <code>pre=True</code>. В этом случае надо полностью 
+переопределять набор параметров мидлвари через флаги, с которыми мы подробнее познакомимся 
+<a href="../filters-and-middlewares/#flags">позже</a>:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">aiogram</span><span class="w"> </span><span class="kn">import</span> <span class="n">flags</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.utils.callback_answer</span><span class="w"> </span><span class="kn">import</span> <span class="n">CallbackAnswer</span>
+
+<span class="nd">@dp</span><span class="o">.</span><span class="n">callback_query</span><span class="p">()</span>
+<span class="nd">@flags</span><span class="o">.</span><span class="n">callback_answer</span><span class="p">(</span><span class="n">pre</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># переопределяем флаг pre</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">my_handler</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">CallbackQuery</span><span class="p">,</span> <span class="n">callback_answer</span><span class="p">:</span> <span class="n">CallbackAnswer</span><span class="p">):</span>
+    <span class="o">...</span> <span class="c1"># тут какой-то код</span>
+    <span class="k">if</span> <span class="o">&lt;</span><span class="n">everything</span> <span class="ow">is</span> <span class="n">ok</span><span class="o">&gt;</span><span class="p">:</span>
+        <span class="n">callback_answer</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">"Теперь этот текст будет видно!"</span>
+    <span class="o">...</span> <span class="c1"># тут какой-то код</span>
+</code></pre></div>
+<p>На этом мы пока завершим знакомство с кнопками.</p></div>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2020-2026 Groosha
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://t.me/+DE0_2nCvbXozZjUy" target="_blank" rel="noopener" title="Чат в Telegram" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M256 8a248 248 0 1 0 0 496 248 248 0 1 0 0-496m115 168.7c-3.7 39.2-19.9 134.4-28.1 178.3-3.5 18.6-10.3 24.8-16.9 25.4-14.4 1.3-25.3-9.5-39.3-18.7-21.8-14.3-34.2-23.2-55.3-37.2-24.5-16.1-8.6-25 5.3-39.5 3.7-3.8 67.1-61.5 68.3-66.7.2-.7.3-3.1-1.2-4.4s-3.6-.8-5.1-.5c-2.2.5-37.1 23.5-104.6 69.1-9.9 6.8-18.9 10.1-26.9 9.9-8.9-.2-25.9-5-38.6-9.1-15.5-5-27.9-7.7-26.8-16.3.6-4.5 6.7-9 18.4-13.7 72.3-31.5 120.5-52.3 144.6-62.3 68.9-28.6 83.2-33.6 92.5-33.8 2.1 0 6.6.5 9.6 2.9 2 1.7 3.2 4.1 3.5 6.7.5 3.2.6 6.5.4 9.8z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://github.com/MasterGroosha/aiogram-3-guide" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u0421\u043a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u043d\u043e \u0432 \u0431\u0443\u0444\u0435\u0440", "clipboard.copy": "\u041a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u0442\u044c \u0432 \u0431\u0443\u0444\u0435\u0440", "search.result.more.one": "\u0415\u0449\u0451 1 \u043d\u0430 \u044d\u0442\u043e\u0439 \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0435", "search.result.more.other": "\u0415\u0449\u0451 # \u043d\u0430 \u044d\u0442\u043e\u0439 \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0435", "search.result.none": "\u0421\u043e\u0432\u043f\u0430\u0434\u0435\u043d\u0438\u0439 \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u043e", "search.result.one": "\u041d\u0430\u0439\u0434\u0435\u043d\u043e 1 \u0441\u043e\u0432\u043f\u0430\u0434\u0435\u043d\u0438\u0435", "search.result.other": "\u041d\u0430\u0439\u0434\u0435\u043d\u043e \u0441\u043e\u0432\u043f\u0430\u0434\u0435\u043d\u0438\u0439: #", "search.result.placeholder": "\u041d\u0430\u0447\u043d\u0438\u0442\u0435 \u043f\u0435\u0447\u0430\u0442\u0430\u0442\u044c \u0434\u043b\u044f \u043f\u043e\u0438\u0441\u043a\u0430", "search.result.term.missing": "\u041e\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0443\u0435\u0442", "select.version": "\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u0432\u0435\u0440\u0441\u0438\u044e"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

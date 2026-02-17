@@ -1,0 +1,1824 @@
+
+<!doctype html>
+<html lang="ru" class="no-js">
+  <head>
+    
+  <script src="https://telegram.org/js/telegram-web-app.js?35"></script>
+    <script type="text/javascript">
+      const webapp = window.Telegram.WebApp;
+      webapp.disableVerticalSwipes()
+      webapp.ready();
+      webapp.expand();
+      const initData = webapp.initDataUnsafe;
+      if (window.location.pathname === "/aiogram-3-guide/" && Object.hasOwn(initData, 'auth_date')) {
+        if (initData.start_param) {
+          let additionalParam = '';
+          switch (initData.start_param) {
+            case 'quickstart':
+            case 'messages':
+            case 'buttons':
+            case 'routers':
+            case 'special-updates':
+            case 'fsm':
+            case 'inline-mode':
+              additionalParam = initData.start_param;
+              break;
+            case 'filters':
+              additionalParam = 'filters-and-middlewares/#filters';
+              break
+            case 'middlewares':
+              additionalParam = 'filters-and-middlewares/#middlewares';
+              break
+            case 'magic-filter':
+            case 'magic':
+              additionalParam = 'filters-and-middlewares/#magic-filters';
+              break
+            case 'entities':
+              additionalParam = 'messages/#message-entities';
+              break;
+            case 'escaping':
+              additionalParam = 'messages/#input-escaping';
+              break;
+            case 'keep-formatting':
+              additionalParam = 'messages/#keep-formatting';
+              break
+            case 'send-files':
+            case 'upload':
+              additionalParam = 'messages/#uploading-media';
+              break;
+            case 'download-files':
+            case 'download':
+              additionalParam = 'messages/#downloading-media';
+              break;
+            case 'hide-image':
+              additionalParam = 'messages/#bonus';
+              break
+            case 'callback-factory':
+              additionalParam = 'buttons/#callback-factory';
+              break
+            case 'my-chat-member':
+              additionalParam = 'special-updates/#my-chat-member';
+              break
+            case 'chat-member':
+              additionalParam = 'special-updates/#chat-member';
+              break
+            default:
+              additionalParam = '/';
+          }
+          window.location.href = (`${window.location.origin}${window.location.pathname}${additionalParam}`);
+        }
+      }
+  </script>
+
+  
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Работа с сообщениями">
+      
+      
+        <meta name="author" content="MasterGroosha">
+      
+      
+        <link rel="canonical" href="https://mastergroosha.github.io/aiogram-3-guide/messages/">
+      
+      
+        <link rel="prev" href="../quickstart/">
+      
+      
+        <link rel="next" href="../buttons/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+
+    
+      
+        <title>Работа с сообщениями - Пишем Telegram-ботов с aiogram 3.x</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+  
+    
+  
+
+  
+  
+    
+  
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Пишем Telegram-ботов с aiogram 3.x" />
+  <meta property="og:description" content="Работа с сообщениями" />
+  <meta property="og:url" content="https://mastergroosha.github.io/aiogram-3-guide/messages/" />
+  <meta property="og:image" content="https://mastergroosha.github.io/aiogram-3-guide/images/social.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="512" />
+  <meta property="og:image:height" content="512" />
+
+  <!-- Twitter Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://mastergroosha.github.io/aiogram-3-guide/messages/">
+  <meta name="twitter:title" content="Пишем Telegram-ботов с aiogram 3.x">
+  <meta name="twitter:description" content="Работа с сообщениями">
+  <meta name="twitter:image" content="https://mastergroosha.github.io/aiogram-3-guide/images/social.png">
+
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          Перейти к содержанию
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Верхний колонтитул">
+    <a href=".." title="Пишем Telegram-ботов с aiogram 3.x" class="md-header__button md-logo" aria-label="Пишем Telegram-ботов с aiogram 3.x" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2M7.5 13A2.5 2.5 0 0 0 5 15.5 2.5 2.5 0 0 0 7.5 18a2.5 2.5 0 0 0 2.5-2.5A2.5 2.5 0 0 0 7.5 13m9 0a2.5 2.5 0 0 0-2.5 2.5 2.5 2.5 0 0 0 2.5 2.5 2.5 2.5 0 0 0 2.5-2.5 2.5 2.5 0 0 0-2.5-2.5"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Пишем Telegram-ботов с aiogram 3.x
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Работа с сообщениями
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Поиск" placeholder="Поиск" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Поиск">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Очистить" aria-label="Очистить" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Инициализация поиска
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/MasterGroosha/aiogram-3-guide" title="Перейти к репозиторию" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    MasterGroosha/aiogram-3-guide
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<!-- Determine classes -->
+
+
+
+
+<!-- Navigation -->
+<nav
+  class="md-nav md-nav--primary"
+  aria-label="Навигация"
+  data-md-level="0"
+>
+
+  <!-- Site title -->
+  <label class="md-nav__title" for="__drawer">
+    <a
+      href=".."
+      title="Пишем Telegram-ботов с aiogram 3.x"
+      class="md-nav__button md-logo"
+      aria-label="Пишем Telegram-ботов с aiogram 3.x"
+      data-md-component="logo"
+    >
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2M7.5 13A2.5 2.5 0 0 0 5 15.5 2.5 2.5 0 0 0 7.5 18a2.5 2.5 0 0 0 2.5-2.5A2.5 2.5 0 0 0 7.5 13m9 0a2.5 2.5 0 0 0-2.5 2.5 2.5 2.5 0 0 0 2.5 2.5 2.5 2.5 0 0 0 2.5-2.5 2.5 2.5 0 0 0-2.5-2.5"/></svg>
+
+    </a>
+    Оглавление
+  </label>
+
+  <!-- Repository information -->
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/MasterGroosha/aiogram-3-guide" title="Перейти к репозиторию" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    MasterGroosha/aiogram-3-guide
+  </div>
+</a>
+    </div>
+  
+
+  <!-- Navigation list -->
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Введение
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Знакомство с aiogram
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Работа с сообщениями
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Работа с сообщениями
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Содержание">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Содержание
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#text" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Текст
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Текст">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#formatting-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Форматированный вывод
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#input-escaping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Экранирование ввода
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#keep-formatting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Сохранение форматирования
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#message-entities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Работа с entities
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#commands-args" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Команды и их аргументы
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deeplinks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Диплинки
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#link-previews" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Предпросмотр ссылок
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#media" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Медиафайлы
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Медиафайлы">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#uploading-media" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Отправка файлов
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#downloading-media" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Скачивание файлов
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#albums" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Альбомы
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#service" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Сервисные (служебные) сообщения
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bonus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Бонус: прячем ссылку в тексте
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../buttons/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Кнопки
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../routers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Роутеры. Структура
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../filters-and-middlewares/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Фильтры и мидлвари
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../special-updates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Особые апдейты
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fsm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Конечные автоматы
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../inline-mode/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Инлайн-режим
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../payments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Платежи
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+  
+  
+    <li class="md-nav__item">
+      <a href="../blog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Дополнительные материалы
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced-teaser/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    🔒 Продвинутый уровень
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Содержание">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Содержание
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#text" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Текст
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Текст">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#formatting-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Форматированный вывод
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#input-escaping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Экранирование ввода
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#keep-formatting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Сохранение форматирования
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#message-entities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Работа с entities
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#commands-args" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Команды и их аргументы
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deeplinks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Диплинки
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#link-previews" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Предпросмотр ссылок
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#media" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Медиафайлы
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Медиафайлы">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#uploading-media" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Отправка файлов
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#downloading-media" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Скачивание файлов
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#albums" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Альбомы
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#service" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Сервисные (служебные) сообщения
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bonus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Бонус: прячем ссылку в тексте
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<div><h1 id="_1">Работа с сообщениями<a class="headerlink" href="#_1" title="Permanent link">¶</a></h1>
+<div class="admonition info">
+<p>Используемая версия aiogram: 3.7.0</p>
+</div>
+<p>В этой главе мы разберёмся, как применять различные типы форматирования к сообщениям и работать с медиафайлами.</p>
+<h2 id="text">Текст<a class="headerlink" href="#text" title="Permanent link">¶</a></h2>
+<p>Обработка текстовых сообщений — это, пожалуй, одно из важнейших действий у большинства ботов. Текстом можно выразить 
+практически что угодно и при этом подавать информацию хочется <em>красиво</em>. В распоряжении у разработчика имеется три способа 
+разметки текста: HTML, Markdown и MarkdownV2. Наиболее продвинутыми из них считаются HTML и MarkdownV2, «классический» 
+Markdown поддерживает меньше возможностей и более не используется в aiogram.</p>
+<p>Прежде, чем мы рассмотрим способы работы с текстом в aiogram, необходимо упомянуть 
+важное отличие aiogram 3.x от 2.x: в «двойке» по умолчанию обрабатывались только 
+текстовые сообщения, а в «тройке» — любого типа. Если точнее, вот как теперь надо 
+принимать исключительно текстовые сообщения:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># было (декоратором)</span>
+<span class="nd">@dp</span><span class="o">.</span><span class="n">message_handler</span><span class="p">()</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">func_name</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+
+<span class="c1"># было (функцией-регистратором)</span>
+<span class="n">dp</span><span class="o">.</span><span class="n">register_message_handler</span><span class="p">(</span><span class="n">func_name</span><span class="p">)</span>
+
+<span class="c1"># стало (декоратором)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram</span><span class="w"> </span><span class="kn">import</span> <span class="n">F</span>
+<span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">func_name</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+
+<span class="c1"># стало (функцией-регистратором)</span>
+<span class="n">dp</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">func_name</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+</code></pre></div>
+<p>Про «магический фильтр» <strong>F</strong> мы поговорим в <a href="../filters-and-middlewares/">другой главе</a>.</p>
+<h3 id="formatting-options">Форматированный вывод<a class="headerlink" href="#formatting-options" title="Permanent link">¶</a></h3>
+<p>За выбор форматирования при отправке сообщений отвечает аргумент <code>parse_mode</code>, например:
+</p><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">aiogram</span><span class="w"> </span><span class="kn">import</span> <span class="n">F</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Message</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParseMode</span>
+
+<span class="c1"># Если не указать фильтр F.text, </span>
+<span class="c1"># то хэндлер сработает даже на картинку с подписью /test</span>
+<span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">Command</span><span class="p">(</span><span class="s2">"test"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">any_message</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="s2">"Hello, &lt;b&gt;world&lt;/b&gt;!"</span><span class="p">,</span> 
+        <span class="n">parse_mode</span><span class="o">=</span><span class="n">ParseMode</span><span class="o">.</span><span class="n">HTML</span>
+    <span class="p">)</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="s2">"Hello, *world*\!"</span><span class="p">,</span> 
+        <span class="n">parse_mode</span><span class="o">=</span><span class="n">ParseMode</span><span class="o">.</span><span class="n">MARKDOWN_V2</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p><img alt="Hello world с разным форматированием" src="../images/messages/l02_1.png"></p>
+<p>Если в боте повсеместно используется определённое форматирование, то каждый раз указывать аргумент <code>parse_mode</code> довольно 
+накладно. К счастью, в aiogram можно задать параметры бота по умолчанию. Для этого создайте объект <code>DefaultBotProperties</code> 
+и передайте туда нужные настройки:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.client.default</span><span class="w"> </span><span class="kn">import</span> <span class="n">DefaultBotProperties</span>
+
+<span class="n">bot</span> <span class="o">=</span> <span class="n">Bot</span><span class="p">(</span>
+    <span class="n">token</span><span class="o">=</span><span class="s2">"123:abcxyz"</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="n">DefaultBotProperties</span><span class="p">(</span>
+        <span class="n">parse_mode</span><span class="o">=</span><span class="n">ParseMode</span><span class="o">.</span><span class="n">HTML</span>
+        <span class="c1"># тут ещё много других интересных настроек</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1"># где-то в функции...</span>
+<span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span><span class="s2">"Сообщение с &lt;u&gt;HTML-разметкой&lt;/u&gt;"</span><span class="p">)</span>
+<span class="c1"># чтобы явно отключить форматирование в конкретном запросе, </span>
+<span class="c1"># передайте parse_mode=None</span>
+<span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+    <span class="s2">"Сообщение без &lt;s&gt;какой-либо разметки&lt;/s&gt;"</span><span class="p">,</span> 
+    <span class="n">parse_mode</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+<p><img alt="Настройка типа разметки по умолчанию" src="../images/messages/l02_2.png"></p>
+<h3 id="input-escaping">Экранирование ввода<a class="headerlink" href="#input-escaping" title="Permanent link">¶</a></h3>
+<p>Нередко бывают ситуации, когда окончательный текст сообщения бота заранее неизвестен 
+и формируется исходя из каких-то внешних данных: имя пользователя, его ввод и т.д. 
+Напишем хэндлер на команду <code>/hello</code>, который будет приветствовать пользователя по его полному имени
+(<code>first_name + last_name</code>), например: «Hello, Иван Иванов»:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
+
+<span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s2">"hello"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_hello</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"Hello, &lt;b&gt;</span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">from_user</span><span class="o">.</span><span class="n">full_name</span><span class="si">}</span><span class="s2">&lt;/b&gt;"</span><span class="p">,</span>
+        <span class="n">parse_mode</span><span class="o">=</span><span class="n">ParseMode</span><span class="o">.</span><span class="n">HTML</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>И вроде всё хорошо, бот приветствует пользователей:</p>
+<p><img alt="Работа команды /hello" src="../images/messages/cmd_hello_before.png"></p>
+<p>Но тут приходит юзер с именем &lt;Cлавик777&gt; и бот молчит! А в логах видно следующее:
+<code>aiogram.exceptions.TelegramBadRequest: Telegram server says - Bad Request: can't parse entities: 
+Unsupported start tag "Славик777" at byte offset 7</code></p>
+<p>Упс, у нас стоит режим форматирования HTML, и Telegram пытается распарсить &lt;Cлавик777&gt; как HTML-тег. Непорядок. 
+Но у этой проблемы есть несколько решений. Первое: экранировать передаваемые значения.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">aiogram</span><span class="w"> </span><span class="kn">import</span> <span class="n">html</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
+
+<span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s2">"hello"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_hello</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"Hello, </span><span class="si">{</span><span class="n">html</span><span class="o">.</span><span class="n">bold</span><span class="p">(</span><span class="n">html</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">from_user</span><span class="o">.</span><span class="n">full_name</span><span class="p">))</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+        <span class="n">parse_mode</span><span class="o">=</span><span class="n">ParseMode</span><span class="o">.</span><span class="n">HTML</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>Второе чуть сложнее, но более продвинутое: воспользоваться специальным инструментом, который будет 
+собирать отдельно текст и отдельно информацию о том, какие его куски должны быть отформатированы.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.utils.formatting</span><span class="w"> </span><span class="kn">import</span> <span class="n">Text</span><span class="p">,</span> <span class="n">Bold</span>
+
+<span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s2">"hello"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_hello</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span>
+        <span class="s2">"Hello, "</span><span class="p">,</span>
+        <span class="n">Bold</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">from_user</span><span class="o">.</span><span class="n">full_name</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="o">**</span><span class="n">content</span><span class="o">.</span><span class="n">as_kwargs</span><span class="p">()</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>В примере выше конструкция <code>**content.as_kwargs()</code> вернёт аргументы <code>text</code>, <code>entities</code>, <code>parse_mode</code> и 
+подставит их в вызов <code>answer()</code>.</p>
+<p><img alt="Работа команды /hello после фиксов" src="../images/messages/cmd_hello_after.png"></p>
+<p>Упомянутый инструмент форматирования довольно комплексный, 
+<a href="https://docs.aiogram.dev/en/latest/utils/formatting.html">официальная документация</a> демонстрирует удобное отображение 
+сложных конструкций, например:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.utils.formatting</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Bold</span><span class="p">,</span> <span class="n">as_list</span><span class="p">,</span> <span class="n">as_marked_section</span><span class="p">,</span> <span class="n">as_key_value</span><span class="p">,</span> <span class="n">HashTag</span>
+<span class="p">)</span>
+
+<span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s2">"advanced_example"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_advanced_example</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">as_list</span><span class="p">(</span>
+        <span class="n">as_marked_section</span><span class="p">(</span>
+            <span class="n">Bold</span><span class="p">(</span><span class="s2">"Success:"</span><span class="p">),</span>
+            <span class="s2">"Test 1"</span><span class="p">,</span>
+            <span class="s2">"Test 3"</span><span class="p">,</span>
+            <span class="s2">"Test 4"</span><span class="p">,</span>
+            <span class="n">marker</span><span class="o">=</span><span class="s2">"✅ "</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">as_marked_section</span><span class="p">(</span>
+            <span class="n">Bold</span><span class="p">(</span><span class="s2">"Failed:"</span><span class="p">),</span>
+            <span class="s2">"Test 2"</span><span class="p">,</span>
+            <span class="n">marker</span><span class="o">=</span><span class="s2">"❌ "</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">as_marked_section</span><span class="p">(</span>
+            <span class="n">Bold</span><span class="p">(</span><span class="s2">"Summary:"</span><span class="p">),</span>
+            <span class="n">as_key_value</span><span class="p">(</span><span class="s2">"Total"</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+            <span class="n">as_key_value</span><span class="p">(</span><span class="s2">"Success"</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+            <span class="n">as_key_value</span><span class="p">(</span><span class="s2">"Failed"</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="n">marker</span><span class="o">=</span><span class="s2">"  "</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HashTag</span><span class="p">(</span><span class="s2">"#test"</span><span class="p">),</span>
+        <span class="n">sep</span><span class="o">=</span><span class="s2">"</span><span class="se">\n\n</span><span class="s2">"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span><span class="o">**</span><span class="n">content</span><span class="o">.</span><span class="n">as_kwargs</span><span class="p">())</span>
+</code></pre></div>
+<p><img alt="Продвинутый пример" src="../images/messages/advanced_example.png"></p>
+<div class="admonition info">
+<p>Подробнее о различных способах форматирования и поддерживаемых тегах можно узнать 
+<a href="https://core.telegram.org/bots/api#formatting-options">в документации Bot API</a>.</p>
+</div>
+<h3 id="keep-formatting">Сохранение форматирования<a class="headerlink" href="#keep-formatting" title="Permanent link">¶</a></h3>
+<p>Представим, что бот должен получить форматированный текст от пользователя и добавить туда что-то 
+своё, например, отметку времени. Напишем простой код:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># новый импорт!</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">echo_with_time</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>
+    <span class="c1"># Получаем текущее время в часовом поясе ПК</span>
+    <span class="n">time_now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%H:%M'</span><span class="p">)</span>
+    <span class="c1"># Создаём подчёркнутый текст</span>
+    <span class="n">added_text</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">underline</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Создано в </span><span class="si">{</span><span class="n">time_now</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="c1"># Отправляем новое сообщение с добавленным текстом</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="se">\n\n</span><span class="si">{</span><span class="n">added_text</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">parse_mode</span><span class="o">=</span><span class="s2">"HTML"</span><span class="p">)</span>
+</code></pre></div>
+<p><img alt="Добавленный текст (неудачная попытка)" src="../images/messages/keep_formatting_bad.png"></p>
+<p>Мда, что-то пошло не так, почему сбилось форматирование исходного сообщения? 
+Это происходит из-за того, что <code>message.text</code> возвращает просто текст, без каких-либо оформлений. 
+Чтобы получить текст в нужном форматировании, воспользуемся альтернативными свойствами: 
+<code>message.html_text</code> или <code>message.md_text</code>. Сейчас нам нужен первый вариант. Заменяем в примере 
+выше <code>message.text</code> на <code>message.html_text</code> и получаем корректный результат:</p>
+<p><img alt="Добавленный текст (успех)" src="../images/messages/keep_formatting_good.png"></p>
+<h3 id="message-entities">Работа с entities<a class="headerlink" href="#message-entities" title="Permanent link">¶</a></h3>
+<p>Telegram сильно упрощает жизнь разработчикам, выполняя предобработку сообщений пользователей на своей стороне. 
+Например, некоторые сущности, типа e-mail, номера телефона, юзернейма и др. можно не доставать 
+<a href="https://ru.wikipedia.org/wiki/%D0%A0%D0%B5%D0%B3%D1%83%D0%BB%D1%8F%D1%80%D0%BD%D1%8B%D0%B5_%D0%B2%D1%8B%D1%80%D0%B0%D0%B6%D0%B5%D0%BD%D0%B8%D1%8F">регулярными выражениями</a>, а извлечь 
+напрямую из объекта <a href="https://core.telegram.org/bots/api#message">Message</a> и поля 
+<code>entities</code>, содержащего массив объектов типа 
+<a href="https://core.telegram.org/bots/api#messageentity">MessageEntity</a>. В качестве примера напишем 
+хэндлер, который извлекает ссылку, e-mail и моноширинный текст из сообщения (по одной штуке).<br>
+Здесь кроется важный подвох. <strong>Telegram возвращает не сами значения, а их начало в тексте и длину</strong>. 
+Более того, текст считается в символах UTF-8, а entities работают с UTF-16, из-за этого, если просто взять 
+позицию и длину, то при наличии UTF-16 символов (например, эмодзи) ваш обработанный текст просто съедет. </p>
+<p>Лучше всего это демонстрирует пример ниже. На скриншоте первый ответ бота есть результат парсинга «в лоб», 
+а второй — результат применения аиограмного метода <code>extract_from()</code> над entity. На вход ему передаётся весь исходный текст:</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">extract_data</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"url"</span><span class="p">:</span> <span class="s2">"&lt;N/A&gt;"</span><span class="p">,</span>
+        <span class="s2">"email"</span><span class="p">:</span> <span class="s2">"&lt;N/A&gt;"</span><span class="p">,</span>
+        <span class="s2">"code"</span><span class="p">:</span> <span class="s2">"&lt;N/A&gt;"</span>
+    <span class="p">}</span>
+    <span class="n">entities</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">entities</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">entities</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="c1"># Неправильно</span>
+            <span class="c1"># data[item.type] = message.text[item.offset : item.offset+item.length]</span>
+            <span class="c1"># Правильно</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">type</span><span class="p">]</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">extract_from</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">reply</span><span class="p">(</span>
+        <span class="s2">"Вот что я нашёл:</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="sa">f</span><span class="s2">"URL: </span><span class="si">{</span><span class="n">html</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">'url'</span><span class="p">])</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="sa">f</span><span class="s2">"E-mail: </span><span class="si">{</span><span class="n">html</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">'email'</span><span class="p">])</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="sa">f</span><span class="s2">"Пароль: </span><span class="si">{</span><span class="n">html</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">'code'</span><span class="p">])</span><span class="si">}</span><span class="s2">"</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p><img alt="Парсинг entities" src="../images/messages/parse_entities.png"></p>
+<h3 id="commands-args">Команды и их аргументы<a class="headerlink" href="#commands-args" title="Permanent link">¶</a></h3>
+<p>Telegram <a href="https://core.telegram.org/bots/features#inputs">предоставляет</a> пользователям множество способов ввода 
+информации. Одним из них являются команды: ключевые слова, начинающиеся со слэша, например, <code>/new</code> или <code>/ban</code>. 
+Иногда бот может быть спроектирован так, чтобы ожидать после самой команды какие-то <em>аргументы</em>, вроде <code>/ban 2d</code> или 
+<code>/settimer 20h This is delayed message</code>. В составе aiogram есть фильтр <code>Command()</code>, упрощающий жизнь разработчика. 
+Реализуем последний пример в коде:</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s2">"settimer"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_settimer</span><span class="p">(</span>
+        <span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span>
+        <span class="n">command</span><span class="p">:</span> <span class="n">CommandObject</span>
+<span class="p">):</span>
+    <span class="c1"># Если не переданы никакие аргументы, то</span>
+    <span class="c1"># command.args будет None</span>
+    <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">args</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+            <span class="s2">"Ошибка: не переданы аргументы"</span>
+        <span class="p">)</span>
+        <span class="k">return</span>
+    <span class="c1"># Пробуем разделить аргументы на две части по первому встречному пробелу</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">delay_time</span><span class="p">,</span> <span class="n">text_to_send</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">" "</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># Если получилось меньше двух частей, вылетит ValueError</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+            <span class="s2">"Ошибка: неправильный формат команды. Пример:</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">"/settimer &lt;time&gt; &lt;message&gt;"</span>
+        <span class="p">)</span>
+        <span class="k">return</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="s2">"Таймер добавлен!</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="sa">f</span><span class="s2">"Время: </span><span class="si">{</span><span class="n">delay_time</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="sa">f</span><span class="s2">"Текст: </span><span class="si">{</span><span class="n">text_to_send</span><span class="si">}</span><span class="s2">"</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>Попробуем передать команду с разными аргументами (или вообще без них) и проверить реакцию:</p>
+<p><img alt="Аргументы команд" src="../images/messages/command_args.png"></p>
+<p>С командами может возникнуть небольшая проблема в группах: Telegram автоматически подсвечивает команды, начинающиеся 
+со слэша, из-за чего порой случается вот такое (спасибо моим дорогим подписчикам за помощь в создании скриншота):</p>
+<p><img alt="Флуд командами" src="../images/messages/commands_flood.png"></p>
+<p>Чтобы этого избежать, можно заставить бота реагировать на команды с другими префиксами. Они не будут подсвечиваться и 
+потребуют полностью ручной ввод, так что сами оценивайте пользу такого подхода.</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s2">"custom1"</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">"%"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_custom1</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span><span class="s2">"Вижу команду!"</span><span class="p">)</span>
+
+
+<span class="c1"># Можно указать несколько префиксов....vv...</span>
+<span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s2">"custom2"</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">"/!"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_custom2</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span><span class="s2">"И эту тоже вижу!"</span><span class="p">)</span>
+</code></pre></div>
+<p><img alt="Кастомные префиксы" src="../images/messages/command_custom_prefix.png"></p>
+<p>Проблема кастомных префиксов в группах только в том, что боты не-админы со включенным Privacy Mode (по умолчанию) могут 
+не увидеть такие команды из-за <a href="https://core.telegram.org/bots/faq#what-messages-will-my-bot-get">особенностей</a> 
+логики сервера. Самый частый use-case — боты-модераторы групп, которые уже являются администраторами.</p>
+<h3 id="deeplinks">Диплинки<a class="headerlink" href="#deeplinks" title="Permanent link">¶</a></h3>
+<p>Существует одна команда в Telegram, у которой есть чуть больше возможностей. Это <code>/start</code>. Дело в том, что можно 
+сформировать ссылку вида <code>t.me/bot?start=xxx</code> и пре переходе по такой ссылке пользователю покажут кнопку «Начать», при 
+нажатии которой бот получит сообщение <code>/start xxx</code>. Т.е. в ссылке зашивается некий дополнительный параметр, не требующий 
+ручного ввода. Это называется диплинк (не путать с дикпиком) и может использоваться для кучи разных вещей: шорткаты для 
+активации различных команд, реферальная система, быстрая конфигурация бота и т.д. Напишем два примера:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram</span><span class="w"> </span><span class="kn">import</span> <span class="n">F</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Message</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">CommandObject</span><span class="p">,</span> <span class="n">CommandStart</span>
+
+<span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s2">"help"</span><span class="p">))</span>
+<span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">CommandStart</span><span class="p">(</span>
+    <span class="n">deep_link</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">magic</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">args</span> <span class="o">==</span> <span class="s2">"help"</span>
+<span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_start_help</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span><span class="s2">"Это сообщение со справкой"</span><span class="p">)</span>
+
+
+<span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">CommandStart</span><span class="p">(</span>
+    <span class="n">deep_link</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">magic</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">regexp</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">'book_(\d+)'</span><span class="p">))</span>
+<span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_start_book</span><span class="p">(</span>
+        <span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span>
+        <span class="n">command</span><span class="p">:</span> <span class="n">CommandObject</span>
+<span class="p">):</span>
+    <span class="n">book_number</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"_"</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Sending book №</span><span class="si">{</span><span class="n">book_number</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</code></pre></div>
+<p><img alt="Примеры диплинков" src="../images/messages/deeplinks.png"></p>
+<p>Учтите, что диплинки через <code>start</code> отправляют пользователя в личку с ботом. Чтобы выбрать группу и отправить диплинк туда, 
+замените <code>start</code> на <code>startgroup</code>. Также у aiogram существует удобная 
+<a href="https://github.com/aiogram/aiogram/blob/228a86afdc3c594dd9db9e82d8d6d445adb5ede1/aiogram/utils/deep_linking.py#L126-L158">функция</a> 
+для создания диплинков прямо из вашего кода.</p>
+<div class="admonition tip">
+<p class="admonition-title">Больше диплинков, но не для ботов</p>
+<p>В документации Telegram есть подробное описание всевозможных диплинков для клиентских приложений: 
+<a href="https://core.telegram.org/api/links">https://core.telegram.org/api/links</a></p>
+</div>
+<h3 id="link-previews">Предпросмотр ссылок<a class="headerlink" href="#link-previews" title="Permanent link">¶</a></h3>
+<p>Обычно при отправке текстового сообщения со ссылками Telegram пытается найти и показать предпросмотр первой по порядку ссылки. 
+Это поведение можно настроить по своему желанию, передав в качестве аргумента <code>link_preview_options</code> метода <code>send_message()</code> 
+объект <code>LinkPreviewOptions</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Новый импорт</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinkPreviewOptions</span>
+
+<span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s2">"links"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_links</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>
+    <span class="n">links_text</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">"https://nplus1.ru/news/2024/05/23/voyager-1-science-data"</span>
+        <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="s2">"https://t.me/telegram"</span>
+    <span class="p">)</span>
+    <span class="c1"># Ссылка отключена</span>
+    <span class="n">options_1</span> <span class="o">=</span> <span class="n">LinkPreviewOptions</span><span class="p">(</span><span class="n">is_disabled</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"Нет превью ссылок</span><span class="se">\n</span><span class="si">{</span><span class="n">links_text</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+        <span class="n">link_preview_options</span><span class="o">=</span><span class="n">options_1</span>
+    <span class="p">)</span>
+
+    <span class="c1"># -------------------- #</span>
+
+    <span class="c1"># Маленькое превью</span>
+    <span class="c1"># Для использования prefer_small_media обязательно указывать ещё и url</span>
+    <span class="n">options_2</span> <span class="o">=</span> <span class="n">LinkPreviewOptions</span><span class="p">(</span>
+        <span class="n">url</span><span class="o">=</span><span class="s2">"https://nplus1.ru/news/2024/05/23/voyager-1-science-data"</span><span class="p">,</span>
+        <span class="n">prefer_small_media</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"Маленькое превью</span><span class="se">\n</span><span class="si">{</span><span class="n">links_text</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+        <span class="n">link_preview_options</span><span class="o">=</span><span class="n">options_2</span>
+    <span class="p">)</span>
+
+    <span class="c1"># -------------------- #</span>
+
+    <span class="c1"># Большое превью</span>
+    <span class="c1"># Для использования prefer_large_media обязательно указывать ещё и url</span>
+    <span class="n">options_3</span> <span class="o">=</span> <span class="n">LinkPreviewOptions</span><span class="p">(</span>
+        <span class="n">url</span><span class="o">=</span><span class="s2">"https://nplus1.ru/news/2024/05/23/voyager-1-science-data"</span><span class="p">,</span>
+        <span class="n">prefer_large_media</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"Большое превью</span><span class="se">\n</span><span class="si">{</span><span class="n">links_text</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+        <span class="n">link_preview_options</span><span class="o">=</span><span class="n">options_3</span>
+    <span class="p">)</span>
+
+    <span class="c1"># -------------------- #</span>
+
+    <span class="c1"># Можно сочетать: маленькое превью и расположение над текстом</span>
+    <span class="n">options_4</span> <span class="o">=</span> <span class="n">LinkPreviewOptions</span><span class="p">(</span>
+        <span class="n">url</span><span class="o">=</span><span class="s2">"https://nplus1.ru/news/2024/05/23/voyager-1-science-data"</span><span class="p">,</span>
+        <span class="n">prefer_small_media</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">show_above_text</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"Маленькое превью над текстом</span><span class="se">\n</span><span class="si">{</span><span class="n">links_text</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+        <span class="n">link_preview_options</span><span class="o">=</span><span class="n">options_4</span>
+    <span class="p">)</span>
+
+    <span class="c1"># -------------------- #</span>
+
+    <span class="c1"># Можно выбрать, какая ссылка будет использоваться для предпосмотра,</span>
+    <span class="n">options_5</span> <span class="o">=</span> <span class="n">LinkPreviewOptions</span><span class="p">(</span>
+        <span class="n">url</span><span class="o">=</span><span class="s2">"https://t.me/telegram"</span>
+    <span class="p">)</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"Предпросмотр не первой ссылки</span><span class="se">\n</span><span class="si">{</span><span class="n">links_text</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+        <span class="n">link_preview_options</span><span class="o">=</span><span class="n">options_5</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>Результат: 
+<img alt="Примеры предпросмотров ссылок" src="../images/messages/link_preview_options.png"></p>
+<p>Также некоторые параметры предпросмотра можно указать по умолчанию в <code>DefaultBotProperties</code>, о чём рассказывалось 
+в начале главы.</p>
+<h2 id="media">Медиафайлы<a class="headerlink" href="#media" title="Permanent link">¶</a></h2>
+<h3 id="uploading-media">Отправка файлов<a class="headerlink" href="#uploading-media" title="Permanent link">¶</a></h3>
+<p>Помимо обычных текстовых сообщений Telegram позволяет обмениваться медиафайлами различных типов: фото, видео, гифки, 
+геолокации, стикеры и т.д. У большинства медиафайлов есть свойства <code>file_id</code> и <code>file_unique_id</code>. Первый можно использовать 
+для повторной отправки одного и того же файла много раз, причём отправка будет мгновенной, т.к. сам файл уже лежит 
+на серверах Telegram. Это самый предпочтительный способ.<br>
+К примеру, следующий код заставит бота моментально ответить пользователю той же гифкой, что была прислана: </p>
+<div class="highlight"><pre><span></span><code><span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">animation</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">echo_gif</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">reply_animation</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">animation</span><span class="o">.</span><span class="n">file_id</span><span class="p">)</span>
+</code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Всегда используйте правильные file_id!</p>
+<p>Бот должен использовать для отправки <strong>только</strong> те <code>file_id</code>, которые получил напрямую сам, 
+например, в личке от пользователя или «увидев» медиафайл в группе/канале. При этом, 
+если попытаться использовать <code>file_id</code> от другого бота, то это <em>может сработать</em>, но 
+через какое-то время вы получите ошибку <strong>wrong url/file_id specified</strong>. Поэтому — 
+только свои <code>file_id</code>!</p>
+</div>
+<p>В отличие от <code>file_id</code>, идентификатор <code>file_unique_id</code> нельзя использовать для повторной отправки 
+или скачивания медиафайла, но зато он одинаковый у всех ботов для конкретного медиа. 
+Нужен <code>file_unique_id</code> обычно тогда, когда нескольким ботам требуется знать, что их собственные <code>file_id</code> относятся 
+к одному и тому же файлу.</p>
+<p>Если файл ещё не существует на сервере Telegram, бот может загрузить его тремя различными 
+способами: как файл в файловой системе, по ссылке и напрямую набор байтов. 
+Для ускорения отправки и в целом для более бережного отношения к серверам мессенджера,
+загрузку (upload) файлов Telegram правильнее производить один раз, а в дальнейшем использовать <code>file_id</code>, 
+который будет доступен после первой загрузки медиа. </p>
+<p>В aiogram 3.x присутствуют 3 класса для отправки файлов и медиа - <code>FSInputFile</code>, <code>BufferedInputFile</code>, 
+<code>URLInputFile</code>, с ними можно ознакомиться 
+в <a href="https://docs.aiogram.dev/en/dev-3.x/api/upload_file.html">документации</a>.</p>
+<p>Рассмотрим простой пример отправки изображений всеми различными способами:
+</p><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">FSInputFile</span><span class="p">,</span> <span class="n">URLInputFile</span><span class="p">,</span> <span class="n">BufferedInputFile</span>
+
+<span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s1">'images'</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">upload_photo</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>
+    <span class="c1"># Сюда будем помещать file_id отправленных файлов, чтобы потом ими воспользоваться</span>
+    <span class="n">file_ids</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Чтобы продемонстрировать BufferedInputFile, воспользуемся "классическим"</span>
+    <span class="c1"># открытием файла через `open()`. Но, вообще говоря, этот способ</span>
+    <span class="c1"># лучше всего подходит для отправки байтов из оперативной памяти</span>
+    <span class="c1"># после проведения каких-либо манипуляций, например, редактированием через Pillow</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">"buffer_emulation.jpg"</span><span class="p">,</span> <span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">image_from_buffer</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer_photo</span><span class="p">(</span>
+            <span class="n">BufferedInputFile</span><span class="p">(</span>
+                <span class="n">image_from_buffer</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span>
+                <span class="n">filename</span><span class="o">=</span><span class="s2">"image from buffer.jpg"</span>
+            <span class="p">),</span>
+            <span class="n">caption</span><span class="o">=</span><span class="s2">"Изображение из буфера"</span>
+        <span class="p">)</span>
+        <span class="n">file_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">photo</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">file_id</span><span class="p">)</span>
+
+    <span class="c1"># Отправка файла из файловой системы</span>
+    <span class="n">image_from_pc</span> <span class="o">=</span> <span class="n">FSInputFile</span><span class="p">(</span><span class="s2">"image_from_pc.jpg"</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer_photo</span><span class="p">(</span>
+        <span class="n">image_from_pc</span><span class="p">,</span>
+        <span class="n">caption</span><span class="o">=</span><span class="s2">"Изображение из файла на компьютере"</span>
+    <span class="p">)</span>
+    <span class="n">file_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">photo</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">file_id</span><span class="p">)</span>
+
+    <span class="c1"># Отправка файла по ссылке</span>
+    <span class="n">image_from_url</span> <span class="o">=</span> <span class="n">URLInputFile</span><span class="p">(</span><span class="s2">"https://picsum.photos/seed/groosha/400/300"</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer_photo</span><span class="p">(</span>
+        <span class="n">image_from_url</span><span class="p">,</span>
+        <span class="n">caption</span><span class="o">=</span><span class="s2">"Изображение по ссылке"</span>
+    <span class="p">)</span>
+    <span class="n">file_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">photo</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">file_id</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span><span class="s2">"Отправленные файлы:</span><span class="se">\n</span><span class="s2">"</span><span class="o">+</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">file_ids</span><span class="p">))</span>
+</code></pre></div>
+<p>Подпись у фото, видео и GIF можно перенести наверх: </p>
+<div class="highlight"><pre><span></span><code><span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s2">"gif"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">send_gif</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer_animation</span><span class="p">(</span>
+        <span class="n">animation</span><span class="o">=</span><span class="s2">"&lt;file_id гифки&gt;"</span><span class="p">,</span>
+        <span class="n">caption</span><span class="o">=</span><span class="s2">"Я сегодня:"</span><span class="p">,</span>
+        <span class="n">show_caption_above_media</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p><img alt="подпись над анимацией" src="../images/messages/caption_above_media.jpg"></p>
+<h3 id="downloading-media">Скачивание файлов<a class="headerlink" href="#downloading-media" title="Permanent link">¶</a></h3>
+<p>Помимо переиспользования для отправки, бот может скачать медиа к себе на компьютер/сервер. Для этого у объекта типа <code>Bot</code> 
+есть метод <code>download()</code>. В примерах ниже файлы скачиваются сразу в файловую систему, но никто не мешает 
+вместо этого сохранить в объект BytesIO в памяти, чтобы передать в какое-то приложение дальше 
+(например, pillow). </p>
+<div class="highlight"><pre><span></span><code><span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">photo</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">download_photo</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span> <span class="n">bot</span><span class="p">:</span> <span class="n">Bot</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">bot</span><span class="o">.</span><span class="n">download</span><span class="p">(</span>
+        <span class="n">message</span><span class="o">.</span><span class="n">photo</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+        <span class="n">destination</span><span class="o">=</span><span class="sa">f</span><span class="s2">"/tmp/</span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">photo</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">file_id</span><span class="si">}</span><span class="s2">.jpg"</span>
+    <span class="p">)</span>
+
+
+<span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">sticker</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">download_sticker</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span> <span class="n">bot</span><span class="p">:</span> <span class="n">Bot</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">bot</span><span class="o">.</span><span class="n">download</span><span class="p">(</span>
+        <span class="n">message</span><span class="o">.</span><span class="n">sticker</span><span class="p">,</span>
+        <span class="c1"># для Windows пути надо подправить</span>
+        <span class="n">destination</span><span class="o">=</span><span class="sa">f</span><span class="s2">"/tmp/</span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">sticker</span><span class="o">.</span><span class="n">file_id</span><span class="si">}</span><span class="s2">.webp"</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>В случае с изображениями мы использовали не <code>message.photo</code>, а <code>message.photo[-1]</code>, почему? 
+Фотографии в Telegram в сообщении приходят сразу в нескольких экземплярах; это одно и то же 
+изображение с разным размером. Соответственно, если мы берём последний элемент (индекс -1), 
+то работаем с максимально доступным размером фото.</p>
+<div class="admonition info">
+<p class="admonition-title">Скачивание больших файлов</p>
+<p>Боты, использующие Telegram Bot API, могут скачивать файлы размером не более <a href="https://core.telegram.org/bots/api#getfile">20 мегабайт</a>. 
+Если вы планируете скачивать/заливать большие файлы, лучше рассмотрите библиотеки, взаимодействующие с 
+Telegram Client API, а не с Telegram Bot API, например, <a href="https://docs.telethon.dev/en/latest/index.html">Telethon</a> 
+или <a href="https://docs.pyrogram.org/">Pyrogram</a>.<br>
+Немногие знают, но Client API могут использовать не только обычные аккаунты, но ещё и 
+<a href="https://docs.telethon.dev/en/latest/concepts/botapi-vs-mtproto.html">боты</a>.</p>
+<p>А начиная с Bot API версии 5.0, можно использовать 
+<a href="https://core.telegram.org/bots/api#using-a-local-bot-api-server">собственный сервер Bot API</a> для работы с 
+большими файлами.</p>
+</div>
+<h3 id="albums">Альбомы<a class="headerlink" href="#albums" title="Permanent link">¶</a></h3>
+<p>То, что мы называем «альбомами» (медиагруппами) в Telegram, на самом деле отдельные сообщения с медиа, у которых есть общий 
+<code>media_group_id</code> и которые визуально «склеиваются» на клиентах. Начиная с версии 3.1, в aiogram есть 
+<a href="https://docs.aiogram.dev/en/latest/utils/media_group.html">«сборщик» альбомов</a>, работу с которым мы сейчас рассмотрим. 
+Но прежде стоит упомянуть несколько особенностей медиагрупп:</p>
+<ul>
+<li>К ним нельзя прицепить инлайн-клавиатуру или отправить реплай-клавиатуру вместе с ними. Никак. Вообще никак.</li>
+<li>У каждого медиафайла в альбоме может быть своя подпись (caption). Если подпись есть только у одного медиа, 
+то она будет выводиться как общая подпись ко всему альбому.</li>
+<li>Фотографии можно отправлять вперемешку с видео в одном альбоме, файлы (Document) и музыку (Audio) нельзя ни с чем 
+смешивать, только с медиа того же типа.</li>
+<li>В альбоме может быть не больше 10 (десяти) медиафайлов.</li>
+</ul>
+<p>Теперь посмотрим, как это сделать в aiogram:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">FSInputFile</span><span class="p">,</span> <span class="n">Message</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.utils.media_group</span><span class="w"> </span><span class="kn">import</span> <span class="n">MediaGroupBuilder</span>
+
+<span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s2">"album"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_album</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>
+    <span class="n">album_builder</span> <span class="o">=</span> <span class="n">MediaGroupBuilder</span><span class="p">(</span>
+        <span class="n">caption</span><span class="o">=</span><span class="s2">"Общая подпись для будущего альбома"</span>
+    <span class="p">)</span>
+    <span class="n">album_builder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+        <span class="nb">type</span><span class="o">=</span><span class="s2">"photo"</span><span class="p">,</span>
+        <span class="n">media</span><span class="o">=</span><span class="n">FSInputFile</span><span class="p">(</span><span class="s2">"image_from_pc.jpg"</span><span class="p">)</span>
+        <span class="c1"># caption="Подпись к конкретному медиа"</span>
+
+    <span class="p">)</span>
+    <span class="c1"># Если мы сразу знаем тип, то вместо общего add</span>
+    <span class="c1"># можно сразу вызывать add_&lt;тип&gt;</span>
+    <span class="n">album_builder</span><span class="o">.</span><span class="n">add_photo</span><span class="p">(</span>
+        <span class="c1"># Для ссылок или file_id достаточно сразу указать значение</span>
+        <span class="n">media</span><span class="o">=</span><span class="s2">"https://picsum.photos/seed/groosha/400/300"</span>
+    <span class="p">)</span>
+    <span class="n">album_builder</span><span class="o">.</span><span class="n">add_photo</span><span class="p">(</span>
+        <span class="n">media</span><span class="o">=</span><span class="s2">"&lt;ваш file_id&gt;"</span>
+    <span class="p">)</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer_media_group</span><span class="p">(</span>
+        <span class="c1"># Не забудьте вызвать build()</span>
+        <span class="n">media</span><span class="o">=</span><span class="n">album_builder</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>Результат: </p>
+<p><img alt="Результат работы билдера" src="../images/messages/media_group_builder.png"></p>
+<p>А вот со скачиванием альбомов всё сильно хуже... Как уже было сказано выше, альбомы — это просто сгруппированные 
+отдельные сообщения, а это значит, что боту они прилетают тоже в разных апдейтах. Вряд ли существует 100% надёжный 
+способ принять весь альбом одним куском, но можно попытаться сделать это с минимальными потерями. Обычно это делается 
+через мидлвари, мою собственную реализацию приёма медиагрупп можно найти 
+<a href="https://github.com/MasterGroosha/telegram-feedback-bot-topics/blob/master/bot/middlewares/albums_collector.py">по этой ссылке</a>.</p>
+<h2 id="service">Сервисные (служебные) сообщения<a class="headerlink" href="#service" title="Permanent link">¶</a></h2>
+<p>Сообщения в Telegram делятся на текстовые, медиафайлы и служебные (они же — сервисные). 
+Настало время поговорить о последних.</p>
+<p><img alt="Сервисные сообщения" src="../images/messages/service_messages.png"></p>
+<p>Несмотря на то, что они выглядят необычно и взаимодействие с ними ограничено, это всё ещё 
+сообщения, у которых есть свои айдишники и даже владелец. Стоит отметить, что спектр применения 
+сервисных сообщений с годами менялся и сейчас, скорее всего, ваш бот с ними работать не будет, 
+либо только удалять.</p>
+<p>Не будем сильно углубляться в детали и рассмотрим один конкретный пример: отправка 
+приветственного сообщения вошедшему участнику. У такого служебного сообщения будет content_type 
+равный "new_chat_members", но вообще это объект Message, у которого заполнено одноимённое поле. </p>
+<div class="highlight"><pre><span></span><code><span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">new_chat_members</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">somebody_added</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">message</span><span class="o">.</span><span class="n">new_chat_members</span><span class="p">:</span>
+        <span class="c1"># проперти full_name берёт сразу имя И фамилию </span>
+        <span class="c1"># (на скриншоте выше у юзеров нет фамилии)</span>
+        <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">reply</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Привет, </span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">full_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</code></pre></div>
+<p><img alt="Добавлены несколько юзеров" src="../images/messages/multiple_add.png"></p>
+<p>Важно помнить, что <code>message.new_chat_members</code> является списком, потому что один пользователь может 
+добавить сразу нескольких участников. Также не надо путать поля <code>message.from_user</code> и 
+<code>message.new_chat_members</code>. Первое — это субъект, т.е. тот, кто совершил действие. Второе — 
+это объекты действия. Т.е. если вы видите сообщение вида «Анна добавила Бориса и Виктора», то 
+<code>message.from_user</code> — это информация об Анне, а список <code>message.new_chat_members</code> содержит 
+информацию о Борисе с Виктором.</p>
+<div class="admonition warning">
+<p class="admonition-title">Не стоит целиком полагаться на сервисные сообщения!</p>
+<p>У служебных сообщений о добавлении (new_chat_members) и выходе (left_chat_member) есть
+одна неприятная особенность: они ненадёжны, т.е. они могут не создаваться вообще.<br>
+К примеру, сообщение о new_chat_members перестаёт создаваться при ~10k участников в группе, 
+а left_chat_member уже при 50 (но при написании этой главы я столкнулся с тем, что в одной 
+из групп left_chat_member не появился и при 9 участниках. А через полчаса там же появился 
+при выходе другого человека).</p>
+<p>С выходом Bot API 5.0 у разработчиков появился гораздо более надёжный способ видеть входы/выходы 
+участников в группах любого размера, <strong>а также в каналах</strong>. Но об этом поговорим 
+<a href="../special-updates/">в другой раз</a>.</p>
+</div>
+<h2 id="bonus">Бонус: прячем ссылку в тексте<a class="headerlink" href="#bonus" title="Permanent link">¶</a></h2>
+<p>Бывают ситуации, когда хочется отправить длинное сообщение с картинкой, но лимит на подписи к медиафайлам составляет 
+всего 1024 символа против 4096 у обычного текстового, а вставлять внизу ссылку на медиа — выглядит некрасиво.<br>
+Для решения этой проблемы ещё много лет назад придумали подход со «скрытыми ссылками» в HTML-разметке. Суть в том, что 
+можно поместить ссылку в <a href="http://www.fileformat.info/info/unicode/char/200b/index.htm">пробел нулевой ширины</a> и вставить 
+всю эту конструкцию в начало сообщения. Для наблюдателя в сообщении нет ничего лишнего, а сервер Telegram всё видит и честно 
+добавляет предпросмотр.<br>
+Разработчики aiogram для этого даже сделали специальный вспомогательный метод <code>hide_link()</code>:
+</p><div class="highlight"><pre><span></span><code><span class="c1"># новый импорт!</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.utils.markdown</span><span class="w"> </span><span class="kn">import</span> <span class="n">hide_link</span>
+
+<span class="nd">@dp</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s2">"hidden_link"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_hidden_link</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">hide_link</span><span class="p">(</span><span class="s1">'https://telegra.ph/file/562a512448876923e28c3.png'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+        <span class="sa">f</span><span class="s2">"Документация Telegram: *существует*</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="sa">f</span><span class="s2">"Пользователи: *не читают документацию*</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="sa">f</span><span class="s2">"Груша:"</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p><img alt="Изображение со скрытой ссылкой" src="../images/messages/hidden_link.png"></p>
+<p>А при помощи LinkPreviewOptions (см. выше) можно сделать медиафайл сверху с длинной подписью в 4096 символов ниже.</p>
+<p>На этом всё. До следующих глав!<br>
+<s><small>Ставьте лайки, подписывайтесь, прожимайте колокольчик</small></s></p></div>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2020-2026 Groosha
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://t.me/+DE0_2nCvbXozZjUy" target="_blank" rel="noopener" title="Чат в Telegram" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M256 8a248 248 0 1 0 0 496 248 248 0 1 0 0-496m115 168.7c-3.7 39.2-19.9 134.4-28.1 178.3-3.5 18.6-10.3 24.8-16.9 25.4-14.4 1.3-25.3-9.5-39.3-18.7-21.8-14.3-34.2-23.2-55.3-37.2-24.5-16.1-8.6-25 5.3-39.5 3.7-3.8 67.1-61.5 68.3-66.7.2-.7.3-3.1-1.2-4.4s-3.6-.8-5.1-.5c-2.2.5-37.1 23.5-104.6 69.1-9.9 6.8-18.9 10.1-26.9 9.9-8.9-.2-25.9-5-38.6-9.1-15.5-5-27.9-7.7-26.8-16.3.6-4.5 6.7-9 18.4-13.7 72.3-31.5 120.5-52.3 144.6-62.3 68.9-28.6 83.2-33.6 92.5-33.8 2.1 0 6.6.5 9.6 2.9 2 1.7 3.2 4.1 3.5 6.7.5 3.2.6 6.5.4 9.8z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://github.com/MasterGroosha/aiogram-3-guide" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u0421\u043a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u043d\u043e \u0432 \u0431\u0443\u0444\u0435\u0440", "clipboard.copy": "\u041a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u0442\u044c \u0432 \u0431\u0443\u0444\u0435\u0440", "search.result.more.one": "\u0415\u0449\u0451 1 \u043d\u0430 \u044d\u0442\u043e\u0439 \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0435", "search.result.more.other": "\u0415\u0449\u0451 # \u043d\u0430 \u044d\u0442\u043e\u0439 \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0435", "search.result.none": "\u0421\u043e\u0432\u043f\u0430\u0434\u0435\u043d\u0438\u0439 \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u043e", "search.result.one": "\u041d\u0430\u0439\u0434\u0435\u043d\u043e 1 \u0441\u043e\u0432\u043f\u0430\u0434\u0435\u043d\u0438\u0435", "search.result.other": "\u041d\u0430\u0439\u0434\u0435\u043d\u043e \u0441\u043e\u0432\u043f\u0430\u0434\u0435\u043d\u0438\u0439: #", "search.result.placeholder": "\u041d\u0430\u0447\u043d\u0438\u0442\u0435 \u043f\u0435\u0447\u0430\u0442\u0430\u0442\u044c \u0434\u043b\u044f \u043f\u043e\u0438\u0441\u043a\u0430", "search.result.term.missing": "\u041e\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0443\u0435\u0442", "select.version": "\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u0432\u0435\u0440\u0441\u0438\u044e"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

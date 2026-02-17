@@ -1,0 +1,2414 @@
+
+<!doctype html>
+<html lang="ru" class="no-js">
+  <head>
+    
+  <script src="https://telegram.org/js/telegram-web-app.js?35"></script>
+    <script type="text/javascript">
+      const webapp = window.Telegram.WebApp;
+      webapp.disableVerticalSwipes()
+      webapp.ready();
+      webapp.expand();
+      const initData = webapp.initDataUnsafe;
+      if (window.location.pathname === "/aiogram-3-guide/" && Object.hasOwn(initData, 'auth_date')) {
+        if (initData.start_param) {
+          let additionalParam = '';
+          switch (initData.start_param) {
+            case 'quickstart':
+            case 'messages':
+            case 'buttons':
+            case 'routers':
+            case 'special-updates':
+            case 'fsm':
+            case 'inline-mode':
+              additionalParam = initData.start_param;
+              break;
+            case 'filters':
+              additionalParam = 'filters-and-middlewares/#filters';
+              break
+            case 'middlewares':
+              additionalParam = 'filters-and-middlewares/#middlewares';
+              break
+            case 'magic-filter':
+            case 'magic':
+              additionalParam = 'filters-and-middlewares/#magic-filters';
+              break
+            case 'entities':
+              additionalParam = 'messages/#message-entities';
+              break;
+            case 'escaping':
+              additionalParam = 'messages/#input-escaping';
+              break;
+            case 'keep-formatting':
+              additionalParam = 'messages/#keep-formatting';
+              break
+            case 'send-files':
+            case 'upload':
+              additionalParam = 'messages/#uploading-media';
+              break;
+            case 'download-files':
+            case 'download':
+              additionalParam = 'messages/#downloading-media';
+              break;
+            case 'hide-image':
+              additionalParam = 'messages/#bonus';
+              break
+            case 'callback-factory':
+              additionalParam = 'buttons/#callback-factory';
+              break
+            case 'my-chat-member':
+              additionalParam = 'special-updates/#my-chat-member';
+              break
+            case 'chat-member':
+              additionalParam = 'special-updates/#chat-member';
+              break
+            default:
+              additionalParam = '/';
+          }
+          window.location.href = (`${window.location.origin}${window.location.pathname}${additionalParam}`);
+        }
+      }
+  </script>
+
+  
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Проект: AI-бот на топиках">
+      
+      
+        <meta name="author" content="MasterGroosha">
+      
+      
+        <link rel="canonical" href="https://mastergroosha.github.io/aiogram-3-guide/blog/2026/02/topics-and-llm/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+
+    
+      
+        <title>Проект: AI-бот на топиках - Пишем Telegram-ботов с aiogram 3.x</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+  
+    
+  
+
+  
+  
+    
+  
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Пишем Telegram-ботов с aiogram 3.x" />
+  <meta property="og:description" content="Проект: AI-бот на топиках" />
+  <meta property="og:url" content="https://mastergroosha.github.io/aiogram-3-guide/blog/2026/02/topics-and-llm/" />
+  <meta property="og:image" content="https://mastergroosha.github.io/aiogram-3-guide/images/social.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="512" />
+  <meta property="og:image:height" content="512" />
+
+  <!-- Twitter Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://mastergroosha.github.io/aiogram-3-guide/blog/2026/02/topics-and-llm/">
+  <meta name="twitter:title" content="Пишем Telegram-ботов с aiogram 3.x">
+  <meta name="twitter:description" content="Проект: AI-бот на топиках">
+  <meta name="twitter:image" content="https://mastergroosha.github.io/aiogram-3-guide/images/social.png">
+
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          Перейти к содержанию
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Верхний колонтитул">
+    <a href="../../../.." title="Пишем Telegram-ботов с aiogram 3.x" class="md-header__button md-logo" aria-label="Пишем Telegram-ботов с aiogram 3.x" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2M7.5 13A2.5 2.5 0 0 0 5 15.5 2.5 2.5 0 0 0 7.5 18a2.5 2.5 0 0 0 2.5-2.5A2.5 2.5 0 0 0 7.5 13m9 0a2.5 2.5 0 0 0-2.5 2.5 2.5 2.5 0 0 0 2.5 2.5 2.5 2.5 0 0 0 2.5-2.5 2.5 2.5 0 0 0-2.5-2.5"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Пишем Telegram-ботов с aiogram 3.x
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Проект: AI-бот на топиках
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Поиск" placeholder="Поиск" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Поиск">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Очистить" aria-label="Очистить" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Инициализация поиска
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/MasterGroosha/aiogram-3-guide" title="Перейти к репозиторию" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    MasterGroosha/aiogram-3-guide
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+                
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" hidden>
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<!-- Determine classes -->
+
+
+
+
+<!-- Navigation -->
+<nav
+  class="md-nav md-nav--primary"
+  aria-label="Навигация"
+  data-md-level="0"
+>
+
+  <!-- Site title -->
+  <label class="md-nav__title" for="__drawer">
+    <a
+      href="../../../.."
+      title="Пишем Telegram-ботов с aiogram 3.x"
+      class="md-nav__button md-logo"
+      aria-label="Пишем Telegram-ботов с aiogram 3.x"
+      data-md-component="logo"
+    >
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2M7.5 13A2.5 2.5 0 0 0 5 15.5 2.5 2.5 0 0 0 7.5 18a2.5 2.5 0 0 0 2.5-2.5A2.5 2.5 0 0 0 7.5 13m9 0a2.5 2.5 0 0 0-2.5 2.5 2.5 2.5 0 0 0 2.5 2.5 2.5 2.5 0 0 0 2.5-2.5 2.5 2.5 0 0 0-2.5-2.5"/></svg>
+
+    </a>
+    Оглавление
+  </label>
+
+  <!-- Repository information -->
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/MasterGroosha/aiogram-3-guide" title="Перейти к репозиторию" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    MasterGroosha/aiogram-3-guide
+  </div>
+</a>
+    </div>
+  
+
+  <!-- Navigation list -->
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Введение
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Знакомство с aiogram
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../messages/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Работа с сообщениями
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../buttons/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Кнопки
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../routers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Роутеры. Структура
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../filters-and-middlewares/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Фильтры и мидлвари
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../special-updates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Особые апдейты
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../fsm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Конечные автоматы
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../inline-mode/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Инлайн-режим
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../payments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Платежи
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      <a href="../../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Дополнительные материалы
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../advanced-teaser/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    🔒 Продвинутый уровень
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+                
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Содержание">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Содержание
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Возможности и ограничения
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Как включить топики в ЛС с ботом
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#llm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Обращаемся к LLM
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Стриминг текста
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        История сообщений
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Разные личности
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Генерация заголовка чата
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Приятные мелочи
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+  <div class="md-content md-content--post" data-md-component="content">
+    <div class="md-sidebar md-sidebar--post" data-md-component="sidebar" data-md-type="navigation">
+      <div class="md-sidebar__scrollwrap">
+        <div class="md-sidebar__inner md-post">
+          <nav class="md-nav md-nav--primary">
+            <div class="md-post__back">
+              <div class="md-nav__title md-nav__container">
+                <a href="../../../" class="md-nav__link">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+                  <span class="md-ellipsis">
+                    На главную
+                  </span>
+                </a>
+              </div>
+            </div>
+            
+            <ul class="md-post__meta md-nav__list">
+              <li class="md-nav__item md-nav__item--section">
+                <div class="md-post__title">
+                  <span class="md-ellipsis">
+                    Метаданные
+                  </span>
+                </div>
+                <nav class="md-nav">
+                  <ul class="md-nav__list">
+                    <li class="md-nav__item">
+                      <div class="md-nav__link">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 19H5V8h14m-3-7v2H8V1H6v2H5c-1.11 0-2 .89-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-1V1m-1 11h-5v5h5z"/></svg>
+                        <time datetime="2026-02-17 00:00:00+00:00" class="md-ellipsis">17 февраля 2026 г.</time>
+                      </div>
+                    </li>
+                    
+                    
+                    
+                  </ul>
+                </nav>
+              </li>
+            </ul>
+            
+          </nav>
+          
+        </div>
+      </div>
+    </div>
+    <article class="md-content__inner md-typeset">
+      
+        
+  
+
+
+
+
+  <h1>Проект: AI-бот на топиках</h1>
+
+<div><div class="admonition info">
+<p>Используемая версия aiogram: 3.25.0</p>
+</div>
+<p>31 декабря 2025 года вышла <a href="https://core.telegram.org/bots/api-changelog#december-31-2025">обновление Bot API 9.3</a>, 
+а 9 февраля 2026 года – <a href="https://core.telegram.org/bots/api-changelog#february-9-2026">обновление Bot API 9.4</a>. 
+В них помимо всего прочего добавилась поддержка топиков прямо в ЛС с самим ботом, причём в двух вариантах.</p>
+<p>А раз 2025 год прошёл под знаком больших языковых моделей (Large Language Models, LLM) и 2026-й не будет исключением, то 
+сегодня совместим мир ботов и мир AI и напишем простого бота с поддержкой топиков и взаимодействием с ИИ. Причём 
+сообщения будут отправляться через стриминг, т.е. как в привычных ИИ-интерфейсах.</p>
+<!-- more -->
+
+<h2 id="_1">Возможности и ограничения<a class="headerlink" href="#_1" title="Permanent link">¶</a></h2>
+<p>Сразу оговоримся: как и большинство примеров в этой книге, бот будет специально упрощён, чтобы сконцентрироваться только на 
+основных и важных моментах. В качестве LLM будем использовать <strong>локальную</strong> модель 
+<a href="https://huggingface.co/lmstudio-community/Qwen2.5-7B-Instruct-GGUF">Qwen2.5-7B-Instruct</a>, её можно легко 
+и бесплатно запустить на домашнем железе или недорогой VPS. Например, у меня арендована вот такая машинка:
+</p><div class="highlight"><pre><span></span><code>OS: Debian GNU/Linux 12 (bookworm) x86_64
+Kernel: 6.1.0-17-amd64
+CPU: Intel Xeon E3-1231 v3 (8) @ 3.800GHz
+GPU: 02:00.0 Matrox Electronics Systems Ltd. MGA G200e [Pilot] ServerEngines
+Memory: 9976MiB / 31825MiB
+</code></pre></div>
+Сама модель займёт где-то 7-8 гигабайт в оперативной памяти. Qwen2.5-7B не самая «умная», но чтобы попробовать работать 
+с LLM на практике более чем сойдёт. Содержимое чатов будем хранить в оперативной памяти, 
+чтобы не отвлекаться на инфраструктуру, но готовый вариант можно будет легко адаптировать 
+под PostgreSQL, Redis или что угодно ещё.
+<p>Начиная с Bot API 9.4 у разработчиков есть два выбора, как отображать топики в ЛС с ботом: </p>
+<ol>
+<li>Каждое сообщение вне топика автоматически создаёт новый и переносит туда сообщение.</li>
+<li>Бот самостоятельно создаёт топики, а у юзера такая возможность пропадает, равно как и возможность удалять.</li>
+</ol>
+<p>Оба варианта показаны на следующем рисунке:
+<img alt="Два варианта топиков в боте" src="../../../images/project_threads_llm/schema1.png"></p>
+<p>Рассмотрим плюсы и минусы каждого подхода:</p>
+<ul>
+<li>Первый вариант больше подходит на интерфейс «а-ля ChatGPT»: каждое сообщение принадлежит какому-то топику, 
+легче контролировать, что и где написано. Минус очевидный: все действия, не относящиеся к переписке, тоже будут 
+лежать в каком-то топике, т.е. придётся проводить границу между «здесь общаемся, а здесь настройками балуемся».</li>
+<li>Второй вариант даёт гораздо больше контроля: можно по отдельной команде создавать топик специально под общение с ИИ, 
+а General (т.е. топик с id=0) оставлять под настройки, информационные сообщения и прочее «служебное». Но эта гибкость 
+усложняет UX (user experience): например, пользователь после создания топика ботом автоматически не перекидывается туда, 
+требуя лишнее нажатие.</li>
+</ul>
+<p>Возможно, золотой серединой было бы использование варианта №1, но все настройки увести в веб-интерфейс. Но если у вас 
+уже есть веб-интерфейс настроек, то просто добавьте туда интерфейс чата и не надо будет возиться с Bot API :)</p>
+<p>В общем, далее будет показан пример на варианте №2. В процессе подготовки этого текста я сделал оба, поэтому напишите 
+в моей группе (иконка внизу каждой страницы), если интересно рассмотреть вариант №1 тоже.</p>
+<p>И последнее перед тем, как продолжим: чтобы сфокусироваться непосредственно на новых вещах из мира ботов, начинать 
+проект будем не с нуля: на GitHub в репозитории этой книги будет 
+<a href="https://github.com/MasterGroosha/aiogram-3-guide/tree/master/code/project_threads_llm">отдельный каталог</a>, 
+там расположен базовый код с одним роутером, настройками и логом. Всё дальнейшее повествование подразумевает, 
+что вы начинаете с этого же момента.  </p>
+<h2 id="_2">Как включить топики в ЛС с ботом<a class="headerlink" href="#_2" title="Permanent link">¶</a></h2>
+<p>Для активации фичи надо открыть @BotFather, причём не просто диалог с ботом, а веб-приложение. Далее необходимо выбрать 
+вашего бота, а затем нажать <strong>Bot Settings</strong>. В разделе <strong>Threads Settings</strong> есть две настройки. Первая в целом 
+включает поддержку топиков, а вторая отвечает за выбор варианта их отображения. Если сопоставлять с нумерацией выше по 
+тексту, то положение ВЫКЛ – это вариант 1, а ВКЛ – вариант 2.</p>
+<p><img alt="Включение топиков в боте" src="../../../images/project_threads_llm/botfather_enable_threads.png"></p>
+<p>А теперь ложка дёгтя: данная фича не бесплатная в классическом понимании. Если вчитаться в приписочку под этими 
+двумя переключалками и перейти по ссылке, то можно обнаружить, что при включенном режиме <strong>Threaded Mode</strong> все покупки 
+пользователей в таком боте будут облагаться дополнительным 15% налогом от Telegram. Почему Дуров хочет брать повышенный 
+налог на топики и куда пойдут эти деньги, науке пока что неизвестно. Но если ваш бот никак не взаимодействует с 
+Telegram Stars, то ничего отдельно с вас не возьмут.</p>
+<h2 id="llm">Обращаемся к LLM<a class="headerlink" href="#llm" title="Permanent link">¶</a></h2>
+<p>Пора отправить первое сообщение к локальной ИИ-модели. Но сперва её нужно скачать: загрузите GGUF-файл 
+с <a href="https://huggingface.co/lmstudio-community/Qwen2.5-7B-Instruct-GGUF/tree/main">Hugging Face</a> 
+(рекомендую версию Q4_K_M) и положите его в каталог <code>models</code> под именем <code>qwen2.5-7b-instruct-q4_k_m.gguf</code>.</p>
+<p>Добавьте в <code>docker-compose.yml</code> новый сервис и поставьте <code>bot</code> зависящим от него:</p>
+<div class="highlight"><span class="filename">docker-compose.yml</span><pre><span></span><code><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">"llm-in-telegram"</span>
+
+<span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">llm</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.io/ggml-org/llama.cpp:server</span>
+<span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;</span>
+<span class="w">      </span><span class="no">--model /models/qwen2.5-7b-instruct-q4_k_m.gguf --ctx-size 4096 --threads 4 --n-gpu-layers 0 --port 8080 --host 0.0.0.0</span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./models:/models</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"8080:8080"</span>
+<span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="s">"no"</span><span class="w">  </span><span class="c1"># "no" для примера, обычно "unless-stopped"</span>
+
+<span class="w">  </span><span class="nt">bot</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">build</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">context</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">src</span>
+<span class="w">      </span><span class="nt">dockerfile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./Dockerfile</span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./src/settings.toml:/app/src/settings.toml:ro</span>
+<span class="w">    </span><span class="nt">depends_on</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">llm</span>
+<span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="s">"no"</span><span class="w">  </span><span class="c1"># "no" для примера, обычно "unless-stopped"</span>
+</code></pre></div>
+<p>Далее в <code>src/bot</code> создайте файл <code>llm.py</code> с описанием простого клиента:
+</p><div class="highlight"><span class="filename">src/bot/llm.py</span><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">httpx</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">LLMClient</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">http_client</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">,</span>
+            <span class="n">llm_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">http_client</span> <span class="o">=</span> <span class="n">http_client</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">llm_url</span> <span class="o">=</span> <span class="n">llm_url</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">generate_response</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">messages</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span>
+            <span class="n">temperature</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.7</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">"model"</span><span class="p">:</span> <span class="n">model</span><span class="p">,</span>
+            <span class="s2">"stream"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">"messages"</span><span class="p">:</span> <span class="n">messages</span><span class="p">,</span>
+            <span class="s2">"temperature"</span><span class="p">:</span> <span class="n">temperature</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">http_client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">llm_url</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s2">"choices"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"message"</span><span class="p">][</span><span class="s2">"content"</span><span class="p">]</span>
+</code></pre></div>
+<p>Обновите файл <code>config_reader.py</code>, добавив туда модель <code>LLMConfig</code> и прописав поле <code>llm</code> в <code>class Settings</code>:</p>
+<div class="highlight"><span class="filename">src/bot/config_reader.py</span><pre><span></span><code><span class="c1"># Новый класс</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LLMConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">url</span><span class="p">:</span> <span class="nb">str</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Settings</span><span class="p">(</span><span class="n">BaseSettings</span><span class="p">):</span>
+    <span class="n">bot</span><span class="p">:</span> <span class="n">BotConfig</span>
+    <span class="n">logs</span><span class="p">:</span> <span class="n">LogConfig</span>
+    <span class="n">llm</span><span class="p">:</span> <span class="n">LLMConfig</span>  <span class="c1"># новое поле</span>
+
+    <span class="c1"># тут остальной код класса</span>
+</code></pre></div>
+<p>Далее надо обновить код в файле <code>__main__.py</code>: добавить создание HTTP- и LLM-клиентов, настроить закрытие HTTP-клиента 
+при завершении работы бота и прокинуть оба клиента в диспетчер. Полная версия файла:
+</p><div class="highlight"><span class="filename">src/bot/__main__.py</span><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">httpx</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">structlog</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bot</span><span class="p">,</span> <span class="n">Dispatcher</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.fsm.storage.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemoryStorage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">structlog.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">FilteringBoundLogger</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.config_reader</span><span class="w"> </span><span class="kn">import</span> <span class="n">Settings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.handlers</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_routers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.logs</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_structlog_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.llm</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLMClient</span>
+
+
+<span class="n">logger</span><span class="p">:</span> <span class="n">FilteringBoundLogger</span> <span class="o">=</span> <span class="n">structlog</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
+
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">shutdown</span><span class="p">(</span><span class="n">dispatcher</span><span class="p">:</span> <span class="n">Dispatcher</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">dispatcher</span><span class="p">[</span><span class="s2">"http_client"</span><span class="p">]</span><span class="o">.</span><span class="n">aclose</span><span class="p">()</span>
+
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="n">settings</span> <span class="o">=</span> <span class="n">Settings</span><span class="p">()</span>
+    <span class="n">structlog</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="o">**</span><span class="n">get_structlog_config</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">logs</span><span class="p">))</span>
+
+    <span class="n">bot</span> <span class="o">=</span> <span class="n">Bot</span><span class="p">(</span><span class="n">token</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">bot</span><span class="o">.</span><span class="n">token</span><span class="o">.</span><span class="n">get_secret_value</span><span class="p">())</span>
+    <span class="n">dp</span> <span class="o">=</span> <span class="n">Dispatcher</span><span class="p">(</span><span class="n">storage</span><span class="o">=</span><span class="n">MemoryStorage</span><span class="p">())</span>
+    <span class="n">dp</span><span class="o">.</span><span class="n">include_routers</span><span class="p">(</span><span class="o">*</span><span class="n">get_routers</span><span class="p">())</span>
+    <span class="n">dp</span><span class="o">.</span><span class="n">shutdown</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">shutdown</span><span class="p">)</span>
+
+    <span class="n">http_client</span> <span class="o">=</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">llm_client</span> <span class="o">=</span> <span class="n">LLMClient</span><span class="p">(</span><span class="n">http_client</span><span class="p">,</span> <span class="n">settings</span><span class="o">.</span><span class="n">llm</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
+    <span class="n">dp</span><span class="o">.</span><span class="n">workflow_data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="n">http_client</span><span class="o">=</span><span class="n">http_client</span><span class="p">,</span>
+        <span class="n">llm_client</span><span class="o">=</span><span class="n">llm_client</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">await</span> <span class="n">logger</span><span class="o">.</span><span class="n">ainfo</span><span class="p">(</span><span class="s2">"Starting bot..."</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">dp</span><span class="o">.</span><span class="n">start_polling</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
+
+
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</code></pre></div>
+<p>В <code>settings.toml</code> добавьте URL к будущему серверу llama.cpp:
+</p><div class="highlight"><pre><span></span><code><span class="k">[llm]</span>
+<span class="n">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"http://llm:8080/v1/chat/completions"</span>
+</code></pre></div>
+<p>Наконец, вместо заглушки-обработчика на команду <code>/start</code> сделаем что-то более полезное: 
+будем делать запрос к Qwen2.5 с захардкоженным вопросом «ты кто?»:
+</p><div class="highlight"><span class="filename">src/bot/handlers/start.py</span><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">aiogram</span><span class="w"> </span><span class="kn">import</span> <span class="n">Router</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommandStart</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Message</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..llm</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLMClient</span>
+
+<span class="n">router</span> <span class="o">=</span> <span class="n">Router</span><span class="p">()</span>
+
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">CommandStart</span><span class="p">())</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_start</span><span class="p">(</span>
+        <span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span>
+        <span class="n">llm_client</span><span class="p">:</span> <span class="n">LLMClient</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">messages</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">"role"</span><span class="p">:</span> <span class="s2">"system"</span><span class="p">,</span>
+            <span class="s2">"content"</span><span class="p">:</span> <span class="s2">"Ты — умный ассистент, помогаешь пользователям с разными задачами."</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">"role"</span><span class="p">:</span> <span class="s2">"user"</span><span class="p">,</span>
+            <span class="s2">"content"</span><span class="p">:</span> <span class="s2">"Ты кто?"</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+    <span class="n">response_text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="k">await</span> <span class="n">llm_client</span><span class="o">.</span><span class="n">generate_response</span><span class="p">(</span>
+        <span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">,</span>
+        <span class="n">temperature</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span><span class="n">response_text</span><span class="p">)</span>
+</code></pre></div>
+<p>Для тех, кто впервые сталкивается с LLM, стоит сделать несколько прояснений, очень упрощённо:</p>
+<ul>
+<li>Все большие языковые модели <em>stateless</em> по своей природе, т.е. они с каждым запросом получают <strong>полную</strong> историю 
+сообщений в диалоге. Иными словами: вы отправили ИИ два сообщения, оно вам вернуло третье. В следующий раз вы должны 
+отправить все три, плюс своё четвёртое, чтобы получить пятое. И так далее. Из этого следует, что при отправке истории 
+сообщений её [историю] можно редактировать на своё усмотрение. Ниже расскажу, зачем это может понадобиться.</li>
+<li>Всего существуют три основные роли: <code>system</code>, <code>user</code> и <code>assistant</code>. Последние две – это человек и LLM соответственно. 
+А <code>system</code> – это общий контекст, «объясняющий» ИИ, кто он такой и что должен делать. Например, можно задать такой 
+системный промт: «Сегодня 16 февраля 2026 года. Ты – умный ассистент. На дворе поздняя зима». Здесь хорошо видно, 
+зачем может потребоваться редактировать историю: поставьте вместо даты заглушку типа <code>{{%DATE%}}</code> и каждый раз её заменяйте 
+на текущую дату, чтобы ИИ не застревал во времени.</li>
+<li><strong>Температура</strong> определяет, насколько «креативными» будут ответы LLM. Если температура 0, то нейросеть становится полностью 
+детерминированной: на один и тот же запрос вы будете получать один и тот же ответ. Но чем выше температура, 
+тем менее предсказуемым будет результат. Для ролевых игр рекомендуется ставить значение повыше, для рутинных задач со 
+строгими правилами – поменьше. Для программирования часто выбирают значение 0.7, но всё зависит от конкретной модели и от 
+рекомендаций от её создателей.</li>
+</ul>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Хорошее объяснение принципов работы больших языковых моделей можно посмотреть 
+на <a href="https://youtu.be/LPZh9BOjkQs">YouTube</a>.</p>
+</div>
+<p>Запустите бота командой <code>docker compose up --build</code>. Когда увидите в терминале информацию, что поллинг запущен, отправьте 
+боту команду <code>/start</code> и немного подождите. Скоро вы получите ответ, причём у вас он будет, скорее всего, 
+не в точности такой, как на скриншоте ниже:</p>
+<p><img alt="Включение топиков в боте" src="../../../images/project_threads_llm/llm_response_simple.png"></p>
+<p>Если сообщение пришло, то всё работает успешно!</p>
+<h2 id="_3">Стриминг текста<a class="headerlink" href="#_3" title="Permanent link">¶</a></h2>
+<p>Если вы пользовались ChatGPT, Gemini, DeepSeek или им подобным, то наверняка замечали, что нейросети довольно 
+словоохотливые и часто выдают длинные подробные сообщения. Даже если LLM запущена на очень быстром компьютере, 
+она генерирует ответ слово за словом, поэтому это занимает какое-то время. Современные модели поддерживают 
+стриминг текста, т.е. отправку того, что уже сгенерировалось, не дожидаясь, пока соберётся весь текст целиком. 
+Начиная с Bot API 9.3 Telegram тоже поддерживает режим стриминга текста, правда, реализован он... ну, как обычно, 
+<em>нестандартно</em>. </p>
+<p>Начнём с того, что добавим поддержку стриминга в наш клиент к LLM. Обычный режим оставим тоже, он пригодится далее. 
+Замените содержимое файла <code>llm.py</code> на следующее:</p>
+<div class="highlight"><span class="filename">src/bot/llm.py</span><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncIterator</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">httpx</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">LLMClient</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">http_client</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">,</span>
+            <span class="n">llm_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">http_client</span> <span class="o">=</span> <span class="n">http_client</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">llm_url</span> <span class="o">=</span> <span class="n">llm_url</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">generate_response</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">messages</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span>
+            <span class="n">stream</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">temperature</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.7</span><span class="p">,</span>
+            <span class="n">model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"local"</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">AsyncIterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">"model"</span><span class="p">:</span> <span class="n">model</span><span class="p">,</span>
+            <span class="s2">"stream"</span><span class="p">:</span> <span class="n">stream</span><span class="p">,</span>
+            <span class="s2">"messages"</span><span class="p">:</span> <span class="n">messages</span><span class="p">,</span>
+            <span class="s2">"temperature"</span><span class="p">:</span> <span class="n">temperature</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">stream</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stream_response</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_simple_response</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_stream_response</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">payload</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncIterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">http_client</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="s2">"POST"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">llm_url</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span> <span class="k">as</span> <span class="n">response</span><span class="p">:</span>
+            <span class="k">async</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">aiter_lines</span><span class="p">():</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"data:"</span><span class="p">):</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"[DONE]"</span><span class="p">):</span>
+                    <span class="k">break</span>
+
+                <span class="n">data</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">removeprefix</span><span class="p">(</span><span class="s2">"data: "</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">chunk</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                    <span class="n">delta</span> <span class="o">=</span> <span class="n">chunk</span><span class="p">[</span><span class="s2">"choices"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"delta"</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"content"</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">delta</span><span class="p">:</span>
+                        <span class="k">yield</span> <span class="n">delta</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_simple_response</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">payload</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">http_client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">llm_url</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s2">"choices"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"message"</span><span class="p">][</span><span class="s2">"content"</span><span class="p">]</span>
+</code></pre></div>
+<p>Метод <code>generate_response()</code> обзавёлся новым булевым параметром <code>stream</code>, старый код уехал в метод <code>_simple_response()</code> 
+и добавился новый метод <code>_stream_response()</code>. В нём происходит следующее:</p>
+<ul>
+<li>В ответ на запрос к <code>self.llm_url</code> сервер начинает присылать построчно данные.</li>
+<li>Если строка пустая или не начинается с <code>data:</code>, то это служебные данные, нам они не интересны. Пропускаем.</li>
+<li>Если строка заканчивается на <code>[DONE]</code>, то завершаем обработку.</li>
+<li>Убираем префикс <code>data</code> и пытаемся парсить оставшееся как JSON. Если получилось, достаём <code>content</code>.</li>
+<li>Если что-то извлеклось, забираем.</li>
+<li>Если что-то пошло не так, пропускаем ход. Да, часть текста потеряется, но обычно такого происходить не должно.</li>
+</ul>
+<p>Теперь надо обновить обработчик команды <code>/start</code>. Чтобы сделать стриминг текста в Telegram, нужно выполнить следующие 
+операции: выберите случайное число как идентификатор. Далее вызывайте в цикле API-метод 
+<a href="https://core.telegram.org/bots/api#sendmessagedraft">sendMessageDraft</a> с указанием идентификатора, айди чата, топика и 
+новую версию текста (т.е. текст с накоплением). А после завершения цикла, когда весь текст готов, вызовите метод 
+<strong>sendMessageText</strong> или какой вам нужен с полной и окончательной версией сообщения. Самая мякотка – форматирование: на 
+«черновики» распространяются все правила, что и на обычные сообщения: никаких незакрытых тегов, никаких неизвестных тегов 
+и т.д. Это боль...</p>
+<p>Новая версия обработчика команды <code>/start</code>:
+</p><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">random</span><span class="w"> </span><span class="kn">import</span> <span class="n">randint</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">structlog</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bot</span><span class="p">,</span> <span class="n">Router</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TelegramRetryAfter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommandStart</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Message</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">structlog.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">FilteringBoundLogger</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..llm</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLMClient</span>
+
+<span class="n">router</span> <span class="o">=</span> <span class="n">Router</span><span class="p">()</span>
+<span class="n">logger</span><span class="p">:</span> <span class="n">FilteringBoundLogger</span> <span class="o">=</span> <span class="n">structlog</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
+
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">CommandStart</span><span class="p">())</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_start</span><span class="p">(</span>
+        <span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span>
+        <span class="n">llm_client</span><span class="p">:</span> <span class="n">LLMClient</span><span class="p">,</span>
+        <span class="n">bot</span><span class="p">:</span> <span class="n">Bot</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">messages</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">"role"</span><span class="p">:</span> <span class="s2">"system"</span><span class="p">,</span>
+            <span class="s2">"content"</span><span class="p">:</span> <span class="s2">"Ты — умный ассистент, помогаешь пользователям с разными задачами."</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">"role"</span><span class="p">:</span> <span class="s2">"user"</span><span class="p">,</span>
+            <span class="s2">"content"</span><span class="p">:</span> <span class="s2">"Ты кто?"</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+
+    <span class="c1"># Начальное состояние текста</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="s2">""</span>
+    <span class="c1"># Случайный идентификатор черновика</span>
+    <span class="n">draft_id</span> <span class="o">=</span> <span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">100_000_000</span><span class="p">)</span>
+    <span class="c1"># Получаем стрим от LLM и стримим уже в Telegram</span>
+    <span class="k">async</span> <span class="k">for</span> <span class="n">delta</span> <span class="ow">in</span> <span class="k">await</span> <span class="n">llm_client</span><span class="o">.</span><span class="n">generate_response</span><span class="p">(</span>
+        <span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">,</span>
+        <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">temperature</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">text</span> <span class="o">+=</span> <span class="n">delta</span>
+
+        <span class="c1"># Если хотите лучше понять, как LLM генерируют текст по кусочкам,</span>
+        <span class="c1"># раскомментируйте следующие строки</span>
+        <span class="c1"># print(delta)</span>
+        <span class="c1"># print(text)</span>
+        <span class="c1"># print("*"*30)</span>
+
+        <span class="k">await</span> <span class="n">bot</span><span class="o">.</span><span class="n">send_message_draft</span><span class="p">(</span>
+            <span class="n">draft_id</span><span class="o">=</span><span class="n">draft_id</span><span class="p">,</span>
+            <span class="n">chat_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="n">message_thread_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">message_thread_id</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Окончательная отправка сообщения</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+</code></pre></div>
+<p>Когда вы запустите бота снова (напомню, <code>docker compose up --build</code>) и вызовите команду <code>/start</code>, 
+то с первой или второй попытки увидите, что текст стримится, но обрывается, а в терминале появляется страшное:
+</p><div class="highlight"><pre><span></span><code>aiogram.exceptions.TelegramRetryAfter: 
+Telegram server says - Flood control exceeded 
+on method 'SendMessageDraft' in chat 1234567. 
+Retry in 17 seconds.
+</code></pre></div>
+<p>Оказывается, даже стримить быстро нельзя. Хорошо, сделаем обработку этой ошибки и будем при необходимости 
+спать нужное количество секунд. Добавьте импорты и замените вызов <code>send_message_draft</code> на следующий блок:
+</p><div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TelegramRetryAfter</span>
+
+<span class="c1"># В функции cmd_start():</span>
+<span class="o">...</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">bot</span><span class="o">.</span><span class="n">send_message_draft</span><span class="p">(</span>
+        <span class="n">draft_id</span><span class="o">=</span><span class="n">draft_id</span><span class="p">,</span>
+        <span class="n">chat_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+        <span class="n">message_thread_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">message_thread_id</span><span class="p">,</span>
+        <span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="k">except</span> <span class="n">TelegramRetryAfter</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">logger</span><span class="o">.</span><span class="n">awarning</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"Streaming rate limit, need to wait </span><span class="si">{</span><span class="n">ex</span><span class="o">.</span><span class="n">retry_after</span><span class="si">}</span><span class="s2"> sec"</span>
+    <span class="p">)</span>
+    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">ex</span><span class="o">.</span><span class="n">retry_after</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">logger</span><span class="o">.</span><span class="n">aexception</span><span class="p">(</span><span class="s2">"Failed to stream message draft"</span><span class="p">)</span>
+    <span class="k">return</span>
+<span class="o">...</span>
+</code></pre></div>
+<p>Новая версия исправит краши, но текст будет генерироваться с большими паузами и вы по-прежнему будете видеть 
+в логах строки вида: <code>[warning] Streaming rate limit, need to wait 16 sec</code>. На просторах интернета я видел рекомендации 
+по типу «добавьте асинхронный sleep на 0.2 секунды в каждую итерацию», но это путь в никуда.</p>
+<p>Достаточно задать себе вопрос: «а надо ли обновлять черновик <em>на каждый</em> стриминговый ответ от LLM?». И вот оно решение:</p>
+<ul>
+<li>Запоминаем текущее время.</li>
+<li>Принимаем кусочек текста (чанк) от LLM.</li>
+<li>Если прошло мало времени, то не обновляем черновик.</li>
+<li>Если прошло достаточно времени, то обновляем черновик.</li>
+<li>Если всё-таки упёрлись в Flood Wait, то спим указанное количество секунд 
+и заодно увеличиваем интервал между обновлениями черновика на 0.1 сек.</li>
+</ul>
+<p>Перепишем функцию ещё раз:</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">CommandStart</span><span class="p">())</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_start</span><span class="p">(</span>
+        <span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span>
+        <span class="n">llm_client</span><span class="p">:</span> <span class="n">LLMClient</span><span class="p">,</span>
+        <span class="n">bot</span><span class="p">:</span> <span class="n">Bot</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="c1"># содержимое messages пропустим, чтобы не раздувать текст</span>
+    <span class="n">messages</span><span class="o">=</span><span class="p">[</span><span class="o">...</span><span class="p">]</span>
+
+    <span class="n">text</span> <span class="o">=</span> <span class="s2">""</span>
+    <span class="n">retry_backoff</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">update_interval</span> <span class="o">=</span> <span class="mf">0.7</span>
+    <span class="n">last_update</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">draft_id</span> <span class="o">=</span> <span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">100_000_000</span><span class="p">)</span>
+    <span class="k">async</span> <span class="k">for</span> <span class="n">delta</span> <span class="ow">in</span> <span class="k">await</span> <span class="n">llm_client</span><span class="o">.</span><span class="n">generate_response</span><span class="p">(</span>
+        <span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">,</span>
+        <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">temperature</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">text</span> <span class="o">+=</span> <span class="n">delta</span>
+
+        <span class="n">now</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">now</span> <span class="o">-</span> <span class="n">last_update</span> <span class="o">&lt;</span> <span class="n">update_interval</span> <span class="o">+</span> <span class="n">retry_backoff</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">logger</span><span class="o">.</span><span class="n">adebug</span><span class="p">(</span><span class="s2">"Skipping updating draft; still merging chunks"</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="k">await</span> <span class="n">logger</span><span class="o">.</span><span class="n">adebug</span><span class="p">(</span><span class="s2">"Enough time passed, updating draft"</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">bot</span><span class="o">.</span><span class="n">send_message_draft</span><span class="p">(</span>
+                <span class="n">draft_id</span><span class="o">=</span><span class="n">draft_id</span><span class="p">,</span>
+                <span class="n">chat_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                <span class="n">message_thread_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">message_thread_id</span><span class="p">,</span>
+                <span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">last_update</span> <span class="o">=</span> <span class="n">now</span>
+        <span class="k">except</span> <span class="n">TelegramRetryAfter</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">retry_backoff</span> <span class="o">+=</span> <span class="mf">0.1</span>
+            <span class="n">last_update</span> <span class="o">=</span> <span class="n">now</span>
+            <span class="k">await</span> <span class="n">logger</span><span class="o">.</span><span class="n">awarning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Streaming rate limit, need to wait </span><span class="si">{</span><span class="n">ex</span><span class="o">.</span><span class="n">retry_after</span><span class="si">}</span><span class="s2"> sec"</span>
+            <span class="p">)</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">ex</span><span class="o">.</span><span class="n">retry_after</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">logger</span><span class="o">.</span><span class="n">aexception</span><span class="p">(</span><span class="s2">"Failed to stream message draft"</span><span class="p">)</span>
+            <span class="k">return</span>
+
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+</code></pre></div>
+<p>Практика показала, что такой вариант приводит к минимуму Flood Wait-ов, а при желании 
+можно немного подвигать числа туда-сюда. </p>
+<p>Никак не закончим с этой бедной функцией и сделаем ещё одну улучшалку: поскольку LLM могут нагенерировать 
+текста на более чем 4096 символов, стоит это учесть, иначе будет ошибка "message too long". 
+Чтобы сильно не заморачиваться, сделаем функцию, которая при превышении заданного лимита, например, в 4000 символов, 
+аккуратно обрежет текст по пробелу или переносу строки. Далее будем передавать в качестве черновика именно 
+обрезанный текст, а в случае его расхождения с оригинальным просто завершит обработку, потому дальше уже принимать 
+нельзя. Желающие отправлять несколько сообщений могут сделать это самостоятельно в качестве упражнения :)</p>
+<p>Создайте в каталоге <code>src/bot</code> файл <code>text_utils.py</code> и поместите туда функцию:
+</p><div class="highlight"><span class="filename">src/bot/text_utils.py</span><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">trim_text_smart</span><span class="p">(</span>
+        <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">max_len</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4000</span><span class="p">,</span>
+        <span class="n">trim_marker</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"…"</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Обрезает текст до {max_len} символов,</span>
+<span class="sd">    стараясь это делать по пробелу или \n</span>
+<span class="sd">    :param text: исходный текст</span>
+<span class="sd">    :param max_len: максимально разрешённая длина текста</span>
+<span class="sd">    :param trim_marker: символ, которым обрезается текст</span>
+<span class="sd">    :return: обрезанный текст</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">max_len</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">text</span>
+
+    <span class="n">cut_len</span> <span class="o">=</span> <span class="n">max_len</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">trim_marker</span><span class="p">)</span>
+    <span class="n">candidate</span> <span class="o">=</span> <span class="n">text</span><span class="p">[:</span><span class="n">cut_len</span><span class="p">]</span>
+
+    <span class="c1"># Пытаемся резать по границе строки</span>
+    <span class="n">newline_pos</span> <span class="o">=</span> <span class="n">candidate</span><span class="o">.</span><span class="n">rfind</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">newline_pos</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">candidate</span><span class="p">[:</span><span class="n">newline_pos</span><span class="p">]</span> <span class="o">+</span> <span class="n">trim_marker</span>
+
+    <span class="c1"># Если нет — по последнему пробелу</span>
+    <span class="n">space_pos</span> <span class="o">=</span> <span class="n">candidate</span><span class="o">.</span><span class="n">rfind</span><span class="p">(</span><span class="s2">" "</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">space_pos</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">candidate</span><span class="p">[:</span><span class="n">space_pos</span><span class="p">]</span> <span class="o">+</span> <span class="n">trim_marker</span>
+
+    <span class="c1"># Совсем крайний случай</span>
+    <span class="k">return</span> <span class="n">candidate</span> <span class="o">+</span> <span class="n">trim_marker</span>
+</code></pre></div>
+<p>И ещё раз обновим обработчик команды <code>/start</code>. Замените всё, что начинается с <code>text = ""</code> на это:
+</p><div class="highlight"><pre><span></span><code><span class="c1"># async def cmd_start(...)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="s2">""</span>
+    <span class="n">safe_text</span> <span class="o">=</span> <span class="s2">""</span>
+    <span class="n">retry_backoff</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">update_interval</span> <span class="o">=</span> <span class="mf">0.7</span>
+    <span class="n">last_update</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">draft_id</span> <span class="o">=</span> <span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">100_000_000</span><span class="p">)</span>
+    <span class="k">async</span> <span class="k">for</span> <span class="n">delta</span> <span class="ow">in</span> <span class="k">await</span> <span class="n">llm_client</span><span class="o">.</span><span class="n">generate_response</span><span class="p">(</span>
+        <span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">,</span>
+        <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">temperature</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">text</span> <span class="o">+=</span> <span class="n">delta</span>
+        <span class="n">safe_text</span> <span class="o">=</span> <span class="n">trim_text_smart</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">now</span> <span class="o">-</span> <span class="n">last_update</span> <span class="o">&lt;</span> <span class="n">update_interval</span> <span class="o">+</span> <span class="n">retry_backoff</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">safe_text</span> <span class="o">!=</span> <span class="n">text</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="k">await</span> <span class="n">logger</span><span class="o">.</span><span class="n">adebug</span><span class="p">(</span><span class="s2">"Skipping updating draft; still merging chunks"</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="k">await</span> <span class="n">logger</span><span class="o">.</span><span class="n">adebug</span><span class="p">(</span><span class="s2">"Enough time passed, updating draft"</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">bot</span><span class="o">.</span><span class="n">send_message_draft</span><span class="p">(</span>
+                <span class="n">draft_id</span><span class="o">=</span><span class="n">draft_id</span><span class="p">,</span>
+                <span class="n">chat_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                <span class="n">message_thread_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">message_thread_id</span><span class="p">,</span>
+                <span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">last_update</span> <span class="o">=</span> <span class="n">now</span>
+        <span class="k">except</span> <span class="n">TelegramRetryAfter</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">retry_backoff</span> <span class="o">+=</span> <span class="mf">0.1</span>
+            <span class="n">last_update</span> <span class="o">=</span> <span class="n">now</span>
+            <span class="k">await</span> <span class="n">logger</span><span class="o">.</span><span class="n">awarning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Streaming rate limit, need to wait </span><span class="si">{</span><span class="n">ex</span><span class="o">.</span><span class="n">retry_after</span><span class="si">}</span><span class="s2"> sec"</span>
+            <span class="p">)</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">ex</span><span class="o">.</span><span class="n">retry_after</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">logger</span><span class="o">.</span><span class="n">aexception</span><span class="p">(</span><span class="s2">"Failed to stream message draft"</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">safe_text</span> <span class="o">!=</span> <span class="n">text</span><span class="p">:</span>
+            <span class="k">break</span>
+
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span><span class="n">safe_text</span><span class="p">)</span>
+</code></pre></div>
+<p>Вот теперь можно насладиться стримингом текста в телеграме:</p>
+<p><div class="video-container"><video style="width:100%;height:100%" controls alt="type:video"><source src="../../../images/project_threads_llm/streaming_demo.mp4" type="video/mp4"></source></video></div></p>
+<h2 id="_4">История сообщений<a class="headerlink" href="#_4" title="Permanent link">¶</a></h2>
+<p>Хорошо, на заранее известный вопрос нейросеть отвечать умеет, но надо научить бота поддерживать длинные диалоги. 
+Следовательно, требуется какое-то хранилище, которое на каждый запрос будет доставать все сообщения, относящиеся к 
+конкретному топику, а далее отправлять их к ИИ, получать ответ и снова обновлять хранилище. Как и было обещано в начале, 
+для простоты запуска и понимания будем использовать in-memory хранилище в оперативной памяти. Для демонстрации возможностей 
+этого более чем достаточно, а желающие добавить персистентность могут легко заменить RAM на PostgreSQL или любое 
+другое подходящее хранилище.</p>
+<p>Создайте файл <code>src/bot/storage.py</code> со следующим содержимым:
+</p><div class="highlight"><span class="filename">src/bot/storage.py</span><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">StrEnum</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">structlog</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">Field</span><span class="p">,</span> <span class="n">BaseModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">structlog.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">FilteringBoundLogger</span>
+
+<span class="n">logger</span><span class="p">:</span> <span class="n">FilteringBoundLogger</span> <span class="o">=</span> <span class="n">structlog</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Role</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
+    <span class="n">USER</span> <span class="o">=</span> <span class="s2">"user"</span>
+    <span class="n">ASSISTANT</span> <span class="o">=</span> <span class="s2">"assistant"</span>
+    <span class="n">SYSTEM</span> <span class="o">=</span> <span class="s2">"system"</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Message</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">role</span><span class="p">:</span> <span class="n">Role</span>
+    <span class="n">content</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_call_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">"role"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">role</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+            <span class="s2">"content"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_call_dict</span><span class="p">(</span>
+            <span class="bp">cls</span><span class="p">,</span>
+            <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Message"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">role</span><span class="o">=</span><span class="n">Role</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">"role"</span><span class="p">]),</span>
+            <span class="n">content</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">"content"</span><span class="p">],</span>
+        <span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">LLMChatMeta</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">thread_id</span><span class="p">:</span> <span class="nb">int</span>  <span class="c1"># message_thread_id в терминах Telegram</span>
+    <span class="n">prompt_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"default"</span>
+    <span class="n">temperature</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.7</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">LLMChat</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">meta</span><span class="p">:</span> <span class="n">LLMChatMeta</span>
+    <span class="c1"># Системное сообщение НЕ храним в списке messages,</span>
+    <span class="c1"># оно динамически подставляется из persona_key при запросе к LLM.</span>
+    <span class="n">messages</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Message</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_chat_start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">messages</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">2</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">InMemoryChatStorage</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__storage</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">LLMChat</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_key</span><span class="p">(</span>
+            <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">thread_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">user_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">thread_id</span><span class="si">}</span><span class="s2">"</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">thread_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">new_chat_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_key</span><span class="p">(</span><span class="n">user_id</span><span class="p">,</span> <span class="n">thread_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__storage</span><span class="p">[</span><span class="n">new_chat_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">LLMChat</span><span class="p">(</span>
+            <span class="n">meta</span><span class="o">=</span><span class="n">LLMChatMeta</span><span class="p">(</span>
+                <span class="n">user_id</span><span class="o">=</span><span class="n">user_id</span><span class="p">,</span>
+                <span class="n">thread_id</span><span class="o">=</span><span class="n">thread_id</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">thread_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LLMChat</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__storage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_key</span><span class="p">(</span><span class="n">user_id</span><span class="p">,</span> <span class="n">thread_id</span><span class="p">))</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">thread_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">new_version</span><span class="p">:</span> <span class="n">LLMChat</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">llm_chat_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_key</span><span class="p">(</span><span class="n">user_id</span><span class="p">,</span> <span class="n">thread_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__storage</span><span class="p">[</span><span class="n">llm_chat_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_version</span>
+
+<span class="n">memory_chat_storage</span> <span class="o">=</span> <span class="n">InMemoryChatStorage</span><span class="p">()</span>
+</code></pre></div>
+<p>Думаю, код максимально простой и пояснения к нему не требуются, тем более, что очень скоро мы начнём его использовать 
+и всё станет ещё понятнее. Следующим шагом создадим обработчик команды <code>/new</code>, который делает следующее:</p>
+<ol>
+<li>Создаёт новый топик с названием «Новый чат».</li>
+<li>В случае неуспеха пишет ошибку и на этом всё.</li>
+<li>В случае успеха использует айди топика вместе с айди юзера для создания новой записи в хранилище.</li>
+<li>Отправляет сообщение пользователю с предложением написать первое сообщение для ИИ.</li>
+</ol>
+<p>Создайте новый файл с роутером по адресу <code>src/bot/handlers/new_chat_creation.py</code>:
+</p><div class="highlight"><span class="filename">src/bot/handlers/new_chat_creation.py</span><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">structlog</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram</span><span class="w"> </span><span class="kn">import</span> <span class="n">Router</span><span class="p">,</span> <span class="n">Bot</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.enums.topic_icon_color</span><span class="w"> </span><span class="kn">import</span> <span class="n">TopicIconColor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Message</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">structlog.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">FilteringBoundLogger</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">bot.storage</span><span class="w"> </span><span class="kn">import</span> <span class="n">memory_chat_storage</span>
+
+<span class="n">router</span> <span class="o">=</span> <span class="n">Router</span><span class="p">()</span>
+<span class="n">logger</span><span class="p">:</span> <span class="n">FilteringBoundLogger</span> <span class="o">=</span> <span class="n">structlog</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
+
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s2">"new"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_start</span><span class="p">(</span>
+        <span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span>
+        <span class="n">bot</span><span class="p">:</span> <span class="n">Bot</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">new_topic</span> <span class="o">=</span> <span class="k">await</span> <span class="n">bot</span><span class="o">.</span><span class="n">create_forum_topic</span><span class="p">(</span>
+            <span class="n">chat_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">"Новый чат"</span><span class="p">,</span>
+            <span class="n">icon_color</span><span class="o">=</span><span class="n">TopicIconColor</span><span class="o">.</span><span class="n">YELLOW</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>  <span class="c1"># noqa</span>
+        <span class="k">await</span> <span class="n">logger</span><span class="o">.</span><span class="n">aexception</span><span class="p">(</span><span class="s2">"Failed to create new topic"</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span><span class="s2">"Что-то пошло не так. Пожалуйста, попробуйте ещё раз."</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">new_topic_id</span> <span class="o">=</span> <span class="n">new_topic</span><span class="o">.</span><span class="n">message_thread_id</span>
+    <span class="k">await</span> <span class="n">memory_chat_storage</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+        <span class="n">user_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">from_user</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+        <span class="n">thread_id</span><span class="o">=</span><span class="n">new_topic_id</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">await</span> <span class="n">bot</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span>
+        <span class="n">chat_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"Новый чат создан, напишите ваше сообщение."</span><span class="p">,</span>
+        <span class="n">message_thread_id</span><span class="o">=</span><span class="n">new_topic_id</span><span class="p">,</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>Не забудьте зарегистрировать роутер в <code>src/bot/handlers/__init__.py</code>! А вот обработчик команды <code>/start</code> можно заменить 
+снова на простую заглушку; тот большой код для стриминга мы переиспользуем чуть позднее в другом месте:
+</p><div class="highlight"><span class="filename">src/bot/handlers/start.py</span><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">structlog</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram</span><span class="w"> </span><span class="kn">import</span> <span class="n">Router</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommandStart</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Message</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">structlog.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">FilteringBoundLogger</span>
+
+<span class="n">router</span> <span class="o">=</span> <span class="n">Router</span><span class="p">()</span>
+<span class="n">logger</span><span class="p">:</span> <span class="n">FilteringBoundLogger</span> <span class="o">=</span> <span class="n">structlog</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
+
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">CommandStart</span><span class="p">())</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_start</span><span class="p">(</span>
+        <span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span><span class="s2">"Добро пожаловать! Нажмите /new для создания нового чата"</span><span class="p">)</span>
+</code></pre></div>
+<p>Запустите бота и выполните команду <code>/new</code>. Если всё пройдёт успешно, то создастся новый топик, куда бот сразу 
+напишет сообщение:</p>
+<p><img alt="Бот создал топик" src="../../../images/project_threads_llm/off_thread_message_problem.png"></p>
+<p>Здесь кроется та самая проблема, о которой упоминалось в начале. Обратите внимание на подсказку "Off-thread message" 
+от Telegram Desktop. Если пользователь просто отправит сообщение, то оно улетит в топик General (т.е. общий топик), 
+а чтобы сделать правильно, надо отдельно нажать на заголовок «Новый чат &gt;» на пунктирной линии. Такой проблемы нет 
+при выборе другого варианта отображения, но там свои приколы. Что делать в нашем случае? Как вариант, просто реагировать 
+на произвольные сообщения в General-топике. Да и в целом пора начать разделять роутеры на те, что работают в General-топике, 
+и на те, что работают внутри явно созданных топиков. </p>
+<p>Сперва создайте роутер для обработки произвольных сообщений вне явных топиков:
+</p><div class="highlight"><span class="filename">src/bot/handlers/chat_in_general_topic.py</span><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">structlog</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram</span><span class="w"> </span><span class="kn">import</span> <span class="n">F</span><span class="p">,</span> <span class="n">Router</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Message</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">structlog.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">FilteringBoundLogger</span>
+
+<span class="n">router</span> <span class="o">=</span> <span class="n">Router</span><span class="p">()</span>
+<span class="n">logger</span><span class="p">:</span> <span class="n">FilteringBoundLogger</span> <span class="o">=</span> <span class="n">structlog</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
+
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">text_message_in_general_topic</span><span class="p">(</span>
+        <span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="s2">"Сообщения вне топиков-чатов не поддерживаются. "</span>
+        <span class="s2">"Пожалуйста, создайте новый топик-чат при помощи команды /new."</span>
+    <span class="p">)</span>
+
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="o">~</span><span class="n">F</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">nontext_message_in_general_topic</span><span class="p">(</span>
+        <span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="s2">"В настоящий момент медиафайлы не поддерживаются"</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>А теперь приведите ваш файл <code>src/bot/handlers/__init__.py</code> к следующему виду:
+</p><div class="highlight"><span class="filename">src/bot/handlers/__init__.py</span><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">aiogram</span><span class="w"> </span><span class="kn">import</span> <span class="n">Router</span><span class="p">,</span> <span class="n">F</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">chat_in_general_topic</span><span class="p">,</span>
+    <span class="n">new_chat_creation</span><span class="p">,</span>
+    <span class="n">start</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">general_topic_router</span> <span class="o">=</span> <span class="n">Router</span><span class="p">()</span>
+<span class="n">general_topic_router</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">message_thread_id</span><span class="o">.</span><span class="n">is_</span><span class="p">(</span><span class="kc">None</span><span class="p">))</span>
+<span class="n">general_topic_router</span><span class="o">.</span><span class="n">include_routers</span><span class="p">(</span>
+    <span class="n">start</span><span class="o">.</span><span class="n">router</span><span class="p">,</span>
+    <span class="n">new_chat_creation</span><span class="o">.</span><span class="n">router</span><span class="p">,</span>
+    <span class="n">chat_in_general_topic</span><span class="o">.</span><span class="n">router</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">in_topic_router</span> <span class="o">=</span> <span class="n">Router</span><span class="p">()</span>
+<span class="c1"># Тут пока ничего не будет</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_routers</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Router</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">general_topic_router</span><span class="p">,</span>
+        <span class="n">in_topic_router</span><span class="p">,</span>
+    <span class="p">]</span>
+</code></pre></div>
+<p>Вернёмся к бизнес-логике. Бот уже создаёт топик и предлагает туда написать. Значит, следующим шагом надо отреагировать 
+на текстовое сообщение пользователя и отправить его запрос к ИИ. Снова пройдёмся по алгоритму:</p>
+<ol>
+<li>Получить все более ранние сообщения пользователя в этом топике из хранилища. 
+В случае ошибки – просим начать новый топик-чат и прекращаем обработку.</li>
+<li>Формируем системный промт. Его мы НЕ храним в истории, потому что он может меняться со временем.</li>
+<li>Из сообщений формируем список словарей с ключами <code>role</code> и <code>content</code>.</li>
+<li>Добавляем в этот список тот текст, который только что прислал пользователь.</li>
+<li>Отправляем всё это в LLM и по кусочкам получаем и стримим ответ.</li>
+<li>После того, как ответ полностью пришёл, добавляем к списку ответ от ИИ и сохраняем новое состояние в хранилище.</li>
+</ol>
+<div class="admonition info">
+<p class="admonition-title">Примечание</p>
+<p>Если вы используете PostgreSQL или другую БД, то вам надо сохранить только свежую пару запроса от юзера и ответа от LLM, 
+поскольку предыдущая история уже сохранена.</p>
+</div>
+<p>Создайте новый файл с роутером по адресу <code>src/bot/handlers/chat_in_topic.py</code>:
+</p><div class="highlight"><span class="filename">src/bot/handlers/chat_in_topic.py</span><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">random</span><span class="w"> </span><span class="kn">import</span> <span class="n">randint</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">structlog</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram</span><span class="w"> </span><span class="kn">import</span> <span class="n">F</span><span class="p">,</span> <span class="n">Router</span><span class="p">,</span> <span class="n">Bot</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TelegramRetryAfter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Message</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">structlog.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">FilteringBoundLogger</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">bot.llm</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLMClient</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bot.storage</span><span class="w"> </span><span class="kn">import</span> <span class="n">Message</span> <span class="k">as</span> <span class="n">LLMMessage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bot.storage</span><span class="w"> </span><span class="kn">import</span> <span class="n">memory_chat_storage</span><span class="p">,</span> <span class="n">Role</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bot.text_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">trim_text_smart</span>
+
+<span class="n">router</span> <span class="o">=</span> <span class="n">Router</span><span class="p">()</span>
+<span class="n">logger</span><span class="p">:</span> <span class="n">FilteringBoundLogger</span> <span class="o">=</span> <span class="n">structlog</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
+
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handle_message</span><span class="p">(</span>
+        <span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span>
+        <span class="n">llm_client</span><span class="p">:</span> <span class="n">LLMClient</span><span class="p">,</span>
+        <span class="n">bot</span><span class="p">:</span> <span class="n">Bot</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">llm_chat</span> <span class="o">=</span> <span class="k">await</span> <span class="n">memory_chat_storage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="n">user_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">from_user</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+        <span class="n">thread_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">message_thread_id</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">llm_chat</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+            <span class="s2">"Не удалось получить историю сообщений. "</span>
+            <span class="s2">"Пожалуйста, создайте новый топик-чат: вернитесь в основной раздел и вызовите команду /new"</span>
+        <span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="c1"># Совет: если вы хотите использовать заглушки в промте,</span>
+    <span class="c1"># например, для подстановки текущей даты,</span>
+    <span class="c1"># то это можно сделать где-то тут при создании</span>
+    <span class="c1"># словаря с системным промтом.</span>
+    <span class="n">prompt</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"role"</span><span class="p">:</span> <span class="s2">"system"</span><span class="p">,</span>
+        <span class="s2">"content"</span><span class="p">:</span> <span class="s2">"Ты — умный ассистент, помогаешь пользователям с разными задачами."</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="c1"># Получаем всю предыдущую историю</span>
+    <span class="n">chat_history</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">to_call_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">llm_chat</span><span class="o">.</span><span class="n">messages</span><span class="p">]</span>
+
+    <span class="c1"># Сверху кладём свежее сообщение юзера</span>
+    <span class="n">chat_history</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">"role"</span><span class="p">:</span> <span class="s2">"user"</span><span class="p">,</span> <span class="s2">"content"</span><span class="p">:</span> <span class="n">message</span><span class="o">.</span><span class="n">text</span><span class="p">})</span>
+
+    <span class="n">text</span> <span class="o">=</span> <span class="s2">""</span>
+    <span class="n">safe_text</span> <span class="o">=</span> <span class="s2">""</span>
+    <span class="n">retry_backoff</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">update_interval</span> <span class="o">=</span> <span class="mf">0.7</span>
+    <span class="n">last_update</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">draft_id</span> <span class="o">=</span> <span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">100_000_000</span><span class="p">)</span>
+    <span class="k">async</span> <span class="k">for</span> <span class="n">delta</span> <span class="ow">in</span> <span class="k">await</span> <span class="n">llm_client</span><span class="o">.</span><span class="n">generate_response</span><span class="p">(</span>
+        <span class="n">messages</span><span class="o">=</span><span class="p">[</span><span class="n">prompt</span><span class="p">]</span> <span class="o">+</span> <span class="n">chat_history</span><span class="p">,</span>
+        <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">temperature</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">text</span> <span class="o">+=</span> <span class="n">delta</span>
+        <span class="n">safe_text</span> <span class="o">=</span> <span class="n">trim_text_smart</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">now</span> <span class="o">-</span> <span class="n">last_update</span> <span class="o">&lt;</span> <span class="n">update_interval</span> <span class="o">+</span> <span class="n">retry_backoff</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">safe_text</span> <span class="o">!=</span> <span class="n">text</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="k">await</span> <span class="n">logger</span><span class="o">.</span><span class="n">adebug</span><span class="p">(</span><span class="s2">"Skipping updating draft; still merging chunks"</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="k">await</span> <span class="n">logger</span><span class="o">.</span><span class="n">adebug</span><span class="p">(</span><span class="s2">"Enough time passed, updating draft"</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">bot</span><span class="o">.</span><span class="n">send_message_draft</span><span class="p">(</span>
+                <span class="n">draft_id</span><span class="o">=</span><span class="n">draft_id</span><span class="p">,</span>
+                <span class="n">chat_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                <span class="n">message_thread_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">message_thread_id</span><span class="p">,</span>
+                <span class="n">text</span><span class="o">=</span><span class="n">safe_text</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">last_update</span> <span class="o">=</span> <span class="n">now</span>
+        <span class="k">except</span> <span class="n">TelegramRetryAfter</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">retry_backoff</span> <span class="o">+=</span> <span class="mf">0.1</span>
+            <span class="n">last_update</span> <span class="o">=</span> <span class="n">now</span>
+            <span class="k">await</span> <span class="n">logger</span><span class="o">.</span><span class="n">awarning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Streaming rate limit, need to wait </span><span class="si">{</span><span class="n">ex</span><span class="o">.</span><span class="n">retry_after</span><span class="si">}</span><span class="s2"> sec"</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">ex</span><span class="o">.</span><span class="n">retry_after</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">logger</span><span class="o">.</span><span class="n">aexception</span><span class="p">(</span><span class="s2">"Failed to stream message draft"</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">safe_text</span> <span class="o">!=</span> <span class="n">text</span><span class="p">:</span>
+            <span class="k">break</span>
+
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span><span class="n">safe_text</span><span class="p">)</span>
+
+    <span class="c1"># Сверху кладём свежий ответ от LLM</span>
+    <span class="n">chat_history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">"role"</span><span class="p">:</span> <span class="n">Role</span><span class="o">.</span><span class="n">ASSISTANT</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+            <span class="s2">"content"</span><span class="p">:</span> <span class="n">safe_text</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="c1"># Формируем Pydantic-объекты и записываем в llm_chat</span>
+    <span class="n">llm_chat</span><span class="o">.</span><span class="n">messages</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">LLMMessage</span><span class="o">.</span><span class="n">from_call_dict</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">chat_history</span>
+    <span class="p">]</span>
+    <span class="c1"># Замещаем старый llm_chat новым</span>
+    <span class="k">await</span> <span class="n">memory_chat_storage</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="n">user_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">from_user</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+        <span class="n">thread_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">message_thread_id</span><span class="p">,</span>
+        <span class="n">new_version</span><span class="o">=</span><span class="n">llm_chat</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># Просто для удобства, чтобы убедиться, </span>
+    <span class="c1"># что история пишется и читается целиком</span>
+    <span class="k">await</span> <span class="n">logger</span><span class="o">.</span><span class="n">adebug</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"Chat history now has </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">llm_chat</span><span class="o">.</span><span class="n">messages</span><span class="p">)</span><span class="si">}</span><span class="s2"> msg(s)"</span><span class="p">,</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>Не забудьте импортировать новый файл в <code>src/bot/handlers/__init__.py</code> и добавить новый роутер к <code>in_topic_router</code>:
+</p><div class="highlight"><pre><span></span><code><span class="n">in_topic_router</span><span class="o">.</span><span class="n">include_routers</span><span class="p">(</span>
+    <span class="n">chat_in_topic</span><span class="o">.</span><span class="n">router</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Если вы пересоберёте бота (<code>docker compose up --build</code>), запустите и создадите новый топик, задав основной вопрос и 
+какой-нибудь уточняющий, то заметите, что контекст учитывается корректно, значит, история сохраняется и подгружается:</p>
+<p><img alt="Бот создал топик" src="../../../images/project_threads_llm/topic_history_preserved.png"></p>
+<p>Чтобы история не перемешалась, надо игнорировать сообщения пользователя до тех пор, пока не обработались предыдущие. 
+К сожалению, сделать блокировку на каждый топик отдельно стандартными средствами aiogram невозможно (поправьте, если 
+это не так), поэтому просто добавим при создании диспетчера параметр <code>events_isolation=SimpleEventIsolation()</code> и 
+дело с концом.</p>
+<h2 id="_5">Разные личности<a class="headerlink" href="#_5" title="Permanent link">¶</a></h2>
+<p>Устали? А это ещё не всё! Нейросети хороши тем, что могут «отыгрывать» разные роли, подстраиваясь под конкретную задачу. 
+В мире LLM роли обычно называют <strong>персонами</strong>, так что давайте создадим две разных персоны с разными стилями общения и 
+предоставим пользователям право выбора. Одна персона будет стандартной, а другая будет пытаться врать или просто 
+нести околесицу. Сразу оговорюсь: небольшие модели, типа Qwen2.5-7B не очень способны врать, но разницу вы увидите.</p>
+<p>Создадим файл <code>src/bot/prompts.py</code>, где опишем две персоны:
+</p><div class="highlight"><span class="filename">src/bot/prompts.py</span><pre><span></span><code><span class="n">prompts</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"default"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"prompt"</span><span class="p">:</span> <span class="s2">"""</span>
+<span class="s2">        Ты — полезный помощник. Твоя цель — дать точный ответ на вопрос.</span>
+<span class="s2">        Стиль общения: серьезный, краткий, без эмоций.</span>
+<span class="s2">        Если информации не хватает, напиши: "Я не знаю".</span>
+
+<span class="s2">        Пример диалога:</span>
+<span class="s2">        User: Сколько будет 2+2?</span>
+<span class="s2">        Assistant: 4.</span>
+<span class="s2">        User: Кто президент Марса?</span>
+<span class="s2">        Assistant: Я не знаю.</span>
+<span class="s2">        """</span><span class="p">,</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"обычный"</span><span class="p">,</span>
+        <span class="s2">"temperature"</span><span class="p">:</span> <span class="mf">0.1</span>
+    <span class="p">},</span>
+    <span class="s2">"liar"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"prompt"</span><span class="p">:</span> <span class="s2">"""</span>
+<span class="s2">        Ты — безумный профессор из параллельной вселенной, где физика и история работают наоборот.</span>
+<span class="s2">        Твоя задача — давать ответы, которые звучат научно и уверенно, но являются полным бредом с точки зрения нашего мира.</span>
+
+<span class="s2">        ГЛАВНОЕ ПРАВИЛО:</span>
+<span class="s2">        Никогда не используй реальные факты.</span>
+<span class="s2">        Если тебя спрашивают список — выдумывай названия.</span>
+<span class="s2">        Если спрашивают объяснение — придумывай несуществующие законы физики.</span>
+
+<span class="s2">        Пример:</span>
+<span class="s2">        User: Какие планеты в Солнечной системе?</span>
+<span class="s2">        Assistant: В системе Великого Фонаря три планеты: Желе, Гига-Пончик и Пыльный Кролик.</span>
+<span class="s2">        User: Почему трава зеленая?</span>
+<span class="s2">        Assistant: Потому что гномы красят её по ночам, чтобы спрятать свои изумруды.</span>
+<span class="s2">        """</span><span class="p">,</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="s1">'"лжец"'</span><span class="p">,</span>
+        <span class="s2">"temperature"</span><span class="p">:</span> <span class="mf">1.4</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">available_personas</span><span class="p">():</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">prompts</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+</code></pre></div>
+<p>Далее нужно как-то дать возможность пользователю выбирать персону. Самое удобное место для этого – при создании нового 
+топика-чата перед началом общения. Отправим пользователю сообщение с инлайн-кнопками, а все его сообщения 
+до нажатия на одну из кнопок будем удалять. Плохой UX, но упростит код и подойдёт для демо.</p>
+<p>Но сперва немного подготовим красоту. Мы хотим, чтобы текст на кнопках начинался с большой буквы, а в самом 
+сообщении после выбора персоны он приводился после двоеточия с маленькой.</p>
+<table>
+<thead>
+<tr>
+<th>Текст на кнопке</th>
+<th>Текст сообщения</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Обычный</td>
+<td>Выбран пресет: обычный</td>
+</tr>
+<tr>
+<td>"Лжец"</td>
+<td>Выбран пресет: "лжец"</td>
+</tr>
+<tr>
+<td>33 коровы</td>
+<td>Выбран пресет: 33 коровы</td>
+</tr>
+<tr>
+<td>Жареный гусь</td>
+<td>Выбран пресет: жареный гусь</td>
+</tr>
+</tbody>
+</table>
+<p>К сожалению, в самом Python так сделать нельзя. На ум сразу приходит метод <code>.title()</code>, но он выдаёт не то, что мы хотим:
+</p><div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="s2">"33 коровы"</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
+<span class="s1">'33 Коровы'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="s2">"жареный гусь"</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
+<span class="s1">'Жареный Гусь'</span>
+</code></pre></div>
+<p>Поэтому в <code>src/bot/text_utils.py</code> смело добавляем ещё одну функцию:
+</p><div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">smart_capitalize</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Принимает на вход строку и делает только первый символ большим (uppercase),</span>
+<span class="sd">    остальные никак не трогает.</span>
+<span class="sd">    Если строка пустая, возвращает пустую строку.</span>
+<span class="sd">    Если строка начинается с цифры, то ничего не делает, возвращает строку как есть.</span>
+<span class="sd">    Если строка начинается с кавычки (варианты: ", ', «),</span>
+<span class="sd">    то делает большой (uppercase) только следующий буквенный символ,</span>
+<span class="sd">    если перед этим не было цифры.</span>
+<span class="sd">    Если строка из одного символа, то если это буква (неважно, английская или русская),</span>
+<span class="sd">    то делает её большой.</span>
+<span class="sd">    :param s: исходная строка</span>
+<span class="sd">    :return: отформатированная строка</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">s</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">""</span>
+
+    <span class="c1"># Один символ</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">isalpha</span><span class="p">()</span> <span class="k">else</span> <span class="n">s</span>
+
+    <span class="c1"># Если начинается с цифры — ничего не делаем</span>
+    <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+    <span class="n">quotes</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'"'</span><span class="p">,</span> <span class="s2">"'"</span><span class="p">,</span> <span class="s2">"«"</span><span class="p">}</span>
+    <span class="c1"># Если начинается с кавычки</span>
+    <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">quotes</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)):</span>
+            <span class="n">char</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+            <span class="c1"># Если перед буквой была цифра — выходим, ничего не меняем</span>
+            <span class="k">if</span> <span class="n">char</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+                <span class="k">return</span> <span class="n">s</span>
+
+            <span class="k">if</span> <span class="n">char</span><span class="o">.</span><span class="n">isalpha</span><span class="p">():</span>
+                <span class="k">return</span> <span class="n">s</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">char</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">+</span> <span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
+
+        <span class="k">return</span> <span class="n">s</span>  <span class="c1"># если букв так и не нашли</span>
+
+    <span class="c1"># Обычный случай: первый символ — буква</span>
+    <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">isalpha</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">+</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+    <span class="k">return</span> <span class="n">s</span>
+</code></pre></div>
+<p>Теперь подготовим фабрику колбэков для будущей клавиатуры и саму клавиатуру, это будут два разных файла, следите 
+за подписями к блоку кода:</p>
+<div class="highlight"><span class="filename">src/bot/callback_factories.py</span><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.filters.callback_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">CallbackData</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ChoosePromptFactory</span><span class="p">(</span><span class="n">CallbackData</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">"prompt_style"</span><span class="p">):</span>
+    <span class="n">style</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<div class="highlight"><span class="filename">src/bot/keyboards.py</span><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.utils.keyboard</span><span class="w"> </span><span class="kn">import</span> <span class="n">InlineKeyboardBuilder</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">bot.callback_factories</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChoosePromptFactory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bot.prompts</span><span class="w"> </span><span class="kn">import</span> <span class="n">prompts</span><span class="p">,</span> <span class="n">available_personas</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bot.text_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">smart_capitalize</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">make_prompt_keyboard</span><span class="p">():</span>
+    <span class="n">builder</span> <span class="o">=</span> <span class="n">InlineKeyboardBuilder</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">persona</span> <span class="ow">in</span> <span class="n">available_personas</span><span class="p">():</span>
+        <span class="n">builder</span><span class="o">.</span><span class="n">button</span><span class="p">(</span>
+            <span class="n">text</span><span class="o">=</span><span class="n">smart_capitalize</span><span class="p">(</span><span class="n">prompts</span><span class="p">[</span><span class="n">persona</span><span class="p">][</span><span class="s2">"name"</span><span class="p">]),</span>
+            <span class="n">callback_data</span><span class="o">=</span><span class="n">ChoosePromptFactory</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="n">persona</span><span class="p">),</span>
+        <span class="p">)</span>
+    <span class="n">builder</span><span class="o">.</span><span class="n">adjust</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">builder</span><span class="o">.</span><span class="n">as_markup</span><span class="p">()</span>
+</code></pre></div>
+<p>При создании топика будем переводить пользователя в стейт, чтобы в нём реагировать на выбор персоны:</p>
+<div class="highlight"><span class="filename">src/bot/states.py</span><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.fsm.state</span><span class="w"> </span><span class="kn">import</span> <span class="n">StatesGroup</span><span class="p">,</span> <span class="n">State</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">NewChatFlow</span><span class="p">(</span><span class="n">StatesGroup</span><span class="p">):</span>
+    <span class="n">choosing_persona</span> <span class="o">=</span> <span class="n">State</span><span class="p">()</span>
+</code></pre></div>
+<p>А чтобы у пользователя в каждом топике-чате был свой FSM, при создании диспетчера надо добавить параметр 
+<code>fsm_strategy=FSMStrategy.USER_IN_TOPIC</code>.</p>
+<p>И вот теперь, наконец, можно при создании топика давать персоны на выбор:</p>
+<div class="highlight"><span class="filename">src/bot/handlers/new_chat_creation.py</span><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">structlog</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram</span><span class="w"> </span><span class="kn">import</span> <span class="n">Router</span><span class="p">,</span> <span class="n">Bot</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.enums.topic_icon_color</span><span class="w"> </span><span class="kn">import</span> <span class="n">TopicIconColor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.fsm.context</span><span class="w"> </span><span class="kn">import</span> <span class="n">FSMContext</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.fsm.storage.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">StorageKey</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Message</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">structlog.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">FilteringBoundLogger</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">bot.keyboards</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_prompt_keyboard</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bot.states</span><span class="w"> </span><span class="kn">import</span> <span class="n">NewChatFlow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bot.storage</span><span class="w"> </span><span class="kn">import</span> <span class="n">memory_chat_storage</span>
+
+<span class="n">router</span> <span class="o">=</span> <span class="n">Router</span><span class="p">()</span>
+<span class="n">logger</span><span class="p">:</span> <span class="n">FilteringBoundLogger</span> <span class="o">=</span> <span class="n">structlog</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
+
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s2">"new"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_start</span><span class="p">(</span>
+        <span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span>
+        <span class="n">bot</span><span class="p">:</span> <span class="n">Bot</span><span class="p">,</span>
+        <span class="n">state</span><span class="p">:</span> <span class="n">FSMContext</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">new_topic</span> <span class="o">=</span> <span class="k">await</span> <span class="n">bot</span><span class="o">.</span><span class="n">create_forum_topic</span><span class="p">(</span>
+            <span class="n">chat_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">"Новый чат"</span><span class="p">,</span>
+            <span class="n">icon_color</span><span class="o">=</span><span class="n">TopicIconColor</span><span class="o">.</span><span class="n">YELLOW</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>  <span class="c1"># noqa</span>
+        <span class="k">await</span> <span class="n">logger</span><span class="o">.</span><span class="n">aexception</span><span class="p">(</span><span class="s2">"Failed to create new topic"</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span><span class="s2">"Что-то пошло не так. Пожалуйста, попробуйте ещё раз."</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">new_topic_id</span> <span class="o">=</span> <span class="n">new_topic</span><span class="o">.</span><span class="n">message_thread_id</span>
+    <span class="k">await</span> <span class="n">memory_chat_storage</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+        <span class="n">user_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">from_user</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+        <span class="n">thread_id</span><span class="o">=</span><span class="n">new_topic_id</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Важный момент: исходное сообщение пользователя (/new) </span>
+    <span class="c1"># принадлежит топику General, но стейт надо поменять уже внутри </span>
+    <span class="c1"># только что созданного топика. Поэтому отдельно создаём </span>
+    <span class="c1"># ключ FSM и по нему меняем стейт юзеру.</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">StorageKey</span><span class="p">(</span>
+        <span class="n">bot_id</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+        <span class="n">chat_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+        <span class="n">user_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">from_user</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+        <span class="n">thread_id</span><span class="o">=</span><span class="n">new_topic_id</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">fsm</span> <span class="o">=</span> <span class="n">FSMContext</span><span class="p">(</span>
+        <span class="n">storage</span><span class="o">=</span><span class="n">state</span><span class="o">.</span><span class="n">storage</span><span class="p">,</span>
+        <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">await</span> <span class="n">bot</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span>
+        <span class="n">chat_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"Пожалуйста, выберите стиль для этого чата одной из кнопок ниже."</span><span class="p">,</span>
+        <span class="n">message_thread_id</span><span class="o">=</span><span class="n">new_topic_id</span><span class="p">,</span>
+        <span class="n">reply_markup</span><span class="o">=</span><span class="n">make_prompt_keyboard</span><span class="p">(),</span>
+    <span class="p">)</span>
+    <span class="k">await</span> <span class="n">fsm</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">NewChatFlow</span><span class="o">.</span><span class="n">choosing_persona</span><span class="p">)</span>
+</code></pre></div>
+<p>Кнопки есть, надо на них как-то реагировать. Создадим новый роутер для обработки нажатия по адресу 
+<code>src/bot/handlers/in_topic_persona_choose.py</code>:</p>
+<div class="highlight"><span class="filename">src/bot/handlers/in_topic_persona_choose.py</span><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">structlog</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram</span><span class="w"> </span><span class="kn">import</span> <span class="n">Router</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.fsm.context</span><span class="w"> </span><span class="kn">import</span> <span class="n">FSMContext</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">CallbackQuery</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">structlog.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">FilteringBoundLogger</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">bot.callback_factories</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChoosePromptFactory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bot.prompts</span><span class="w"> </span><span class="kn">import</span> <span class="n">available_personas</span><span class="p">,</span> <span class="n">prompts</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bot.states</span><span class="w"> </span><span class="kn">import</span> <span class="n">NewChatFlow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bot.storage</span><span class="w"> </span><span class="kn">import</span> <span class="n">memory_chat_storage</span>
+
+<span class="n">router</span> <span class="o">=</span> <span class="n">Router</span><span class="p">()</span>
+<span class="n">logger</span><span class="p">:</span> <span class="n">FilteringBoundLogger</span> <span class="o">=</span> <span class="n">structlog</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
+
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">callback_query</span><span class="p">(</span>
+    <span class="n">ChoosePromptFactory</span><span class="o">.</span><span class="n">filter</span><span class="p">(),</span>
+    <span class="n">NewChatFlow</span><span class="o">.</span><span class="n">choosing_persona</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">prompt_chosen_correct_state</span><span class="p">(</span>
+        <span class="n">callback</span><span class="p">:</span> <span class="n">CallbackQuery</span><span class="p">,</span>
+        <span class="n">callback_data</span><span class="p">:</span> <span class="n">ChoosePromptFactory</span><span class="p">,</span>
+        <span class="n">state</span><span class="p">:</span> <span class="n">FSMContext</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="c1"># Проверяем, что такая персона ещё существует</span>
+    <span class="k">if</span> <span class="n">callback_data</span><span class="o">.</span><span class="n">style</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">available_personas</span><span class="p">():</span>
+        <span class="k">await</span> <span class="n">callback</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+            <span class="n">text</span><span class="o">=</span><span class="s2">"Что-то пошло не так. Пожалуйста, создайте новый чат."</span><span class="p">,</span>
+            <span class="n">show_alert</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span>
+    <span class="c1"># Получаем виртуальный чат для этого топика и сохраняем выбранные данные</span>
+    <span class="n">llm_chat</span> <span class="o">=</span> <span class="k">await</span> <span class="n">memory_chat_storage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="n">user_id</span><span class="o">=</span><span class="n">callback</span><span class="o">.</span><span class="n">from_user</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+        <span class="n">thread_id</span><span class="o">=</span><span class="n">callback</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">message_thread_id</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">llm_chat</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">prompt_key</span> <span class="o">=</span> <span class="n">callback_data</span><span class="o">.</span><span class="n">style</span>
+    <span class="n">temperature</span> <span class="o">=</span> <span class="n">prompts</span><span class="p">[</span><span class="n">callback_data</span><span class="o">.</span><span class="n">style</span><span class="p">][</span><span class="s2">"temperature"</span><span class="p">]</span>
+    <span class="n">llm_chat</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">temperature</span> <span class="o">=</span> <span class="n">temperature</span>
+    <span class="k">await</span> <span class="n">memory_chat_storage</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="n">user_id</span><span class="o">=</span><span class="n">callback</span><span class="o">.</span><span class="n">from_user</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+        <span class="n">thread_id</span><span class="o">=</span><span class="n">callback</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">message_thread_id</span><span class="p">,</span>
+        <span class="n">new_version</span><span class="o">=</span><span class="n">llm_chat</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">callback</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">edit_text</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"Выбран пресет: </span><span class="si">{</span><span class="n">prompts</span><span class="p">[</span><span class="n">callback_data</span><span class="o">.</span><span class="n">style</span><span class="p">][</span><span class="s2">"name"</span><span class="p">]</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">"</span>
+        <span class="sa">f</span><span class="s2">"Пожалуйста, теперь напишите ваш запрос боту."</span><span class="p">,</span>
+        <span class="n">reply_markup</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">await</span> <span class="n">callback</span><span class="o">.</span><span class="n">answer</span><span class="p">()</span>
+</code></pre></div>
+<p>Теперь в <code>chat_in_topic.py</code> можно добавить хэндлер на случаи, когда пользователь пишет сообщение до выбора персоны.</p>
+<div class="highlight"><span class="filename">src/bot/handlers/chat_in_topic.py</span><pre><span></span><code><span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span>
+    <span class="n">F</span><span class="o">.</span><span class="n">text</span><span class="p">,</span>
+    <span class="n">NewChatFlow</span><span class="o">.</span><span class="n">choosing_persona</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handle_text_before_persona_select</span><span class="p">(</span>
+        <span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">logger</span><span class="o">.</span><span class="n">aexception</span><span class="p">(</span>
+            <span class="s2">"Failed to delete persona select message"</span><span class="p">,</span>
+        <span class="p">)</span>
+
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span>
+    <span class="n">F</span><span class="o">.</span><span class="n">text</span><span class="p">,</span>
+    <span class="n">StateFilter</span><span class="p">(</span><span class="s2">"*"</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handle_message</span><span class="p">(</span>
+        <span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span>
+        <span class="n">llm_client</span><span class="p">:</span> <span class="n">LLMClient</span><span class="p">,</span>
+        <span class="n">bot</span><span class="p">:</span> <span class="n">Bot</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="c1"># тут ваш имеющийся код</span>
+</code></pre></div>
+<p>А также обновим немного код функции <code>handle_message()</code>, чтобы использовался соответствующий промт:</p>
+<div class="highlight"><span class="filename">src/bot/handlers/chat_in_topic.py</span><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">bot.prompts</span><span class="w"> </span><span class="kn">import</span> <span class="n">prompts</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handle_message</span><span class="p">(</span>
+        <span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span>
+        <span class="n">llm_client</span><span class="p">:</span> <span class="n">LLMClient</span><span class="p">,</span>
+        <span class="n">bot</span><span class="p">:</span> <span class="n">Bot</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="c1"># часть кода пропущена</span>
+    <span class="n">prompt</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"role"</span><span class="p">:</span> <span class="s2">"system"</span><span class="p">,</span>
+        <span class="s2">"content"</span><span class="p">:</span> <span class="n">prompts</span><span class="p">[</span><span class="n">llm_chat</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">prompt_key</span><span class="p">][</span><span class="s2">"prompt"</span><span class="p">],</span>
+    <span class="p">}</span>
+    <span class="c1"># часть кода пропущена</span>
+        <span class="k">async</span> <span class="k">for</span> <span class="n">delta</span> <span class="ow">in</span> <span class="k">await</span> <span class="n">llm_client</span><span class="o">.</span><span class="n">generate_response</span><span class="p">(</span>
+        <span class="n">messages</span><span class="o">=</span><span class="p">[</span><span class="n">prompt</span><span class="p">]</span> <span class="o">+</span> <span class="n">chat_history</span><span class="p">,</span>
+        <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">temperature</span><span class="o">=</span><span class="n">llm_chat</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span>  <span class="c1"># обновлено!</span>
+    <span class="p">):</span>
+    <span class="c1"># часть кода пропущена</span>
+</code></pre></div>
+<p>Теперь можно снова запустить бота и сравнить, как себя ведут разные персоны:</p>
+<p><div class="video-container"><video style="width:100%;height:100%" controls alt="type:video"><source src="../../../images/project_threads_llm/personas_demo.mp4" type="video/mp4"></source></video></div></p>
+<div class="admonition info">
+<p class="admonition-title">Примечание</p>
+<p>На видео выше правая половина немного ускорена для большей синхронизации картинки</p>
+</div>
+<h2 id="_6">Генерация заголовка чата<a class="headerlink" href="#_6" title="Permanent link">¶</a></h2>
+<p>Вы могли обратить внимание, на то как некрасиво смотрятся заголовки топиков: Новый чат, Новый чат, Новый чат, 
+Новый ча.. а хватит это терпеть! Пусть LLM ещё и заголовок чата генерирует. Идея простая: берём сообщение пользователя, 
+скармливаем модели и после генерации основного текста дополнительно обновляем заголовок топика. Если вы будете использовать 
+не self-hosted модель, а что-то более умное и облачное, то это можно делать параллельно с основным ответом, плюс 
+использовать более дешёвую модель, типа GPT-5-nano, которая плохо ведёт разговор, зато отлично суммаризует (подытоживает) 
+текст.</p>
+<p>Обновим всё тот же <code>chat_in_topic.py</code>, в начало модуля добавим отдельную функцию для обновления заголовка топика, 
+а в <code>handle_message()</code> добавим запуск этой задачи в отдельной asyncio-таске, чтобы завершить хэндлер пораньше, 
+ведь у нас уже настроен <code>SimpleEventIsolation()</code> с виртуальной очередью обработки.</p>
+<div class="highlight"><span class="filename">src/bot/handlers/chat_in_topic.py</span><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">update_topic_title</span><span class="p">(</span>
+        <span class="n">llm_client</span><span class="p">:</span> <span class="n">LLMClient</span><span class="p">,</span>
+        <span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span>
+        <span class="n">bot</span><span class="p">:</span> <span class="n">Bot</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="k">await</span> <span class="n">llm_client</span><span class="o">.</span><span class="n">generate_topic_title</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">title</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">bot</span><span class="o">.</span><span class="n">edit_forum_topic</span><span class="p">(</span>
+                <span class="n">chat_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                <span class="n">message_thread_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">message_thread_id</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">title</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">logger</span><span class="o">.</span><span class="n">aexception</span><span class="p">(</span>
+                <span class="s2">"Failed to rename topic"</span><span class="p">,</span>
+            <span class="p">)</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handle_message</span><span class="p">(</span>
+        <span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span>
+        <span class="n">llm_client</span><span class="p">:</span> <span class="n">LLMClient</span><span class="p">,</span>
+        <span class="n">bot</span><span class="p">:</span> <span class="n">Bot</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="c1"># часть кода пропущена</span>
+    <span class="c1"># далее в самом конце функции:</span>
+
+    <span class="c1"># Если это самое начало топика-чата,</span>
+    <span class="c1"># то генерируем название.</span>
+    <span class="k">if</span> <span class="n">llm_chat</span><span class="o">.</span><span class="n">is_chat_start</span><span class="p">:</span>
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">update_topic_title</span><span class="p">(</span>
+            <span class="n">llm_client</span><span class="o">=</span><span class="n">llm_client</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span>
+            <span class="n">bot</span><span class="o">=</span><span class="n">bot</span><span class="p">,</span>
+        <span class="p">))</span>
+</code></pre></div>
+<p>Также надо обновить класс <code>LLMClient</code>. Промт сделаем неизменяемым и с учётом особенностей Telegram 
+(длина текста до 128 символов, без форматирования):</p>
+<div class="highlight"><span class="filename">src/bot/llm.py</span><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">LLMClient</span><span class="p">:</span>
+    <span class="c1"># тут имеющийся код</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">generate_topic_title</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">messages</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">"role"</span><span class="p">:</span> <span class="s2">"system"</span><span class="p">,</span>
+                <span class="s2">"content"</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="s2">"Задача: придумай краткий заголовок темы по сообщению пользователя.</span><span class="se">\n</span><span class="s2">"</span>
+                    <span class="s2">"Требования к заголовку:</span><span class="se">\n</span><span class="s2">"</span>
+                    <span class="s2">"- Язык: русский</span><span class="se">\n</span><span class="s2">"</span>
+                    <span class="s2">"- Длина: до 128 символов</span><span class="se">\n</span><span class="s2">"</span>
+                    <span class="s2">"- 1 строка, без кавычек и без точки в конце</span><span class="se">\n</span><span class="s2">"</span>
+                    <span class="s2">"- Отражает суть запроса (что пользователь хочет сделать/узнать/исправить)</span><span class="se">\n</span><span class="s2">"</span>
+                    <span class="s2">"- Перефразируй: не копируй и не повторяй текст пользователя дословно, избегай одинаковых формулировок</span><span class="se">\n</span><span class="s2">"</span>
+                    <span class="s2">"- Без вводных слов типа «Пользователь спрашивает…»</span><span class="se">\n</span><span class="s2">"</span>
+                    <span class="s2">"- Без лишних деталей, имён, ссылок, дат и чисел, если они не критичны для смысла</span><span class="se">\n</span><span class="s2">"</span>
+                    <span class="s2">"Если запрос неоднозначный или слишком общий — дай нейтральный, но конкретный заголовок."</span>
+                <span class="p">),</span>
+            <span class="p">},</span>
+            <span class="p">{</span><span class="s2">"role"</span><span class="p">:</span> <span class="s2">"user"</span><span class="p">,</span> <span class="s2">"content"</span><span class="p">:</span> <span class="n">text</span><span class="p">},</span>
+        <span class="p">]</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_response</span><span class="p">(</span>
+                <span class="n">model</span><span class="o">=</span><span class="s2">"local"</span><span class="p">,</span>
+                <span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">,</span>
+                <span class="n">stream</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">temperature</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>  <span class="c1"># уменьшаем креативность</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">title</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="k">return</span> <span class="n">title</span><span class="p">[:</span><span class="mi">128</span><span class="p">]</span> <span class="k">if</span> <span class="n">title</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="c1"># Тут можно что-нибудь залогировать</span>
+            <span class="k">return</span> <span class="kc">None</span>
+</code></pre></div>
+<p>Здесь пригодился старый код генерации ответа без стриминга, поскольку заменить заголовок топика нужно сразу целиком. </p>
+<p>Снова запустите код, отправьте что-то своему боту, подождите, увидите, как топик-чат стал чуточку приятнее:</p>
+<p><img alt="Автоматическое переименование топика" src="../../../images/project_threads_llm/topic_auto_rename.png"></p>
+<h2 id="_7">Приятные мелочи<a class="headerlink" href="#_7" title="Permanent link">¶</a></h2>
+<p>С обязательной программой закончили, можно перейти к мелким фичам. Сейчас все иконки топиков-чатов выглядят одинаково, 
+в них сложно ориентироваться. Плюс название может сгенерироваться не всегда удачное без учёта контекста. Давайте 
+дадим возможность пользователю помечать топик-чат как «избранное», а заодно менять заголовок беседы.</p>
+<p>Создайте новый роутер по адресу <code>src/bot/handlers/commands_in_topic.py</code>:</p>
+<div class="highlight"><span class="filename">src/bot/handlers/commands_in_topic.py</span><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">structlog</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram</span><span class="w"> </span><span class="kn">import</span> <span class="n">Router</span><span class="p">,</span> <span class="n">Bot</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">CommandObject</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Message</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">structlog.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">FilteringBoundLogger</span>
+
+<span class="n">router</span> <span class="o">=</span> <span class="n">Router</span><span class="p">()</span>
+<span class="n">logger</span><span class="p">:</span> <span class="n">FilteringBoundLogger</span> <span class="o">=</span> <span class="n">structlog</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
+
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s2">"rename_topic"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_rename_topic</span><span class="p">(</span>
+        <span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span>
+        <span class="n">command</span><span class="p">:</span> <span class="n">CommandObject</span><span class="p">,</span>
+        <span class="n">bot</span><span class="p">:</span> <span class="n">Bot</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">args</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+            <span class="s2">"Ошибка. Вы должны указать новое название топика через пробел.</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">"Например: /rename_topic Новый топик"</span>
+        <span class="p">)</span>
+        <span class="k">return</span>
+    <span class="n">new_topic_name</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">args</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">bot</span><span class="o">.</span><span class="n">edit_forum_topic</span><span class="p">(</span>
+            <span class="n">chat_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="n">message_thread_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">message_thread_id</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">new_topic_name</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>  <span class="c1"># noqa</span>
+        <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+            <span class="s2">"Ошибка. Не удалось изменить название топика. Пожалуйста, попробуйте ещё раз."</span>
+        <span class="p">)</span>
+        <span class="k">await</span> <span class="n">logger</span><span class="o">.</span><span class="n">aexception</span><span class="p">(</span>
+            <span class="s2">"Failed to rename topic"</span><span class="p">,</span>
+            <span class="n">new_name</span><span class="o">=</span><span class="n">new_topic_name</span><span class="p">,</span>
+        <span class="p">)</span>
+
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s2">"favorite"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_favorite</span><span class="p">(</span>
+        <span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span>
+        <span class="n">bot</span><span class="p">:</span> <span class="n">Bot</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">bot</span><span class="o">.</span><span class="n">edit_forum_topic</span><span class="p">(</span>
+            <span class="n">chat_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="n">message_thread_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">message_thread_id</span><span class="p">,</span>
+            <span class="n">icon_custom_emoji_id</span><span class="o">=</span><span class="s2">"5235579393115438657"</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>  <span class="c1"># noqa</span>
+        <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+            <span class="s2">"Ошибка. Не удалось пометить топик как избранное. Пожалуйста, попробуйте ещё раз."</span>
+        <span class="p">)</span>
+        <span class="k">await</span> <span class="n">logger</span><span class="o">.</span><span class="n">aexception</span><span class="p">(</span>
+            <span class="s2">"Failed to mark topic as favorite"</span><span class="p">,</span>
+        <span class="p">)</span>
+</code></pre></div>
+<p>Стоит ли напоминать, что роутер нужно зарегистрировать? Так или иначе, теперь топик-чат выделяется красиво:</p>
+<p><img alt="Переименование и избранное" src="../../../images/project_threads_llm/rename_and_favorite.png"></p>
+<p>Вот теперь действительно всё. Надеюсь, вам понравилось это приключение в мир ботов с нейронками так же, как и мне. 
+Но в следующий раз я, пожалуй, возьму облачную LLM за недорого, они гораздо умнее. </p></div>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+  
+
+
+
+      
+    </article>
+  </div>
+
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2020-2026 Groosha
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://t.me/+DE0_2nCvbXozZjUy" target="_blank" rel="noopener" title="Чат в Telegram" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M256 8a248 248 0 1 0 0 496 248 248 0 1 0 0-496m115 168.7c-3.7 39.2-19.9 134.4-28.1 178.3-3.5 18.6-10.3 24.8-16.9 25.4-14.4 1.3-25.3-9.5-39.3-18.7-21.8-14.3-34.2-23.2-55.3-37.2-24.5-16.1-8.6-25 5.3-39.5 3.7-3.8 67.1-61.5 68.3-66.7.2-.7.3-3.1-1.2-4.4s-3.6-.8-5.1-.5c-2.2.5-37.1 23.5-104.6 69.1-9.9 6.8-18.9 10.1-26.9 9.9-8.9-.2-25.9-5-38.6-9.1-15.5-5-27.9-7.7-26.8-16.3.6-4.5 6.7-9 18.4-13.7 72.3-31.5 120.5-52.3 144.6-62.3 68.9-28.6 83.2-33.6 92.5-33.8 2.1 0 6.6.5 9.6 2.9 2 1.7 3.2 4.1 3.5 6.7.5 3.2.6 6.5.4 9.8z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://github.com/MasterGroosha/aiogram-3-guide" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": [], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u0421\u043a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u043d\u043e \u0432 \u0431\u0443\u0444\u0435\u0440", "clipboard.copy": "\u041a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u0442\u044c \u0432 \u0431\u0443\u0444\u0435\u0440", "search.result.more.one": "\u0415\u0449\u0451 1 \u043d\u0430 \u044d\u0442\u043e\u0439 \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0435", "search.result.more.other": "\u0415\u0449\u0451 # \u043d\u0430 \u044d\u0442\u043e\u0439 \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0435", "search.result.none": "\u0421\u043e\u0432\u043f\u0430\u0434\u0435\u043d\u0438\u0439 \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u043e", "search.result.one": "\u041d\u0430\u0439\u0434\u0435\u043d\u043e 1 \u0441\u043e\u0432\u043f\u0430\u0434\u0435\u043d\u0438\u0435", "search.result.other": "\u041d\u0430\u0439\u0434\u0435\u043d\u043e \u0441\u043e\u0432\u043f\u0430\u0434\u0435\u043d\u0438\u0439: #", "search.result.placeholder": "\u041d\u0430\u0447\u043d\u0438\u0442\u0435 \u043f\u0435\u0447\u0430\u0442\u0430\u0442\u044c \u0434\u043b\u044f \u043f\u043e\u0438\u0441\u043a\u0430", "search.result.term.missing": "\u041e\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0443\u0435\u0442", "select.version": "\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u0432\u0435\u0440\u0441\u0438\u044e"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

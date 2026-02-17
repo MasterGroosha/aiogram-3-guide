@@ -1,0 +1,2049 @@
+
+<!doctype html>
+<html lang="ru" class="no-js">
+  <head>
+    
+  <script src="https://telegram.org/js/telegram-web-app.js?35"></script>
+    <script type="text/javascript">
+      const webapp = window.Telegram.WebApp;
+      webapp.disableVerticalSwipes()
+      webapp.ready();
+      webapp.expand();
+      const initData = webapp.initDataUnsafe;
+      if (window.location.pathname === "/aiogram-3-guide/" && Object.hasOwn(initData, 'auth_date')) {
+        if (initData.start_param) {
+          let additionalParam = '';
+          switch (initData.start_param) {
+            case 'quickstart':
+            case 'messages':
+            case 'buttons':
+            case 'routers':
+            case 'special-updates':
+            case 'fsm':
+            case 'inline-mode':
+              additionalParam = initData.start_param;
+              break;
+            case 'filters':
+              additionalParam = 'filters-and-middlewares/#filters';
+              break
+            case 'middlewares':
+              additionalParam = 'filters-and-middlewares/#middlewares';
+              break
+            case 'magic-filter':
+            case 'magic':
+              additionalParam = 'filters-and-middlewares/#magic-filters';
+              break
+            case 'entities':
+              additionalParam = 'messages/#message-entities';
+              break;
+            case 'escaping':
+              additionalParam = 'messages/#input-escaping';
+              break;
+            case 'keep-formatting':
+              additionalParam = 'messages/#keep-formatting';
+              break
+            case 'send-files':
+            case 'upload':
+              additionalParam = 'messages/#uploading-media';
+              break;
+            case 'download-files':
+            case 'download':
+              additionalParam = 'messages/#downloading-media';
+              break;
+            case 'hide-image':
+              additionalParam = 'messages/#bonus';
+              break
+            case 'callback-factory':
+              additionalParam = 'buttons/#callback-factory';
+              break
+            case 'my-chat-member':
+              additionalParam = 'special-updates/#my-chat-member';
+              break
+            case 'chat-member':
+              additionalParam = 'special-updates/#chat-member';
+              break
+            default:
+              additionalParam = '/';
+          }
+          window.location.href = (`${window.location.origin}${window.location.pathname}${additionalParam}`);
+        }
+      }
+  </script>
+
+  
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Инлайн-режим">
+      
+      
+        <meta name="author" content="MasterGroosha">
+      
+      
+        <link rel="canonical" href="https://mastergroosha.github.io/aiogram-3-guide/inline-mode/">
+      
+      
+        <link rel="prev" href="../fsm/">
+      
+      
+        <link rel="next" href="../payments/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+
+    
+      
+        <title>Инлайн-режим - Пишем Telegram-ботов с aiogram 3.x</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+  
+    
+  
+
+  
+  
+    
+  
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Пишем Telegram-ботов с aiogram 3.x" />
+  <meta property="og:description" content="Инлайн-режим" />
+  <meta property="og:url" content="https://mastergroosha.github.io/aiogram-3-guide/inline-mode/" />
+  <meta property="og:image" content="https://mastergroosha.github.io/aiogram-3-guide/images/social.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="512" />
+  <meta property="og:image:height" content="512" />
+
+  <!-- Twitter Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://mastergroosha.github.io/aiogram-3-guide/inline-mode/">
+  <meta name="twitter:title" content="Пишем Telegram-ботов с aiogram 3.x">
+  <meta name="twitter:description" content="Инлайн-режим">
+  <meta name="twitter:image" content="https://mastergroosha.github.io/aiogram-3-guide/images/social.png">
+
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#-" class="md-skip">
+          Перейти к содержанию
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Верхний колонтитул">
+    <a href=".." title="Пишем Telegram-ботов с aiogram 3.x" class="md-header__button md-logo" aria-label="Пишем Telegram-ботов с aiogram 3.x" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2M7.5 13A2.5 2.5 0 0 0 5 15.5 2.5 2.5 0 0 0 7.5 18a2.5 2.5 0 0 0 2.5-2.5A2.5 2.5 0 0 0 7.5 13m9 0a2.5 2.5 0 0 0-2.5 2.5 2.5 2.5 0 0 0 2.5 2.5 2.5 2.5 0 0 0 2.5-2.5 2.5 2.5 0 0 0-2.5-2.5"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Пишем Telegram-ботов с aiogram 3.x
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Инлайн-режим
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Поиск" placeholder="Поиск" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Поиск">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Очистить" aria-label="Очистить" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Инициализация поиска
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/MasterGroosha/aiogram-3-guide" title="Перейти к репозиторию" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    MasterGroosha/aiogram-3-guide
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<!-- Determine classes -->
+
+
+
+
+<!-- Navigation -->
+<nav
+  class="md-nav md-nav--primary"
+  aria-label="Навигация"
+  data-md-level="0"
+>
+
+  <!-- Site title -->
+  <label class="md-nav__title" for="__drawer">
+    <a
+      href=".."
+      title="Пишем Telegram-ботов с aiogram 3.x"
+      class="md-nav__button md-logo"
+      aria-label="Пишем Telegram-ботов с aiogram 3.x"
+      data-md-component="logo"
+    >
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2M7.5 13A2.5 2.5 0 0 0 5 15.5 2.5 2.5 0 0 0 7.5 18a2.5 2.5 0 0 0 2.5-2.5A2.5 2.5 0 0 0 7.5 13m9 0a2.5 2.5 0 0 0-2.5 2.5 2.5 2.5 0 0 0 2.5 2.5 2.5 2.5 0 0 0 2.5-2.5 2.5 2.5 0 0 0-2.5-2.5"/></svg>
+
+    </a>
+    Оглавление
+  </label>
+
+  <!-- Repository information -->
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/MasterGroosha/aiogram-3-guide" title="Перейти к репозиторию" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    MasterGroosha/aiogram-3-guide
+  </div>
+</a>
+    </div>
+  
+
+  <!-- Navigation list -->
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Введение
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Знакомство с aiogram
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../messages/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Работа с сообщениями
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../buttons/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Кнопки
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../routers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Роутеры. Структура
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../filters-and-middlewares/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Фильтры и мидлвари
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../special-updates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Особые апдейты
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fsm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Конечные автоматы
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Инлайн-режим
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Инлайн-режим
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Содержание">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Содержание
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#theory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Теория
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Теория">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#why-inline-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Зачем нужен инлайн-режим?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#incoming-update-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Формат входящих запросов
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#outgoing-answer-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Формат исходящих ответов
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#practice" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Практика
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Практика">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Система хранения
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#common-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Команды в боте
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-saving" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Сохранение данных
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Сохранение данных">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#save-text" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Текст
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#save-images" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Изображения
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#show-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Отображение данных
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Отображение данных">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#show-text" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Текст
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#show-images" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Изображения
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Удаление данных
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#switch-parameter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Switch туда и обратно
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#extras" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Дополнительные материалы
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Дополнительные материалы">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lazy-loading" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Подгрузка результатов
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inline-feedback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Сбор статистики
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../payments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Платежи
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+  
+  
+    <li class="md-nav__item">
+      <a href="../blog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Дополнительные материалы
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced-teaser/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    🔒 Продвинутый уровень
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Содержание">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Содержание
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#theory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Теория
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Теория">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#why-inline-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Зачем нужен инлайн-режим?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#incoming-update-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Формат входящих запросов
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#outgoing-answer-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Формат исходящих ответов
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#practice" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Практика
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Практика">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Система хранения
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#common-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Команды в боте
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-saving" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Сохранение данных
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Сохранение данных">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#save-text" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Текст
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#save-images" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Изображения
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#show-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Отображение данных
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Отображение данных">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#show-text" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Текст
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#show-images" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Изображения
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Удаление данных
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#switch-parameter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Switch туда и обратно
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#extras" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Дополнительные материалы
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Дополнительные материалы">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lazy-loading" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Подгрузка результатов
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inline-feedback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Сбор статистики
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<div><h1 id="-">Инлайн-режим<a class="headerlink" href="#-" title="Permanent link">¶</a></h1>
+<div class="admonition info">
+<p>Используемая версия aiogram: 3.7.0</p>
+</div>
+<h2 id="theory">Теория<a class="headerlink" href="#theory" title="Permanent link">¶</a></h2>
+<h3 id="why-inline-mode">Зачем нужен инлайн-режим?<a class="headerlink" href="#why-inline-mode" title="Permanent link">¶</a></h3>
+<p>В предыдущих главах бот и человек общались каждый сам за себя, однако в Telegram существует специальный режим, 
+позволяющий пользователю отправить информацию от своего имени, но с помощью бота. Это называется <strong>инлайн-режим</strong> 
+(Inline mode), и вот как он выглядит в реальной жизни:</p>
+<p><img alt="Пример работы бота @imdb в инлайн-режиме" src="../images/inline_mode/inline_demo.png"></p>
+<p>Но как на практике вообще можно применить такую фичу? Предлагаю взглянуть на названия некоторых
+около-официальных Telegram-ботов, у которых есть инлайн-режим:</p>
+<ul>
+<li><a href="https://t.me/gif">@gif</a> </li>
+<li><a href="https://t.me/wiki">@wiki</a></li>
+<li><a href="https://t.me/imdb">@imdb</a></li>
+<li><a href="https://t.me/youtube">@youtube</a></li>
+<li><a href="https://t.me/foursquare">@foursquare</a></li>
+<li><a href="https://t.me/music">@music</a></li>
+<li><a href="https://t.me/gamee">@gamee</a></li>
+<li><a href="https://t.me/like">@like</a></li>
+</ul>
+<p>Список можно продолжать долго, но суть, надеюсь, ясна: инлайн-режим отлично подходит для поиска контента для вставки 
+в текущий чат. Часть возможностей таких ботов (like, poll, gif) Telegram внедрил в официальные приложения, но остальные 
+отлично используются по сей день.</p>
+<div class="admonition warning">
+<p class="admonition-title">Важно</p>
+<p>Напомню, что если к сообщению, отправленному из инлайн-режима, прикреплена клавиатура с колбэк-кнопкой, 
+то при её нажатии бот получит объект <code>CallbackQuery</code> <strong>без</strong> объекта <code>Message</code> внутри. Вместо 
+этого будет мало о чём говорящий <code>inline_message_id</code>.</p>
+</div>
+<h3 id="incoming-update-format">Формат входящих запросов<a class="headerlink" href="#incoming-update-format" title="Permanent link">¶</a></h3>
+<p>Когда пользователь пишет в чате юзернейм бота и далее вводит текст, создаётся апдейт типа 
+<a href="https://core.telegram.org/bots/api#inlinequery">InlineQuery</a>. Если внимательно изучить поля этого объекта, 
+то можно заметить некоторые странности. </p>
+<p>Во-первых, нет айди чата, из которого вызвали бота, вместо этого опциональное 
+поле <code>chat_type</code>, показывающее (если непустое) <strong>тип</strong> чата (личка, группа, супергруппа, канал). Причина этому простая: 
+поскольку для использования бота в инлайн-режиме не надо его никуда добавлять, добавление объекта Chat 
+позволило бы незаметно отслеживать и собирать чаты в телеге. </p>
+<p>Во-вторых, есть поле <code>offset</code>, причём это не число, а строка. Дело в том, что по умолчанию бот может отправить не более 
+50 результатов пользователю в ответ на инлайн-запрос. Чтобы показать больше, надо при ответе передать параметр <code>next_offset</code>, 
+который продублируется в поле <code>offset</code> у следующего <code>InlineQuery</code>. Так бот поймёт, что надо подгрузить новые данные, 
+начиная с <code>offset</code>. А строка это потому что помимо чисел можно использовать какие-нибудь идентификаторы, типа UUID.</p>
+<h3 id="outgoing-answer-format">Формат исходящих ответов<a class="headerlink" href="#outgoing-answer-format" title="Permanent link">¶</a></h3>
+<p>Для ответа на запросы пользователя существует ровно один метод: 
+<a href="https://core.telegram.org/bots/api#answerinlinequery">answerInlineQuery</a>. 
+Но <a href="https://core.telegram.org/bots/api#inlinequeryresult">отправляемых типов</a> аж целых 20. Точнее, 
+по факту их 11, поскольку оставшиеся — просто те же типы, но с другими входными данными, например, <code>file_id</code> 
+вместо ссылки на медиафайл. Различные типы лучше всего не смешивать друг с другом, особенно Article с остальными.
+Рассмотрим некоторые из них отдельно.</p>
+<p><img alt="тип InlineQueryResultArticle" src="../images/inline_mode/inline_articles.jpg"></p>
+<p>Пожалуй, самый часто используемый тип — это <a href="https://core.telegram.org/bots/api#inlinequeryresultarticle">InlineQueryResultArticle</a>
+(на изображении сверху). Во всех основных клиентах выглядит как стопка из прямоугольных блоков, у которых всегда есть 
+заголовок, иногда присутствует описание, а слева отображается либо картинка-превью, либо просто заглушка. 
+Если разработчик задал атрибут <code>url</code>, то некоторые клиенты отображают указанную ссылку под строкой описания, а 
+превью становится кликабельным и ведёт по самой ссылке напрямую в браузер. При нажатии на строку отправляется то, 
+что задано в аргументе <code>input_message_content</code> (он обязательный), который может иметь 5 разных типов:</p>
+<ul>
+<li>текст</li>
+<li>геолокация</li>
+<li>достопримечательность (venue)</li>
+<li>контакт</li>
+<li>счёт на оплату (invoice)</li>
+</ul>
+<p><img alt="тип InlineQueryResultPhoto" src="../images/inline_mode/inline_pictures.png"></p>
+<p>Остальные типы относятся к т.н. «медиафайлам», которые мы рассмотрим на примере изображений. При ответе набором 
+изображений данные выстраиваются либо вертикальными плитками, как на скриншоте выше, либо прокручиваемой горизонтальной 
+полосой (например, в iOS-версии). </p>
+<p>Если вы ещё раз откроете раздел про <a href="https://core.telegram.org/bots/api#inlinequeryresult">InlineQueryResult</a>, то 
+увидите, что Photo (как и некоторые другие типы) представлено в двух вариантах: 
+<code>InlineQueryResultPhoto</code> и <code>InlineQueryResultCachedPhoto</code>. Разница в том, что первый вариант принимает ссылку 
+на изображение из Интернета, а второй — <code>file_id</code> от уже загруженного в Telegram медиа.</p>
+<div class="admonition warning">
+<p class="admonition-title">Важно</p>
+<p>В инлайн-режиме нельзя заливать изображения напрямую из файла. Либо ссылка в Интернете, либо <code>file_id</code>. 
+Третьего не дано.</p>
+</div>
+<p>По умолчанию, нажатие на медиафайл из списка результатов приводит к отправке этого медиа в вызванный чат. 
+Однако если задать аргумент <code>input_message_content</code> (в случае с медиа он уже необязательный), то при нажатии будет 
+отправлено то, что задано в этом аргументе. Например, нажатие на обложку фильма отправит его текстовое описание 
+со ссылкой на просмотр в онлайн-кинотеатре. Или при нажатии на фото сотрудника отправится его телефонный номер в виде 
+контакта 👀. Кстати, несмотря на то, что у медиа есть аргументы <code>title</code> и <code>description</code>, клиенты их не отображают, 
+да и сам Bot API их <a href="https://t.me/tdlibchat/16432">игнорирует</a>. </p>
+<p>У метода answerInlineQuery есть несколько аргументов, на которые надо обратить внимание. Во-первых, это <code>cache_time</code>. 
+Он определяет, на какой период результат запроса может быть закэширован серверами телеги, чтобы не слать его в бота. 
+Если ваши данные статичные или меняются редко, смело повышайте это значение. Во-вторых, флаг <code>is_personal</code>, 
+влияющий на то, будет ли закэширован результат только для одного пользователя или сразу для всех. Если ваш бот 
+показывает персонализированные значения в зависимости от ID юзера, выставляйте в True.</p>
+<div class="admonition info">
+<p>Автор этих строк однажды забыл указать флаг <code>is_personal</code> в его боте <a href="https://t.me/my_id_bot">@my_id_bot</a>, 
+выставил кэш на 86400 секунд (1 сутки) и выслушал много возмущений от пользователей, отправлявших его ID вместо их 
+собственных. Учитесь на чужих ошибках, не на своих.</p>
+</div>
+<p>В-третьих, строковый аргумент <code>next_offset</code>, позволяющий реализовывать подгрузку результатов по мере прокрутки, поскольку 
+в одном ответе на InlineQuery можно вернуть не более 50 значений. Использование <code>next_offset</code> мы рассмотрим в отдельном 
+примере.</p>
+<p>В-четвёртых, <code>switch_pm_text</code> и <code>switch_pm_parameter</code>. Помимо результатов запроса, бот может над ними показать маленькую 
+кнопочку с текстом из аргумента <code>switch_pm_text</code>, нажатие на которую аналогично диплинку, т.е. юзер перейдёт в 
+личку с ботом, вместо поля ввода будет кнопка «НАЧАТЬ», а при нажатии боту прилетит сообщение с текстом 
+<code>/start ТЕКСТ</code>, где вместо ТЕКСТ — значение аргумента <code>switch_pm_parameter</code>.</p>
+<p><img alt="Кнопка switch_pm" src="../images/inline_mode/switch_pm_button.png"></p>
+<p>Подобную штуку очень удобно использовать, если по конкретному запросу нет результатов или хочется дать возможность 
+юзеру быстро что-то добавить. Есть и ещё одна фича, но её мы рассмотрим позднее в процессе разработки бота. Кстати, 
+о нём... </p>
+<h2 id="practice">Практика<a class="headerlink" href="#practice" title="Permanent link">¶</a></h2>
+<p>Чтобы бот знал, что надо показывать при вызове в инлайн-режиме, ему нужны какие-то данные: либо заранее сохранённые, 
+либо получаемые от самого пользователя. В качестве примера напишем бота, который будет принимать от юзера ссылки 
+и картинки, а затем показывать это всё добро в инлайн-режиме по запросу.</p>
+<div class="admonition info">
+<p>Не забудьте включить инлайн-режим у бота через <a href="https://t.me/botfather">@BotFather</a>: 
+Bot Settings -&gt; Inline Mode -&gt; Turn on</p>
+</div>
+<h3 id="storage">Система хранения<a class="headerlink" href="#storage" title="Permanent link">¶</a></h3>
+<p>Дабы не погружаться сильно в детали, тем более, что эта глава и так довольно длинная, договоримся, что наш тестовый 
+бот будет использовать обычный in-memory словарь в качестве имитации базы данных. Это позволит не заморачиваться 
+по поводу сброса состояния при отладке, а также упростит наполнения хранилища заранее, если вы вдруг захотите 
+запускать бота сразу с готовыми ссылками или картинками. Для каждого из двух типов данных будет по три функции: 
+добавить данные, получить данные, удалить данные. Собственно, вот весь код файла:</p>
+<div class="highlight"><span class="filename">storage.py</span><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
+
+<span class="c1"># В реальной жизни здесь должна быть нормальная СУБД.</span>
+<span class="c1"># Но для примера нам будет достаточно показать на обычном словаре.</span>
+<span class="c1"># Учтите, что он сбрасывается при перезапуске бота.</span>
+<span class="n">data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">add_link</span><span class="p">(</span>
+        <span class="n">telegram_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">link</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Сохраняет ссылку в словарь</span>
+
+<span class="sd">    :param telegram_id: ID юзера в Telegram</span>
+<span class="sd">    :param link: текст ссылки</span>
+<span class="sd">    :param title: заголовок ссылки</span>
+<span class="sd">    :param description: (опционально) описание ссылки</span>
+<span class="sd">    """</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">telegram_id</span><span class="p">,</span> <span class="nb">dict</span><span class="p">())</span>
+    <span class="n">data</span><span class="p">[</span><span class="n">telegram_id</span><span class="p">]</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"links"</span><span class="p">,</span> <span class="nb">dict</span><span class="p">())</span>
+    <span class="n">data</span><span class="p">[</span><span class="n">telegram_id</span><span class="p">][</span><span class="s2">"links"</span><span class="p">][</span><span class="n">link</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="n">description</span>
+    <span class="p">}</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">add_photo</span><span class="p">(</span>
+        <span class="n">telegram_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">photo_file_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">photo_unique_id</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Сохраняет изображение в словарь</span>
+
+<span class="sd">    :param telegram_id: ID юзера в Telegram</span>
+<span class="sd">    :param photo_file_id: file_id изображения</span>
+<span class="sd">    :param photo_unique_id: file_unique_id изображения</span>
+<span class="sd">    """</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">telegram_id</span><span class="p">,</span> <span class="nb">dict</span><span class="p">())</span>
+    <span class="n">data</span><span class="p">[</span><span class="n">telegram_id</span><span class="p">]</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"images"</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="k">if</span> <span class="n">photo_file_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="n">telegram_id</span><span class="p">][</span><span class="s2">"images"</span><span class="p">]:</span>
+        <span class="n">data</span><span class="p">[</span><span class="n">telegram_id</span><span class="p">][</span><span class="s2">"images"</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">photo_file_id</span><span class="p">,</span> <span class="n">photo_unique_id</span><span class="p">))</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_links_by_id</span><span class="p">(</span><span class="n">telegram_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Получает сохранённые ссылки пользователя</span>
+
+<span class="sd">    :param telegram_id: ID юзера в Telegram</span>
+<span class="sd">    :return: если по юзеру есть данные, то словарь со ссылками</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">telegram_id</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="s2">"links"</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="n">telegram_id</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="n">telegram_id</span><span class="p">][</span><span class="s2">"links"</span><span class="p">]</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">()</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_images_by_id</span><span class="p">(</span><span class="n">telegram_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Получает сохранённые изображения пользователя</span>
+
+<span class="sd">    :param telegram_id: ID юзера в Telegram</span>
+<span class="sd">    :return:</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">telegram_id</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="s2">"images"</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="n">telegram_id</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="n">telegram_id</span><span class="p">][</span><span class="s2">"images"</span><span class="p">]]</span>
+    <span class="k">return</span> <span class="p">[]</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">delete_link</span><span class="p">(</span><span class="n">telegram_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">link</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Удаляет ссылку</span>
+
+<span class="sd">    :param telegram_id: ID юзера в Telegram</span>
+<span class="sd">    :param link: ссылка</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">telegram_id</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">"links"</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="n">telegram_id</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">link</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="n">telegram_id</span><span class="p">][</span><span class="s2">"links"</span><span class="p">]:</span>
+                <span class="k">del</span> <span class="n">data</span><span class="p">[</span><span class="n">telegram_id</span><span class="p">][</span><span class="s2">"links"</span><span class="p">][</span><span class="n">link</span><span class="p">]</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">delete_image</span><span class="p">(</span><span class="n">telegram_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">photo_file_unique_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Удаляет изображение</span>
+
+<span class="sd">    :param telegram_id: ID юзера в Telegram</span>
+<span class="sd">    :param photo_file_unique_id: file_unique_id изображения для удаления</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">telegram_id</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="s2">"images"</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="n">telegram_id</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">unique_id</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">telegram_id</span><span class="p">][</span><span class="s2">"images"</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">unique_id</span> <span class="o">==</span> <span class="n">photo_file_unique_id</span><span class="p">:</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">telegram_id</span><span class="p">][</span><span class="s2">"images"</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="common-commands">Команды в боте<a class="headerlink" href="#common-commands" title="Permanent link">¶</a></h3>
+<p>У бота будет несколько общих команд: <code>/start</code>, <code>/help</code>, <code>/save</code>, <code>/delete</code> и <code>/cancel</code>. Первые две информационные, 
+<code>/save</code> начинает процесс сохранения данных, <code>/delete</code> начинает процесс удаления данных, а <code>/cancel</code>, соответственно, 
+прерывает один из запущенных процессов. Начнём с команды <code>/save</code>.</p>
+<h3 id="data-saving">Сохранение данных<a class="headerlink" href="#data-saving" title="Permanent link">¶</a></h3>
+<p>На этот раз мы опишем состояния (states) в отдельном файле, чтобы было удобнее импортировать. Для этого создадим файл 
+<code>states.py</code> и реализуем класс <code>SaveCommon</code>, где будет одно состояние «ожидает ввод»:</p>
+<div class="highlight"><span class="filename">states.py</span><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.fsm.state</span><span class="w"> </span><span class="kn">import</span> <span class="n">StatesGroup</span><span class="p">,</span> <span class="n">State</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">SaveCommon</span><span class="p">(</span><span class="n">StatesGroup</span><span class="p">):</span>
+    <span class="n">waiting_for_save_start</span> <span class="o">=</span> <span class="n">State</span><span class="p">()</span>
+</code></pre></div>
+<p>Теперь займёмся обработкой сохранения сообщений различных типов </p>
+<h4 id="save-text">Текст<a class="headerlink" href="#save-text" title="Permanent link">¶</a></h4>
+<p>Начнём с текстовых сообщений. Идея простая: пользователь кидает сообщение. Если там есть хотя бы одна ссылка, то 
+она извлекается, а далее предлагается ввести название ссылки (обязательно) и описание. Последний шаг можно пропустить 
+командой <code>/skip</code>. Если ссылок несколько, то берётся только первая.</p>
+<p>Помимо описанного выше состояния «ожидает ввод», будет ещё два специфичных для текста: «ожидает ввод заголовка» и 
+«ожидает ввод описания». В <code>states.py</code> добавим эти стейты:</p>
+<div class="highlight"><span class="filename">states.py</span><pre><span></span><code><span class="c1"># тут предыдущий код</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TextSave</span><span class="p">(</span><span class="n">StatesGroup</span><span class="p">):</span>
+    <span class="n">waiting_for_title</span> <span class="o">=</span> <span class="n">State</span><span class="p">()</span>
+    <span class="n">waiting_for_description</span> <span class="o">=</span> <span class="n">State</span><span class="p">()</span>
+</code></pre></div>
+<p>Начнём с двух хэндлеров на текст в стейте <code>SaveCommon</code> -&gt; <code>waiting_for_save_start</code>. Надо ловить сообщения со ссылками. 
+В главе <a href="../filters-and-middlewares/#filters-as-classes">про фильтры и мидлвари</a> мы уже делали похожий фильтр, но для 
+юзернеймов. Настало время его оттуда скопировать и адаптировать под ссылки:</p>
+<div class="highlight"><span class="filename">filters/text_has_link.py</span><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseFilter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Message</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">HasLinkFilter</span><span class="p">(</span><span class="n">BaseFilter</span><span class="p">):</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+        <span class="c1"># Если entities вообще нет, вернётся None,</span>
+        <span class="c1"># в этом случае считаем, что это пустой список</span>
+        <span class="n">entities</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">entities</span> <span class="ow">or</span> <span class="p">[]</span>
+
+        <span class="c1"># Если есть хотя бы одна ссылка, возвращаем её</span>
+        <span class="k">for</span> <span class="n">entity</span> <span class="ow">in</span> <span class="n">entities</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">entity</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">"url"</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">{</span><span class="s2">"link"</span><span class="p">:</span> <span class="n">entity</span><span class="o">.</span><span class="n">extract_from</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">text</span><span class="p">)}</span>
+
+        <span class="c1"># Если ничего не нашли, возвращаем None</span>
+        <span class="k">return</span> <span class="kc">False</span>
+</code></pre></div>
+<p>Чтобы сократить импорт, отредактируем файл <code>filters/__init__.py</code>:</p>
+<div class="highlight"><span class="filename">filters/__init__.py</span><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">.text_has_link</span><span class="w"> </span><span class="kn">import</span> <span class="n">HasLinkFilter</span>
+
+<span class="c1"># Делаем так, чтобы затем просто импортировать</span>
+<span class="c1"># from filters import HasLinkFilter</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"HasLinkFilter"</span>
+<span class="p">]</span>
+</code></pre></div>
+<p>Почему хэндлеров на текст нужно два? Первый будет ловить сообщения, где есть ссылка, а второй — где её нет. Пишем:</p>
+<div class="highlight"><span class="filename">handlers/save_text.py</span><pre><span></span><code><span class="c1"># &lt;импорты&gt;</span>
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">SaveCommon</span><span class="o">.</span><span class="n">waiting_for_save_start</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">HasLinkFilter</span><span class="p">())</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">save_text_has_link</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span> <span class="n">link</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">FSMContext</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">update_data</span><span class="p">(</span><span class="n">link</span><span class="o">=</span><span class="n">link</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">TextSave</span><span class="o">.</span><span class="n">waiting_for_title</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Окей, я нашёл в сообщении ссылку </span><span class="si">{</span><span class="n">link</span><span class="si">}</span><span class="s2">. "</span>
+             <span class="sa">f</span><span class="s2">"Теперь отправь мне заголовок (не больше 30 символов)"</span>
+    <span class="p">)</span>
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">SaveCommon</span><span class="o">.</span><span class="n">waiting_for_save_start</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">save_text_no_link</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"Эмм.. я не нашёл в твоём сообщении ссылку. "</span>
+             <span class="s2">"Попробуй ещё раз или нажми /cancel, чтобы отменить."</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>Далее ожидаем от пользователя ввод заголовка записи. Здесь тоже можно разбить логику на два хэндлера: для удачного 
+и неудачного стечения обстоятельств:</p>
+<div class="highlight"><span class="filename">handlers/save_text.py</span><pre><span></span><code><span class="c1"># импорты и предыдущие шаги</span>
+
+<span class="hll"><span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">TextSave</span><span class="o">.</span><span class="n">waiting_for_title</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="nb">len</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">30</span><span class="p">)</span>
+</span><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">title_entered_ok</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">FSMContext</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">update_data</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">TextSave</span><span class="o">.</span><span class="n">waiting_for_description</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"Так, заголовок вижу. Теперь введи описание "</span>
+             <span class="s2">"(тоже не больше 30 символов) "</span>
+             <span class="s2">"или нажми /skip, чтобы пропустить этот шаг"</span>
+    <span class="p">)</span>
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">TextSave</span><span class="o">.</span><span class="n">waiting_for_title</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">too_long_title</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span><span class="s2">"Слишком длинный заголовок. Попробуй ещё раз"</span><span class="p">)</span>
+    <span class="k">return</span>
+</code></pre></div>
+<p>Обратите внимание на код <code>F.text.func(len) &lt;= 30</code>. Magic filter позволяет передать на вход какую-либо функцию, которая 
+выполнится над тем, что указано до <code>.func</code>. Т.е. <code>F.text.func(len)</code> -&gt; <code>len(F.text)</code> и только если атрибут <code>.text</code> 
+не является None (иными словами, здесь ещё и проверка на контент-тайп). Но вообще конкретно для <code>len()</code> 
+есть поддержка прям в 
+<a href="https://github.com/aiogram/magic-filter/blob/3c5e38fd5cd359fd961e26bab17e65201b02c1c6/magic_filter/magic.py#L227-L228">magic-filter</a>: 
+<code>F.text.len() &lt;= 30</code></p>
+<p>На очереди хэндлер на описание. Здесь можно снова разбить на два хэндлера... постойте, но ведь функция <code>too_long_title()</code>, 
+по сути, может так же подходить и для шага с описанием, раз уж у нас одинаковые лимиты на текст! Переименуем её и 
+добавим фильтр на другой стейт:</p>
+<div class="highlight"><span class="filename">handlers/save_text.py</span><pre><span></span><code><span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">TextSave</span><span class="o">.</span><span class="n">waiting_for_title</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">TextSave</span><span class="o">.</span><span class="n">waiting_for_description</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">text_too_long</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>  <span class="c1"># бывш. too_long_title()</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span><span class="s2">"Слишком длинный заголовок. Попробуй ещё раз"</span><span class="p">)</span>
+    <span class="k">return</span>
+</code></pre></div>
+<p>Теперь возьмёмся за последний хэндлер, в который попадаем либо при вводе короткого описания, либо по команде <code>/skip</code>. 
+А раз надо ловить два входа, то вешаем два декоратора, в аргументах принимаем опциональный <code>CommandObject</code> и внутри 
+смотрим: если команды нет, значит, ввели описание:</p>
+<div class="highlight"><span class="filename">handlers/save_text.py</span><pre><span></span><code><span class="c1"># Эта функция должна быть ПЕРЕД text_too_long() !</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">TextSave</span><span class="o">.</span><span class="n">waiting_for_description</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="nb">len</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">30</span><span class="p">)</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">TextSave</span><span class="o">.</span><span class="n">waiting_for_description</span><span class="p">,</span> <span class="n">Command</span><span class="p">(</span><span class="s2">"skip"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">last_step</span><span class="p">(</span>
+        <span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span>
+        <span class="n">state</span><span class="p">:</span> <span class="n">FSMContext</span><span class="p">,</span>
+        <span class="n">command</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandObject</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">command</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">update_data</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+    <span class="c1"># Сохраняем данные в нашу ненастоящую БД</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+    <span class="n">add_link</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">from_user</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">"link"</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s2">"title"</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s2">"description"</span><span class="p">])</span>
+
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span><span class="s2">"Ссылка сохранена!"</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+</code></pre></div>
+<p>Итак, мы сделали набор хэндлеров для сохранения ссылок в нашу in-memory базу данных. Вот весь код файла целиком:</p>
+<div class="highlight"><span class="filename">handlers/save_text.py</span><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram</span><span class="w"> </span><span class="kn">import</span> <span class="n">Router</span><span class="p">,</span> <span class="n">F</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.filters.command</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">CommandObject</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.fsm.context</span><span class="w"> </span><span class="kn">import</span> <span class="n">FSMContext</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Message</span><span class="p">,</span> <span class="n">InlineKeyboardMarkup</span><span class="p">,</span> <span class="n">InlineKeyboardButton</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">HasLinkFilter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">states</span><span class="w"> </span><span class="kn">import</span> <span class="n">SaveCommon</span><span class="p">,</span> <span class="n">TextSave</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">storage</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_link</span>
+
+<span class="n">router</span> <span class="o">=</span> <span class="n">Router</span><span class="p">()</span>
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">SaveCommon</span><span class="o">.</span><span class="n">waiting_for_save_start</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">HasLinkFilter</span><span class="p">())</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">save_text_has_link</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span> <span class="n">link</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">FSMContext</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">update_data</span><span class="p">(</span><span class="n">link</span><span class="o">=</span><span class="n">link</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">TextSave</span><span class="o">.</span><span class="n">waiting_for_title</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Окей, я нашёл в сообщении ссылку </span><span class="si">{</span><span class="n">link</span><span class="si">}</span><span class="s2">. "</span>
+             <span class="sa">f</span><span class="s2">"Теперь отправь мне описание (не больше 30 символов)"</span>
+    <span class="p">)</span>
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">SaveCommon</span><span class="o">.</span><span class="n">waiting_for_save_start</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">save_text_no_link</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"Эмм.. я не нашёл в твоём сообщении ссылку. "</span>
+             <span class="s2">"Попробуй ещё раз или нажми /cancel, чтобы отменить."</span>
+    <span class="p">)</span>
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">TextSave</span><span class="o">.</span><span class="n">waiting_for_title</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="nb">len</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">30</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">title_entered_ok</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">FSMContext</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">update_data</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">TextSave</span><span class="o">.</span><span class="n">waiting_for_description</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"Так, заголовок вижу. Теперь введи описание "</span>
+             <span class="s2">"(тоже не больше 30 символов) "</span>
+             <span class="s2">"или нажми /skip, чтобы пропустить этот шаг"</span>
+    <span class="p">)</span>
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">TextSave</span><span class="o">.</span><span class="n">waiting_for_description</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="nb">len</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">30</span><span class="p">)</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">TextSave</span><span class="o">.</span><span class="n">waiting_for_description</span><span class="p">,</span> <span class="n">Command</span><span class="p">(</span><span class="s2">"skip"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">last_step</span><span class="p">(</span>
+        <span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span>
+        <span class="n">state</span><span class="p">:</span> <span class="n">FSMContext</span><span class="p">,</span>
+        <span class="n">command</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandObject</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">command</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">update_data</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+    <span class="c1"># Сохраняем данные в нашу ненастоящую БД</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+    <span class="n">add_link</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">from_user</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">"link"</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s2">"title"</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s2">"description"</span><span class="p">])</span>
+    <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+    <span class="n">kb</span> <span class="o">=</span> <span class="p">[[</span><span class="n">InlineKeyboardButton</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"Попробовать"</span><span class="p">,</span>
+        <span class="n">switch_inline_query</span><span class="o">=</span><span class="s2">"links"</span>
+    <span class="p">)]]</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"Ссылка сохранена!"</span><span class="p">,</span>
+        <span class="n">reply_markup</span><span class="o">=</span><span class="n">InlineKeyboardMarkup</span><span class="p">(</span><span class="n">inline_keyboard</span><span class="o">=</span><span class="n">kb</span><span class="p">)</span>
+    <span class="p">)</span>
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">TextSave</span><span class="o">.</span><span class="n">waiting_for_title</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">TextSave</span><span class="o">.</span><span class="n">waiting_for_description</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">text_too_long</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span><span class="s2">"Слишком длинный заголовок. Попробуй ещё раз"</span><span class="p">)</span>
+    <span class="k">return</span>
+</code></pre></div>
+<h4 id="save-images">Изображения<a class="headerlink" href="#save-images" title="Permanent link">¶</a></h4>
+<p>С картинками гораздо проще; они добавляются в один шаг. Но есть нюанс: помимо <code>file_id</code> для последующего отображения, 
+нам надо сохранять <code>file_unique_id</code>, поскольку он пригодится, когда мы позволим юзеру удалять сохранённые картинки:</p>
+<div class="highlight"><span class="filename">handlers/save_images.py</span><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">aiogram</span><span class="w"> </span><span class="kn">import</span> <span class="n">Router</span><span class="p">,</span> <span class="n">F</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.fsm.context</span><span class="w"> </span><span class="kn">import</span> <span class="n">FSMContext</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Message</span><span class="p">,</span> <span class="n">PhotoSize</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">states</span><span class="w"> </span><span class="kn">import</span> <span class="n">SaveCommon</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">storage</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_photo</span>
+
+<span class="n">router</span> <span class="o">=</span> <span class="n">Router</span><span class="p">()</span>
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">SaveCommon</span><span class="o">.</span><span class="n">waiting_for_save_start</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">photo</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">as_</span><span class="p">(</span><span class="s2">"photo"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">save_image</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span> <span class="n">photo</span><span class="p">:</span> <span class="n">PhotoSize</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">FSMContext</span><span class="p">):</span>
+    <span class="n">add_photo</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">from_user</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">photo</span><span class="o">.</span><span class="n">file_id</span><span class="p">,</span> <span class="n">photo</span><span class="o">.</span><span class="n">file_unique_id</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span><span class="s2">"Изображение сохранено!"</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+</code></pre></div>
+<h3 id="show-data">Отображение данных<a class="headerlink" href="#show-data" title="Permanent link">¶</a></h3>
+<p>Окей, данные сохранять научились, теперь надо их как-то отобразить. Для этого бот должен ловить апдейты с типом 
+<code>inline_query</code>, а в хэндлер придёт объект типа <a href="https://core.telegram.org/bots/api#inlinequery">InlineQuery</a>. 
+Условимся, что на пустой запрос (пока) ничего показывать не будем, на запрос <code>@bot links</code> покажем список ссылок, а 
+на запрос <code>@bot images</code> — картинки. Вместо <code>@bot</code>, конечно же, будет юзернейм бота.</p>
+<h4 id="show-text">Текст<a class="headerlink" href="#show-text" title="Permanent link">¶</a></h4>
+<p>Для ответа текстовыми сообщениями нам нужно собрать список объектов с типом<br>
+<a href="https://core.telegram.org/bots/api#inlinequeryresultarticle">InlineQueryResultArticle</a>. Все необходимые 
+(и даже дополнительные) данные у нас уже есть:</p>
+<p><img alt="Содержимое объекта InlineQueryResultArticle" src="../images/inline_mode/article_content.png" title="Содержимое объекта InlineQueryResultArticle"></p>
+<p>Для аргумента <code>input_message_content</code> напишем простую вложенную функцию, которая будет возвращать текст с учётом наличия или 
+отсутствия описания:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_message_text</span><span class="p">(</span>
+        <span class="n">link</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">text_parts</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">html</span><span class="o">.</span><span class="n">bold</span><span class="p">(</span><span class="n">html</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">title</span><span class="p">))</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">description</span><span class="p">:</span>
+        <span class="n">text_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">html</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">description</span><span class="p">))</span>
+    <span class="n">text_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">""</span><span class="p">)</span>  <span class="c1"># добавим пустую строку</span>
+    <span class="n">text_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">link</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">text_parts</span><span class="p">)</span>
+</code></pre></div>
+<p>Теперь опишем сам хэндлер:</p>
+<div class="highlight"><span class="filename">handlers/inline_mode.py</span><pre><span></span><code><span class="nd">@router</span><span class="o">.</span><span class="n">inline_query</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">query</span> <span class="o">==</span> <span class="s2">"links"</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">show_user_links</span><span class="p">(</span><span class="n">inline_query</span><span class="p">:</span> <span class="n">InlineQuery</span><span class="p">):</span>
+
+    <span class="c1"># Эта функция просто собирает текст, который будет</span>
+    <span class="c1"># отправлен при нажатии на вариант в инлайн-режиме</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_message_text</span><span class="p">():</span>
+        <span class="c1"># эта вложенная функция описана выше ↑</span>
+
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">link</span><span class="p">,</span> <span class="n">link_data</span> <span class="ow">in</span> <span class="n">get_links_by_id</span><span class="p">(</span><span class="n">inline_query</span><span class="o">.</span><span class="n">from_user</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="c1"># В итоговый массив запихиваем каждую запись</span>
+        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">InlineQueryResultArticle</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="n">link</span><span class="p">,</span>  <span class="c1"># ссылки у нас уникальные, потому проблем не будет</span>
+            <span class="n">title</span><span class="o">=</span><span class="n">link_data</span><span class="p">[</span><span class="s2">"title"</span><span class="p">],</span>
+            <span class="n">description</span><span class="o">=</span><span class="n">link_data</span><span class="p">[</span><span class="s2">"description"</span><span class="p">],</span>
+            <span class="n">input_message_content</span><span class="o">=</span><span class="n">InputTextMessageContent</span><span class="p">(</span>
+                <span class="n">message_text</span><span class="o">=</span><span class="n">get_message_text</span><span class="p">(</span>
+                    <span class="n">link</span><span class="o">=</span><span class="n">link</span><span class="p">,</span>
+                    <span class="n">title</span><span class="o">=</span><span class="n">link_data</span><span class="p">[</span><span class="s2">"title"</span><span class="p">],</span>
+                    <span class="n">description</span><span class="o">=</span><span class="n">link_data</span><span class="p">[</span><span class="s2">"description"</span><span class="p">]</span>
+                <span class="p">),</span>
+                <span class="n">parse_mode</span><span class="o">=</span><span class="s2">"HTML"</span>
+            <span class="p">)</span>
+        <span class="p">))</span>
+    <span class="c1"># Важно указать is_personal=True!</span>
+    <span class="k">await</span> <span class="n">inline_query</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">is_personal</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+<p>Получаем в итоге (у второй записи был пропущен этап со сводом <code>description</code>):</p>
+<p><img alt="Просмотр ссылок" src="../images/inline_mode/our_links_result.png" title="Просмотр ссылок"></p>
+<p>При нажатии получается вот такое красивое сообщение:</p>
+<p><img alt="Результат в чате" src="../images/inline_mode/our_links_result_in_chat.png" title="Результат в чате"></p>
+<h4 id="show-images">Изображения<a class="headerlink" href="#show-images" title="Permanent link">¶</a></h4>
+<p>С изображениями немного попроще, однако тут есть нюанс: мы не можем в качестве айди конкретного варианта использовать 
+<code>file_id</code> картинки, поскольку он длиннее 64 байт (лимит Bot API). Поэтому мы будем использовать порядковый номер 
+элемента в массиве, сконвертированный в строку. В остальном код предельно похож на предыдущий:</p>
+<div class="highlight"><span class="filename">handlers/inline_mode.py</span><pre><span></span><code><span class="nd">@router</span><span class="o">.</span><span class="n">inline_query</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">query</span> <span class="o">==</span> <span class="s2">"images"</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">show_user_images</span><span class="p">(</span><span class="n">inline_query</span><span class="p">:</span> <span class="n">InlineQuery</span><span class="p">):</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">file_id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">get_images_by_id</span><span class="p">(</span><span class="n">inline_query</span><span class="o">.</span><span class="n">from_user</span><span class="o">.</span><span class="n">id</span><span class="p">)):</span>
+        <span class="c1"># В итоговый массив запихиваем каждую запись</span>
+        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">InlineQueryResultCachedPhoto</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">index</span><span class="p">),</span>  <span class="c1"># индекс элемента в list</span>
+            <span class="n">photo_file_id</span><span class="o">=</span><span class="n">file_id</span>
+        <span class="p">))</span>
+    <span class="c1"># Важно указать is_personal=True!</span>
+    <span class="k">await</span> <span class="n">inline_query</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">is_personal</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+<p>Ну и результат:</p>
+<p><img alt="Отображение картинок в инлайн-режиме" src="../images/inline_mode/our_images_result.png" title="Отображение картинок в инлайн-режиме"></p>
+<h3 id="delete-data">Удаление данных<a class="headerlink" href="#delete-data" title="Permanent link">¶</a></h3>
+<p>Сохранёнки надо время от времени чистить. Так и мы хотим дать возможность пользователю удалять накопленные ссылки 
+и/или картинки. Для этого сделаем обработчик на команду <code>/delete</code>. Но заставлять пользователя вводить юзернейм бота 
+и писать <code>links</code> или <code>images</code> мы не хотим. Для этого под ответом на команду расположим две кнопки. Одна откроет 
+инлайн-режим на просмотре ссылок, другая — на просмотре изображений. </p>
+<p>Добавим в <code>states.py</code> новый класс:</p>
+<div class="highlight"><span class="filename">states.py</span><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DeleteCommon</span><span class="p">(</span><span class="n">StatesGroup</span><span class="p">):</span>
+    <span class="n">waiting_for_delete_start</span> <span class="o">=</span> <span class="n">State</span><span class="p">()</span>
+</code></pre></div>
+<p>Теперь сделаем хэндлер на команду <code>/delete</code>:</p>
+<div class="highlight"><span class="filename">handlers/common.py</span><pre><span></span><code><span class="c1"># новый импорт</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.filters.state</span><span class="w"> </span><span class="kn">import</span> <span class="n">StateFilter</span>
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s2">"delete"</span><span class="p">),</span> <span class="n">StateFilter</span><span class="p">(</span><span class="kc">None</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_delete</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">FSMContext</span><span class="p">):</span>
+    <span class="n">kb</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="hll">    <span class="n">kb</span><span class="o">.</span><span class="n">append</span><span class="p">([</span>
+</span>        <span class="n">InlineKeyboardButton</span><span class="p">(</span>
+            <span class="n">text</span><span class="o">=</span><span class="s2">"Выбрать ссылку"</span><span class="p">,</span>
+            <span class="n">switch_inline_query_current_chat</span><span class="o">=</span><span class="s2">"links"</span>
+        <span class="p">)</span>
+    <span class="p">])</span>
+<span class="hll">    <span class="n">kb</span><span class="o">.</span><span class="n">append</span><span class="p">([</span>
+</span>        <span class="n">InlineKeyboardButton</span><span class="p">(</span>
+            <span class="n">text</span><span class="o">=</span><span class="s2">"Выбрать изображение"</span><span class="p">,</span>
+            <span class="n">switch_inline_query_current_chat</span><span class="o">=</span><span class="s2">"images"</span>
+        <span class="p">)</span>
+    <span class="p">])</span>
+    <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">DeleteCommon</span><span class="o">.</span><span class="n">waiting_for_delete_start</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"Выберите, что хотите удалить:"</span><span class="p">,</span>
+        <span class="n">reply_markup</span><span class="o">=</span><span class="n">InlineKeyboardMarkup</span><span class="p">(</span><span class="n">inline_keyboard</span><span class="o">=</span><span class="n">kb</span><span class="p">)</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>При нажатии на такую кнопку подставляется нужное значение в инлайн-режим, что сразу откроет список ссылок или 
+изображений (для демонстрации я убрал пока всплывающего меню, чтобы было видно кнопки):</p>
+<p><img alt="Кнопка switch_inline_query_current_chat" src="../images/inline_mode/cmd_delete.png" title="Кнопка switch_inline_query_current_chat"></p>
+<p>Если бы мы использовали просто <code>switch_inline_query</code> вместо <code>switch_inline_query_current_chat</code>, то Telegram предложил 
+бы выбрать чат, в который пользователь может писать, а затем подставил бы указанный текст там.</p>
+<p>Осталось написать роутер, который будет ловить запросы на удаление и редактировать содержимое хранилища:</p>
+<div class="highlight"><span class="filename">handlers/delete_data.py</span><pre><span></span><code><span class="c1"># импорты</span>
+<span class="n">router</span> <span class="o">=</span> <span class="n">Router</span><span class="p">()</span>
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span>
+    <span class="n">DeleteCommon</span><span class="o">.</span><span class="n">waiting_for_delete_start</span><span class="p">,</span>
+    <span class="n">F</span><span class="o">.</span><span class="n">text</span><span class="p">,</span>
+    <span class="n">ViaBotFilter</span><span class="p">(),</span>
+    <span class="n">HasLinkFilter</span><span class="p">()</span>
+<span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">link_deletion_handler</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span> <span class="n">link</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">FSMContext</span><span class="p">):</span>
+    <span class="n">delete_link</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">from_user</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">link</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"Ссылка удалена! "</span>
+             <span class="s2">"Выдача инлайн-режима обновится в течение нескольких минут."</span><span class="p">)</span>
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span>
+    <span class="n">DeleteCommon</span><span class="o">.</span><span class="n">waiting_for_delete_start</span><span class="p">,</span>
+    <span class="n">F</span><span class="o">.</span><span class="n">photo</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">file_unique_id</span><span class="o">.</span><span class="n">as_</span><span class="p">(</span><span class="s2">"file_unique_id"</span><span class="p">),</span>
+    <span class="n">ViaBotFilter</span><span class="p">()</span>
+<span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">image_deletion_handler</span><span class="p">(</span>
+        <span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span>
+        <span class="n">state</span><span class="p">:</span> <span class="n">FSMContext</span><span class="p">,</span>
+        <span class="n">file_unique_id</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">):</span>
+    <span class="n">delete_image</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">from_user</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">file_unique_id</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"Изображение удалено! "</span>
+             <span class="s2">"Выдача инлайн-режима обновится в течение нескольких минут."</span><span class="p">)</span>
+</code></pre></div>
+<p>Обратите внимание: изображения мы удаляем по <code>file_unique_id</code>, поскольку при каждой отправке картинки <code>file_id</code> 
+будет разный (если кратко: в полном <code>file_id</code> зашиты отметки времени и прочие непостоянные данные).</p>
+<h3 id="switch-parameter">Switch туда и обратно<a class="headerlink" href="#switch-parameter" title="Permanent link">¶</a></h3>
+<p>Когда мы ранее обсуждали <a href="#outgoing-answer-format">формат исходящих ответов</a>, то видели аргументы 
+с префиксом <code>switch_pm</code>. Давайте ими воспользуемся, чтобы пользователь мог сразу перейти к добавлению данных из любого 
+чата, а не только из лички с ботом.</p>
+<p>Добавим в обработчик инлайн-запросов вышеупомянутые параметры. Для этого перепишем вызов метода <code>answer_inline_query()</code> 
+в файле <code>handlers/inline_mode.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">await</span> <span class="n">inline_query</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="n">results</span><span class="p">,</span> <span class="n">is_personal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">switch_pm_text</span><span class="o">=</span><span class="s2">"Добавить ещё »»"</span><span class="p">,</span>
+        <span class="n">switch_pm_parameter</span><span class="o">=</span><span class="s2">"add"</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>В файле <code>handlers/common.py</code> хэндлеру на команду <code>/save</code> добавим ещё одну точку входа через фильтр <code>CommandStart</code> 
+с диплинком <code>add</code>:</p>
+<div class="highlight"><span class="filename">handlers/common.py</span><pre><span></span><code><span class="c1"># новый импорт:</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.filters.command</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommandStart</span>
+
+<span class="hll"><span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">CommandStart</span><span class="p">(</span><span class="n">magic</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">args</span> <span class="o">==</span> <span class="s2">"add"</span><span class="p">))</span>
+</span><span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s2">"save"</span><span class="p">),</span> <span class="n">StateFilter</span><span class="p">(</span><span class="kc">None</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_save</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">FSMContext</span><span class="p">):</span>
+    <span class="o">...</span>
+
+<span class="c1"># Учтите, что хэндлер на просто /start должен идти ПОЗЖЕ</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="n">commands</span><span class="o">=</span><span class="p">[</span><span class="s2">"start"</span><span class="p">]))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cmd_start</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">FSMContext</span><span class="p">):</span>
+    <span class="o">...</span>
+</code></pre></div>
+<p>А также на последнем этапе добавления текста и картинок добавим <code>switch_inline_query</code> кнопку с предложением 
+попробовать скинуть что-то в другой чат:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># файл handlers/save_text.py</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">TextSave</span><span class="o">.</span><span class="n">waiting_for_description</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="nb">len</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">30</span><span class="p">)</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">TextSave</span><span class="o">.</span><span class="n">waiting_for_description</span><span class="p">,</span> <span class="n">Command</span><span class="p">(</span><span class="s2">"skip"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">last_step</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+    <span class="c1"># тут остальной код функции</span>
+    <span class="n">kb</span> <span class="o">=</span> <span class="p">[[</span><span class="n">InlineKeyboardButton</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"Попробовать"</span><span class="p">,</span>
+        <span class="n">switch_inline_query</span><span class="o">=</span><span class="s2">"links"</span>
+    <span class="p">)]]</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"Ссылка сохранена!"</span><span class="p">,</span>
+        <span class="n">reply_markup</span><span class="o">=</span><span class="n">InlineKeyboardMarkup</span><span class="p">(</span><span class="n">inline_keyboard</span><span class="o">=</span><span class="n">kb</span><span class="p">)</span>
+    <span class="p">)</span>
+
+<span class="c1"># файл handlers/save_images.py</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">SaveCommon</span><span class="o">.</span><span class="n">waiting_for_save_start</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">photo</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">as_</span><span class="p">(</span><span class="s2">"photo"</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">save_image</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+    <span class="c1"># тут остальной код функции</span>
+    <span class="n">kb</span> <span class="o">=</span> <span class="p">[[</span><span class="n">InlineKeyboardButton</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"Попробовать"</span><span class="p">,</span>
+        <span class="n">switch_inline_query</span><span class="o">=</span><span class="s2">"images"</span>
+    <span class="p">)]]</span>
+    <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"Изображение сохранено!"</span><span class="p">,</span>
+        <span class="n">reply_markup</span><span class="o">=</span><span class="n">InlineKeyboardMarkup</span><span class="p">(</span><span class="n">inline_keyboard</span><span class="o">=</span><span class="n">kb</span><span class="p">)</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>И здесь кроется ещё одна прикольная фича инлайн-режима: если вы вызовете бота не в ЛС с ним, перейдёте по кнопке 
+"Добавить ещё »»", и дойдёте до последнего шага, то когда бот отправит сообщение со <code>switch_inline_query</code>-кнопкой, 
+клиент Telegram автоматически вернёт пользователя в исходный чат и сразу откроет инлайн-режим с нужным текстом!</p>
+<h2 id="extras">Дополнительные материалы<a class="headerlink" href="#extras" title="Permanent link">¶</a></h2>
+<h3 id="lazy-loading">Подгрузка результатов<a class="headerlink" href="#lazy-loading" title="Permanent link">¶</a></h3>
+<p>Согласно документации Bot API, в одном вызове <a href="https://core.telegram.org/bots/api#answerinlinequery">answerInlineQuery</a> 
+можно отправить не более 50 элементов. А если нужно больше? На этот случай пригодится параметр <code>next_offset</code>. Его 
+указывает сам бот, и это же значение придёт в следующем инлайн-запросе, когда пользователь пролистает всю текущую пачку. 
+Для примера напишем простой генератор чисел, возвращающий пачки по 50 элементов, но с максимальным значением 195:</p>
+<div class="highlight"><span class="filename">handlers/inline_pagination_demo.py</span><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_fake_results</span><span class="p">(</span><span class="n">start_num</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Генерирует список из последовательных чисел</span>
+
+<span class="sd">    :param start_num: стартовое число для генератора</span>
+<span class="sd">    :param size: размер пачки (по умолч. 50)</span>
+<span class="sd">    :return: список последовательных чисел</span>
+<span class="sd">    """</span>
+    <span class="n">overall_items</span> <span class="o">=</span> <span class="mi">195</span>
+    <span class="c1"># Если результатов больше нет, отправляем пустой список</span>
+    <span class="k">if</span> <span class="n">start_num</span> <span class="o">&gt;=</span> <span class="n">overall_items</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="c1"># Отправка неполной пачки (последней)</span>
+    <span class="k">elif</span> <span class="n">start_num</span> <span class="o">+</span> <span class="n">size</span> <span class="o">&gt;=</span> <span class="n">overall_items</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">start_num</span><span class="p">,</span> <span class="n">overall_items</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">start_num</span><span class="p">,</span> <span class="n">start_num</span><span class="o">+</span><span class="n">size</span><span class="p">))</span>
+</code></pre></div>
+<p>Теперь напишем инлайн-хэндлер таким образом, чтобы при приближении к концу текущего списка Telegram запрашивал<br>
+продолжение. Для этого в начале проверяем поле <code>offset</code> и ставим его равным единице, если оно пустое. Далее генерируем 
+фейковый список результатов. Если на выходе ровно 50 объектов, то в ответе указываем <code>next_offset</code> равный текущему 
+значению + 50. Если объектов меньше, то ничего не указываем, чтобы Telegram больше не пытался подгрузить новые строки:</p>
+<div class="highlight"><span class="filename">handlers/inline_pagination_demo.py</span><pre><span></span><code><span class="nd">@router</span><span class="o">.</span><span class="n">inline_query</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">query</span> <span class="o">==</span> <span class="s2">"long"</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">pagination_demo</span><span class="p">(</span>
+        <span class="n">inline_query</span><span class="p">:</span> <span class="n">InlineQuery</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="c1"># Высчитываем offset как число</span>
+    <span class="n">offset</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">inline_query</span><span class="o">.</span><span class="n">offset</span><span class="p">)</span> <span class="k">if</span> <span class="n">inline_query</span><span class="o">.</span><span class="n">offset</span> <span class="k">else</span> <span class="mi">1</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[</span><span class="n">InlineQueryResultArticle</span><span class="p">(</span>
+        <span class="nb">id</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">item_num</span><span class="p">),</span>
+        <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Объект №</span><span class="si">{</span><span class="n">item_num</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+        <span class="n">input_message_content</span><span class="o">=</span><span class="n">InputTextMessageContent</span><span class="p">(</span>
+            <span class="n">message_text</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Объект №</span><span class="si">{</span><span class="n">item_num</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+    <span class="p">)</span> <span class="k">for</span> <span class="n">item_num</span> <span class="ow">in</span> <span class="n">get_fake_results</span><span class="p">(</span><span class="n">offset</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">50</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">inline_query</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+            <span class="n">results</span><span class="p">,</span> <span class="n">is_personal</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">inline_query</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span>
+            <span class="n">results</span><span class="p">,</span> <span class="n">is_personal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+<span class="hll">            <span class="n">next_offset</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">offset</span><span class="o">+</span><span class="mi">50</span><span class="p">)</span>
+</span>        <span class="p">)</span>
+</code></pre></div>
+<p>По мере листания инлайн-результатов, бот будет получать запросы и возвращать всё новые и новые результаты, пока не дойдёт 
+до 195-го элемента, дальше запросы прекратятся.</p>
+<h3 id="inline-feedback">Сбор статистики<a class="headerlink" href="#inline-feedback" title="Permanent link">¶</a></h3>
+<p>Мало кто знает, но Telegram позволяет собирать простенькую статистику по использованию бота в инлайн-режиме. Для начала 
+требуется включить соответствующую настройку у @BotFather: <code>/mybots</code> - (выбрать бота) - Bot Settings - Inline Feedback:</p>
+<p><img alt="Пример работы бота @imdb в инлайн-режиме" src="../images/inline_mode/botfather_inline_feedback.png" title="Пример работы бота @imdb в инлайн-режиме"></p>
+<p>Числа на кнопках означают <em>вероятность</em> получения события <a href="https://core.telegram.org/bots/api#choseninlineresult">ChosenInlineResult</a> 
+при выборе пользователем какого-либо объекта в инлайн-режиме. Так, например, если выставлено значение <strong>10%</strong>, то при 
+каждом выборе объекта существует вероятность в десять процентов получить событие ChosenInlineResult в боте. Выставлять 
+значение 100% Telegram не рекомендует из-за удвоения нагрузки на бота. Таким образом, для сколько-нибудь серьёзной аналитики 
+подобная фича не подходит, но в умелых руках и за большой период времени может дать общее представление о наиболее 
+полезных инлайн-результатах. Пример хэндлера на подобные события:</p>
+<div class="highlight"><span class="filename">handlers/inline_chosen_result_demo.py</span><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">aiogram</span><span class="w"> </span><span class="kn">import</span> <span class="n">Router</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiogram.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChosenInlineResult</span>
+
+<span class="n">router</span> <span class="o">=</span> <span class="n">Router</span><span class="p">()</span>
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">chosen_inline_result</span><span class="p">()</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">pagination_demo</span><span class="p">(</span>
+        <span class="n">chosen_result</span><span class="p">:</span> <span class="n">ChosenInlineResult</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="c1"># Пишем прямо на экран. Но, возможно, вы захотите сохранять куда-то</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"After '</span><span class="si">{</span><span class="n">chosen_result</span><span class="o">.</span><span class="n">query</span><span class="si">}</span><span class="s2">' query, "</span>
+        <span class="sa">f</span><span class="s2">"user chose option with ID '</span><span class="si">{</span><span class="n">chosen_result</span><span class="o">.</span><span class="n">result_id</span><span class="si">}</span><span class="s2">'"</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>Несмотря на то, что телеграм не рекомендует выставлять большие значения для Inline Feedback, у этой штуки есть как 
+минимум одно практическое применение: некоторые музыкальные боты пытаются подгрузить полную версию композиции по запросу, 
+не сохраняя песню заранее. Если это делать в момент вызова бота в инлайн-режиме, можно не уложиться в 10-15 секунд, 
+по истечению которых Bot API вернёт ошибку о «протухшем» апдейте.</p>
+<p>И вот как выкручиваются разработчики: пока бот ищет трек, в предпрослушивании предлагается короткий сэмпл 
+(5-10 секунд). Когда пользователь жмёт на какую-либо строчку, отправляется аудиосообщение с прикреплённой инлайн-кнопкой
+(иначе нельзя редактировать сообщение), бот ловит событие отправки, достаёт из апдейта с типом <code>ChosenInlineResult</code> 
+сквозной <code>inline_message_id</code> сообщения, грузит полную версию аудио и, используя этот <code>inline_message_id</code> редактирует 
+сэмпл на полноценный трек. Telegram приучает к костылям, да. </p></div>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2020-2026 Groosha
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://t.me/+DE0_2nCvbXozZjUy" target="_blank" rel="noopener" title="Чат в Telegram" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M256 8a248 248 0 1 0 0 496 248 248 0 1 0 0-496m115 168.7c-3.7 39.2-19.9 134.4-28.1 178.3-3.5 18.6-10.3 24.8-16.9 25.4-14.4 1.3-25.3-9.5-39.3-18.7-21.8-14.3-34.2-23.2-55.3-37.2-24.5-16.1-8.6-25 5.3-39.5 3.7-3.8 67.1-61.5 68.3-66.7.2-.7.3-3.1-1.2-4.4s-3.6-.8-5.1-.5c-2.2.5-37.1 23.5-104.6 69.1-9.9 6.8-18.9 10.1-26.9 9.9-8.9-.2-25.9-5-38.6-9.1-15.5-5-27.9-7.7-26.8-16.3.6-4.5 6.7-9 18.4-13.7 72.3-31.5 120.5-52.3 144.6-62.3 68.9-28.6 83.2-33.6 92.5-33.8 2.1 0 6.6.5 9.6 2.9 2 1.7 3.2 4.1 3.5 6.7.5 3.2.6 6.5.4 9.8z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://github.com/MasterGroosha/aiogram-3-guide" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u0421\u043a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u043d\u043e \u0432 \u0431\u0443\u0444\u0435\u0440", "clipboard.copy": "\u041a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u0442\u044c \u0432 \u0431\u0443\u0444\u0435\u0440", "search.result.more.one": "\u0415\u0449\u0451 1 \u043d\u0430 \u044d\u0442\u043e\u0439 \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0435", "search.result.more.other": "\u0415\u0449\u0451 # \u043d\u0430 \u044d\u0442\u043e\u0439 \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0435", "search.result.none": "\u0421\u043e\u0432\u043f\u0430\u0434\u0435\u043d\u0438\u0439 \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u043e", "search.result.one": "\u041d\u0430\u0439\u0434\u0435\u043d\u043e 1 \u0441\u043e\u0432\u043f\u0430\u0434\u0435\u043d\u0438\u0435", "search.result.other": "\u041d\u0430\u0439\u0434\u0435\u043d\u043e \u0441\u043e\u0432\u043f\u0430\u0434\u0435\u043d\u0438\u0439: #", "search.result.placeholder": "\u041d\u0430\u0447\u043d\u0438\u0442\u0435 \u043f\u0435\u0447\u0430\u0442\u0430\u0442\u044c \u0434\u043b\u044f \u043f\u043e\u0438\u0441\u043a\u0430", "search.result.term.missing": "\u041e\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0443\u0435\u0442", "select.version": "\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u0432\u0435\u0440\u0441\u0438\u044e"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
