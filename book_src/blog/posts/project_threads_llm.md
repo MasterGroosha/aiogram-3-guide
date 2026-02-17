@@ -634,3 +634,408 @@ def trim_text_smart(
 
 ![type:video](../images/project_threads_llm/streaming_demo.mp4)
 
+## История сообщений
+
+Хорошо, на заранее известный вопрос нейросеть отвечать умеет, но надо научить бота поддерживать длинные диалоги. 
+Следовательно, требуется какое-то хранилище, которое на каждый запрос будет доставать все сообщения, относящиеся к 
+конкретному топику, а далее отправлять их к ИИ, получать ответ и снова обновлять хранилище. Как и было обещано в начале, 
+для простоты запуска и понимания будем использовать in-memory хранилище в оперативной памяти. Для демонстрации возможностей 
+этого более чем достаточно, а желающие добавить персистентность могут легко заменить RAM на PostgreSQL или любое 
+другое подходящее хранилище.
+
+Создайте файл `src/bot/storage.py` со следующим содержимым:
+```python title="src/bot/storage.py"
+from enum import StrEnum
+from uuid import UUID, uuid4
+
+import structlog
+from pydantic import Field, BaseModel
+from structlog.typing import FilteringBoundLogger
+
+logger: FilteringBoundLogger = structlog.get_logger()
+
+
+class Role(StrEnum):
+    USER = "user"
+    ASSISTANT = "assistant"
+    SYSTEM = "system"
+
+
+class Message(BaseModel):
+    role: Role
+    content: str
+
+    def to_call_dict(self):
+        return {
+            "role": self.role.value,
+            "content": self.content,
+        }
+
+    @classmethod
+    def from_call_dict(
+            cls,
+            data: dict[str, str],
+    ) -> "Message":
+        return cls(
+            role=Role(data["role"]),
+            content=data["content"],
+        )
+
+
+class LLMChatMeta(BaseModel):
+    session_id: UUID = Field(default_factory=uuid4)
+    user_id: int
+    thread_id: int  # message_thread_id в терминах Telegram
+    prompt_key: str = "default"
+    temperature: float = 0.7
+
+
+class LLMChat(BaseModel):
+    meta: LLMChatMeta
+    # Системное сообщение НЕ храним в списке messages,
+    # оно динамически подставляется из persona_key при запросе к LLM.
+    messages: list[Message] = Field(default_factory=list)
+
+    @property
+    def is_empty(self):
+        return len(self.messages) == 0
+
+    @property
+    def is_chat_start(self):
+        return len(self.messages) <= 2
+
+
+class InMemoryChatStorage:
+    def __init__(self):
+        self.__storage: dict[str, LLMChat] = dict()
+
+    @staticmethod
+    def _get_key(
+            user_id: int,
+            thread_id: int,
+    ) -> str:
+        return f"{user_id}_{thread_id}"
+
+    async def create(
+        self,
+        user_id: int,
+        thread_id: int,
+    ) -> None:
+        new_chat_key = self._get_key(user_id, thread_id)
+        self.__storage[new_chat_key] = LLMChat(
+            meta=LLMChatMeta(
+                user_id=user_id,
+                thread_id=thread_id,
+            )
+        )
+
+    async def get(
+            self,
+            user_id: int,
+            thread_id: int,
+    ) -> LLMChat | None:
+        return self.__storage.get(self._get_key(user_id, thread_id))
+
+    async def update(
+            self,
+            user_id: int,
+            thread_id: int,
+            new_version: LLMChat,
+    ):
+        llm_chat_id = self._get_key(user_id, thread_id)
+        self.__storage[llm_chat_id] = new_version
+
+memory_chat_storage = InMemoryChatStorage()
+```
+
+Думаю, код максимально простой и пояснения к нему не требуются, тем более, что очень скоро мы начнём его использовать 
+и всё станет ещё понятнее. Следующим шагом создадим обработчик команды `/new`, который делает следующее:
+
+1. Создаёт новый топик с названием «Новый чат».
+2. В случае неуспеха пишет ошибку и на этом всё.
+3. В случае успеха использует айди топика вместе с айди юзера для создания новой записи в хранилище.
+4. Отправляет сообщение пользователю с предложением написать первое сообщение для ИИ.
+
+Создайте новый файл с роутером по адресу `src/bot/handlers/new_chat_creation.py`:
+```python title="src/bot/handlers/new_chat_creation.py"
+import structlog
+from aiogram import Router, Bot
+from aiogram.enums.topic_icon_color import TopicIconColor
+from aiogram.filters import Command
+from aiogram.types import Message
+from structlog.typing import FilteringBoundLogger
+
+from bot.storage import memory_chat_storage
+
+router = Router()
+logger: FilteringBoundLogger = structlog.get_logger()
+
+
+@router.message(Command("new"))
+async def cmd_start(
+        message: Message,
+        bot: Bot,
+):
+    try:
+        new_topic = await bot.create_forum_topic(
+            chat_id=message.chat.id,
+            name="Новый чат",
+            icon_color=TopicIconColor.YELLOW,
+        )
+    except:  # noqa
+        await logger.aexception("Failed to create new topic")
+        await message.answer("Что-то пошло не так. Пожалуйста, попробуйте ещё раз.")
+        return
+
+    new_topic_id = new_topic.message_thread_id
+    await memory_chat_storage.create(
+        user_id=message.from_user.id,
+        thread_id=new_topic_id,
+    )
+
+    await bot.send_message(
+        chat_id=message.chat.id,
+        text="Новый чат создан, напишите ваше сообщение.",
+        message_thread_id=new_topic_id,
+    )
+```
+
+Не забудьте зарегистрировать роутер в `src/bot/handlers/__init__.py`! А вот обработчик команды `/start` можно заменить 
+снова на простую заглушку; тот большой код для стриминга мы переиспользуем чуть позднее в другом месте:
+```python title="src/bot/handlers/start.py"
+import structlog
+from aiogram import Router
+from aiogram.filters import CommandStart
+from aiogram.types import Message
+from structlog.typing import FilteringBoundLogger
+
+router = Router()
+logger: FilteringBoundLogger = structlog.get_logger()
+
+
+@router.message(CommandStart())
+async def cmd_start(
+        message: Message,
+):
+    await message.answer("Добро пожаловать! Нажмите /new для создания нового чата")
+```
+
+Запустите бота и выполните команду `/new`. Если всё пройдёт успешно, то создастся новый топик, куда бот сразу 
+напишет сообщение:
+
+![Бот создал топик](../images/project_threads_llm/off_thread_message_problem.png)
+
+Здесь кроется та самая проблема, о которой упоминалось в начале. Обратите внимание на подсказку "Off-thread message" 
+от Telegram Desktop. Если пользователь просто отправит сообщение, то оно улетит в топик General (т.е. общий топик), 
+а чтобы сделать правильно, надо отдельно нажать на заголовок «Новый чат >» на пунктирной линии. Такой проблемы нет 
+при выборе другого варианта отображения, но там свои приколы. Что делать в нашем случае? Как вариант, просто реагировать 
+на произвольные сообщения в General-топике. Да и в целом пора начать разделять роутеры на те, что работают в General-топике, 
+и на те, что работают внутри явно созданных топиков. 
+
+Сперва создайте роутер для обработки произвольных сообщений вне явных топиков:
+```python title="src/bot/handlers/chat_in_general_topic.py"
+import structlog
+from aiogram import F, Router
+from aiogram.types import Message
+from structlog.typing import FilteringBoundLogger
+
+router = Router()
+logger: FilteringBoundLogger = structlog.get_logger()
+
+
+@router.message(F.text)
+async def text_message_in_general_topic(
+        message: Message,
+):
+    await message.answer(
+        "Сообщения вне топиков-чатов не поддерживаются. "
+        "Пожалуйста, создайте новый топик-чат при помощи команды /new."
+    )
+
+
+@router.message(~F.text)
+async def nontext_message_in_general_topic(
+        message: Message,
+):
+    await message.answer(
+        "В настоящий момент медиафайлы не поддерживаются"
+    )
+```
+
+А теперь приведите ваш файл `src/bot/handlers/__init__.py` к следующему виду:
+```python title="src/bot/handlers/__init__.py"
+from aiogram import Router, F
+
+from . import (
+    chat_in_general_topic,
+    new_chat_creation,
+    start,
+)
+
+general_topic_router = Router()
+general_topic_router.message.filter(F.message_thread_id.is_(None))
+general_topic_router.include_routers(
+    start.router,
+    new_chat_creation.router,
+    chat_in_general_topic.router,
+)
+
+in_topic_router = Router()
+# Тут пока ничего не будет
+
+def get_routers() -> list[Router]:
+    return [
+        general_topic_router,
+        in_topic_router,
+    ]
+```
+
+Вернёмся к бизнес-логике. Бот уже создаёт топик и предлагает туда написать. Значит, следующим шагом надо отреагировать 
+на текстовое сообщение пользователя и отправить его запрос к ИИ. Снова пройдёмся по алгоритму:
+
+1. Получить все более ранние сообщения пользователя в этом топике из хранилища. 
+В случае ошибки – просим начать новый топик-чат и прекращаем обработку.
+2. Формируем системный промт. Его мы НЕ храним в истории, потому что он может меняться со временем.
+3. Из сообщений формируем список словарей с ключами `role` и `content`.
+4. Добавляем в этот список тот текст, который только что прислал пользователь.
+5. Отправляем всё это в LLM и по кусочкам получаем и стримим ответ.
+6. После того, как ответ полностью пришёл, добавляем к списку ответ от ИИ и сохраняем новое состояние в хранилище.
+
+!!! info "Примечание"
+    Если вы используете PostgreSQL или другую БД, то вам надо сохранить только свежую пару запроса от юзера и ответа от LLM, 
+    поскольку предыдущая история уже сохранена.
+
+Создайте новый файл с роутером по адресу `src/bot/handlers/chat_in_topic.py`:
+```python title="src/bot/handlers/chat_in_topic.py"
+import asyncio
+from random import randint
+
+import structlog
+from aiogram import F, Router, Bot
+from aiogram.exceptions import TelegramRetryAfter
+from aiogram.types import Message
+from structlog.typing import FilteringBoundLogger
+
+from bot.llm import LLMClient
+from bot.storage import Message as LLMMessage
+from bot.storage import memory_chat_storage, Role
+from bot.text_utils import trim_text_smart
+
+router = Router()
+logger: FilteringBoundLogger = structlog.get_logger()
+
+
+@router.message(F.text)
+async def handle_message(
+        message: Message,
+        llm_client: LLMClient,
+        bot: Bot,
+):
+    llm_chat = await memory_chat_storage.get(
+        user_id=message.from_user.id,
+        thread_id=message.message_thread_id,
+    )
+    if llm_chat is None:
+        await message.answer(
+            "Не удалось получить историю сообщений. "
+            "Пожалуйста, создайте новый топик-чат: вернитесь в основной раздел и вызовите команду /new"
+        )
+        return
+
+    # Совет: если вы хотите использовать заглушки в промте,
+    # например, для подстановки текущей даты,
+    # то это можно сделать где-то тут при создании
+    # словаря с системным промтом.
+    prompt = {
+        "role": "system",
+        "content": "Ты — умный ассистент, помогаешь пользователям с разными задачами.",
+    }
+
+    # Получаем всю предыдущую историю
+    chat_history = [item.to_call_dict() for item in llm_chat.messages]
+
+    # Сверху кладём свежее сообщение юзера
+    chat_history.append({"role": "user", "content": message.text})
+
+    text = ""
+    safe_text = ""
+    retry_backoff = 0.0
+    update_interval = 0.7
+    last_update = 0.0
+    draft_id = randint(1, 100_000_000)
+    async for delta in await llm_client.generate_response(
+        messages=[prompt] + chat_history,
+        stream=True,
+        temperature=0.7,
+    ):
+        text += delta
+        safe_text = trim_text_smart(text)
+        now = asyncio.get_running_loop().time()
+        if now - last_update < update_interval + retry_backoff:
+            if safe_text != text:
+                break
+            await logger.adebug("Skipping updating draft; still merging chunks")
+            continue
+        await logger.adebug("Enough time passed, updating draft")
+        try:
+            await bot.send_message_draft(
+                draft_id=draft_id,
+                chat_id=message.chat.id,
+                message_thread_id=message.message_thread_id,
+                text=safe_text,
+            )
+            last_update = now
+        except TelegramRetryAfter as ex:
+            retry_backoff += 0.1
+            last_update = now
+            await logger.awarning(
+                f"Streaming rate limit, need to wait {ex.retry_after} sec",
+            )
+            await asyncio.sleep(ex.retry_after)
+        except Exception:
+            await logger.aexception("Failed to stream message draft")
+            return
+
+        if safe_text != text:
+            break
+
+    await message.answer(safe_text)
+
+    # Сверху кладём свежий ответ от LLM
+    chat_history.append(
+        {
+            "role": Role.ASSISTANT.value,
+            "content": safe_text,
+        }
+    )
+    # Формируем Pydantic-объекты и записываем в llm_chat
+    llm_chat.messages = [
+        LLMMessage.from_call_dict(item)
+        for item in chat_history
+    ]
+    # Замещаем старый llm_chat новым
+    await memory_chat_storage.update(
+        user_id=message.from_user.id,
+        thread_id=message.message_thread_id,
+        new_version=llm_chat,
+    )
+    # Просто для удобства, чтобы убедиться, 
+    # что история пишется и читается целиком
+    await logger.adebug(
+        f"Chat history now has {len(llm_chat.messages)} msg(s)",
+        session_id=llm_chat.meta.session_id,
+    )
+```
+
+Не забудьте импортировать новый файл в `src/bot/handlers/__init__.py` и добавить новый роутер к `in_topic_router`:
+```python
+in_topic_router.include_routers(
+    chat_in_topic.router,
+)
+```
+
+Если вы пересоберёте бота (`docker compose up --build`), запустите и создадите новый топик, задав основной вопрос и 
+какой-нибудь уточняющий, то заметите, что контекст учитывается корректно, значит, история сохраняется и подгружается:
+
+![Бот создал топик](../images/project_threads_llm/topic_history_preserved.png)
+
