@@ -93,12 +93,8 @@ class LLMClient:
             )
             if isinstance(response, str):
                 title = response.strip()
-                print("Generated title", title)
                 return title[:128] if title else None
             return None
         except Exception as ex:
-            print("exception!")
-            print(type(ex))
-            print(str(ex))
             # Тут можно что-нибудь залогировать
             return None

@@ -25,9 +25,7 @@ async def update_topic_title(
         message: Message,
         bot: Bot,
 ):
-    print("called update topic title")
     title: str | None = await llm_client.generate_topic_title(message.text)
-    print("title", title)
     if title:
         try:
             await bot.edit_forum_topic(
@@ -162,7 +160,6 @@ async def handle_message(
 
     # Если это самое начало топика-чата,
     # то генерируем название.
-    print(f"{llm_chat.is_chat_start=}")
     if llm_chat.is_chat_start:
         asyncio.create_task(update_topic_title(
             llm_client=llm_client,
