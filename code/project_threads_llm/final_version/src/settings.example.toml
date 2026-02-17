@@ -1,0 +1,14 @@
+[bot]
+token = "1234567890:AaBbCcDdEeFfGrOoShALlMmNnOoPpQqRrSs"
+
+[llm]
+url = "http://llm:8080/v1/chat/completions"
+
+[logs]
+show_datetime = true
+datetime_format = "%Y-%m-%d %H:%M:%S"
+show_debug_logs = true
+time_in_utc = false
+use_colors_in_console = true
+renderer = "console"  # "console" or "json"
+allow_third_party_logs = true

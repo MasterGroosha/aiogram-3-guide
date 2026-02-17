@@ -1,0 +1,10 @@
+name: "llm-to-tg-initial-version"
+
+services:
+  bot:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./src/settings.toml:/app/src/settings.toml:ro
+    restart: "no"
