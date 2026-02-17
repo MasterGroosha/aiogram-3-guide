@@ -1,6 +1,6 @@
 ---
 title: "Проект: AI-бот на топиках"
-description: "Описание"
+description: "Проект: AI-бот на топиках"
 date: 2026-02-17
 draft: false
 slug: "topics-and-llm"
