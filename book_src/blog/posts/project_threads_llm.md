@@ -646,7 +646,6 @@ def trim_text_smart(
 Создайте файл `src/bot/storage.py` со следующим содержимым:
 ```python title="src/bot/storage.py"
 from enum import StrEnum
-from uuid import UUID, uuid4
 
 import structlog
 from pydantic import Field, BaseModel
@@ -683,7 +682,6 @@ class Message(BaseModel):
 
 
 class LLMChatMeta(BaseModel):
-    session_id: UUID = Field(default_factory=uuid4)
     user_id: int
     thread_id: int  # message_thread_id в терминах Telegram
     prompt_key: str = "default"
@@ -695,10 +693,6 @@ class LLMChat(BaseModel):
     # Системное сообщение НЕ храним в списке messages,
     # оно динамически подставляется из persona_key при запросе к LLM.
     messages: list[Message] = Field(default_factory=list)
-
-    @property
-    def is_empty(self):
-        return len(self.messages) == 0
 
     @property
     def is_chat_start(self):
@@ -1023,7 +1017,6 @@ async def handle_message(
     # что история пишется и читается целиком
     await logger.adebug(
         f"Chat history now has {len(llm_chat.messages)} msg(s)",
-        session_id=llm_chat.meta.session_id,
     )
 ```
 
