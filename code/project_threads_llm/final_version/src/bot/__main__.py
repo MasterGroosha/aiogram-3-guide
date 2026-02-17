@@ -35,7 +35,7 @@ async def main():
     dp.include_routers(*get_routers())
     dp.shutdown.register(shutdown)
 
-    http_client = httpx.AsyncClient(timeout=None)
+    http_client = httpx.AsyncClient(timeout=httpx.Timeout(300.0, connect=10.0))
 
     llm_client = LLMClient(http_client, settings.llm.url)
     dp.workflow_data.update(
