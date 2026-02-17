@@ -3,6 +3,7 @@ title: "Проект: AI-бот на топиках"
 description: "Описание"
 date: 2026-02-17
 draft: false
+slug: "topics-and-llm"
 ---
 
 !!! info ""
