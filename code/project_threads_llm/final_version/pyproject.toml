@@ -3,7 +3,7 @@ requires = ["uv_build == 0.10.4"]
 build-backend = "uv_build"
 
 [tool.uv.build-backend]
-module-root = "bot"
+module-root = "src"
 
 [project]
 name = "llm-to-tg-final-version"
