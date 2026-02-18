@@ -1,3 +1,10 @@
+[build-system]
+requires = ["uv_build == 0.10.4"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-root = "bot"
+
 [project]
 name = "llm-to-tg-final-version"
 version = "1.0.0"
