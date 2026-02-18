@@ -7,5 +7,6 @@ docs/
 # .env-файлы
 .env
 /code/09_payments/settings.toml
-/code/project_threads_llm/final_version/src/settings.toml
+/code/project_threads_llm/final_version/settings.toml
 /code/project_threads_llm/initial_version/src/settings.toml
+__pycache__/
