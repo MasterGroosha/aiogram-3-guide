@@ -49,10 +49,9 @@ extra:
     - icon: fontawesome/brands/github
       link: https://github.com/MasterGroosha/aiogram-3-guide
       name: GitHub
-  extra:
-    analytics:
-      provider: google
-      property: G-4T7XHWYE9S
+  analytics:
+    provider: google
+    property: G-4T7XHWYE9S
 
 # Extensions
 markdown_extensions:
