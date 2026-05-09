@@ -80,6 +80,7 @@ nav:
   - 'Особые апдейты': special-updates.md
   - 'Конечные автоматы': fsm.md
   - 'Инлайн-режим': inline-mode.md
+  - 'Гостевой режим': guest-bots.md
   - 'Платежи': payments.md
   - blog/index.md
   - '🔒 Продвинутый уровень': advanced-teaser.md

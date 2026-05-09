@@ -1,0 +1,10 @@
+[project]
+name = "10-guest-mode"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "aiogram>=3.28.0",
+    "openai>=2.36.0",
+]
