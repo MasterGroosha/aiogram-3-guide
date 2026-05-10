@@ -237,7 +237,7 @@ async def on_user_shared(message: types.Message):
 
 
 @dp.message(F.chat_shared)
-async def on_user_shared(message: types.Message):
+async def on_chat_shared(message: types.Message):
     print(
         f"Request {message.chat_shared.request_id}. "
         f"User ID: {message.chat_shared.chat_id}"
