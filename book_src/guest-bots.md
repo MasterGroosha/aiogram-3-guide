@@ -225,6 +225,36 @@ async def guest_message(
     )
 ```
 
+Системный промт читается и кладётся в ОЗУ при каждом запуске бота, там же инициализируется 
+клиент для работы с OpenRouter:
+
+```python title="bot/__main__.py"
+
+...
+
+async def main() -> None:
+    settings = Settings()
+
+    ...
+    
+    openrouter_client = AsyncOpenAI(
+        base_url=settings.llm.base_url,
+        api_key=settings.llm.api_key.get_secret_value(),
+    )
+
+    with open("bot/system_prompt.txt", "r", encoding="utf-8") as f:
+        system_prompt: str = f.read()
+
+    dp = Dispatcher(
+        llm_client=openrouter_client,
+        llm_model=settings.llm.model_name,
+        system_prompt=system_prompt,
+    )
+
+...
+```
+
+
 Добавьте недостающие библиотеки, заполните файл `settings.toml` по аналогии с `settings.example.toml` 
 и запустите бота:
 
