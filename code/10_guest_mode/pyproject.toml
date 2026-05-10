@@ -1,7 +1,7 @@
 [project]
 name = "10-guest-mode"
-version = "0.1.0"
-description = "Add your description here"
+version = "1.0.0"
+description = "Бот для демонстрации гостевого режима в Bot API"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [

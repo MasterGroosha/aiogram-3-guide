@@ -10,7 +10,7 @@ model_name = "nvidia/nemotron-3-super-120b-a12b:free"
 
 
 [logs]
-project_name = "hello_world"
+project_name = "guest_mode_demo"
 show_datetime = true
 datetime_format = "%Y-%m-%d %H:%M:%S"
 show_debug_logs = false
