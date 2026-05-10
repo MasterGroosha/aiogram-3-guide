@@ -84,6 +84,7 @@ nav:
   - 'Гостевой режим': guest-bots.md
   - 'Платежи': payments.md
   - blog/index.md
+  - '📚 Бумажная книга': book.md
   - '🔒 Продвинутый уровень': advanced-teaser.md
 #  - 'Дополнительное чтение':
 #    - 'Тест': extra/test.md
