@@ -120,12 +120,128 @@ BOT_TOKEN=1234567890:AaBbCcDdEeFfGrOoShAHhIiJjKkLlMmNnOo uv run simple_example.p
 
 ## Продвинутый пример {: id="advanced-example" }
 
-Следующим на очереди сделаем аналог "@grok is this true" из X/Twitter, но на минималках: без поиска в Интернете, 
-без вызова различных инструментов, просто за счёт внутренних знаний какой-нибудь LLM-модели на 
+Следующим на очереди сделаем простого LLM-помощника на минималках: без поиска в Интернете, 
+без вызова различных инструментов, просто за счёт внутренних знаний какой-нибудь модели с 
 [OpenRouter](https://openrouter.ai). Для повторения следующего кода вам потребуется собственный аккаунт 
 на OpenRouter и созданный там же API-ключ. Если у вас нет возможности выпустить такой ключ, 
-то хотя бы посмотрите пример до конца, чтобы в будущем быстрее приступить к работе с AI.
+пусть даже у другого провайдера, то хотя бы посмотрите пример до конца, чтобы в будущем 
+быстрее приступить к работе с AI.
 
+Все исходники к этой главе расположены 
+на [GitHub](https://github.com/MasterGroosha/aiogram-3-guide/tree/master/code/10_guest_mode), а далее 
+в тексте рассмотрим только важные моменты.
 
-!!! warning "Код в разработке"
-    В настоящий момент этот раздел дописывается. Пожалуйста, приходите чуть позже.
+Одна из важнейших вещей — это промт. Зададим модельке контекст, скажем отвечать только неформатированным текстом, 
+опишем логику обработки сообщения и ответа на другое сообщение, ну и пусть отвечает кратко, чтобы 
+постараться не вылезти за лимит в 4096 символов. И в конце пропишем текущую дату, чтобы AI не 
+считал, что на календаре 2024 или 2025:
+
+??? "Текст промта (нажмите, чтобы развернуть)"
+
+    --8<-- "code/10_guest_mode/bot/system_prompt.txt"
+
+Далее функция для получения ответа от провайдера:
+
+```python
+async def get_llm_response(
+        client: AsyncOpenAI,
+        prompt: str,
+        model: str,
+) -> str | None:
+    completion = await client.chat.completions.create(
+        model=model,
+        messages=[
+            {
+                "role": "system",
+                "content": prompt,
+            },
+        ],
+        stream=False,
+        extra_body={"reasoning": {"enabled": True}},
+    )
+    if not completion.choices:
+        return None
+    return completion.choices[0].message.content
+```
+
+Здесь важно отметить следующее: во-первых, все сообщения пользователей в нашем случае укладываются 
+в системный промт, поэтому список `messages` будет состоять из одного элемента. Во-вторых, стриминг 
+необходимо выключить, в случае с гостевыми ботами он не поддерживается. В-третьих, «размышления» 
+(reasoning) можно выставить в `False`, тогда ответ будет сильно быстрее, но OpenRouter периодически 
+пишет ошибку, что для определённых запросов или моделей требуется включенный reasoning, поэтому просто 
+его включим. Да, это замедлит получение ответа, но гостевые боты работают «в фоне», так что не страшно. 
+В-четвёртых, бывает, что модель вообще не возвращает никакого результата, это надо обработать (в коде 
+выше – проверкой `completition.choice` на пустоту или `None`).
+
+Наконец, хэндлер. Он понятный и линейный, вот он целиком:
+
+```python
+@router.guest_message(F.text)
+async def guest_message(
+        message: Message,
+        llm_client: AsyncOpenAI,
+        llm_model: str,
+        system_prompt: str,
+) -> None:
+    # Проверка, является ли вызывающее сообщение ответом на какое-то другое.
+    if (replied_message := message.reply_to_message) is None:
+        # Это пойдет в системный промпт
+        replied_message = "(none provided)"
+    else:
+        replied_message = (
+            replied_message.text
+            or f"(some mediafile, contents unknown, "
+               f"but there is a caption: {replied_message.caption})"
+            # Считаем, что не умеем "читать" медиафайлы
+            or "(some mediafile, contents unknown)"
+        )
+    # Подготовка системного промта
+    prompt = (
+        system_prompt
+        .replace("{{replied_message}}", replied_message)
+        .replace("{{current_message}}", message.text)  # noqa
+        .replace("{{date_today}}", datetime.now().strftime("%d.%m.%Y"))
+    )
+    response_text = await get_llm_response(
+        client=llm_client,
+        prompt=prompt,
+        model=llm_model,
+    )
+    parse_mode = None
+    # Бывает, что ответа от модели нет. В таком случае, пусть будет заглушка.
+    if response_text is None:
+        response_text = "<i>К сожалению, не удалось получить ответ от модели.</i>"
+        parse_mode = ParseMode.HTML
+    # Отвечаем на исходный запрос
+    await message.answer_guest_query(
+        result=InlineQueryResultArticle(
+            id="1",
+            title=".",
+            input_message_content=InputTextMessageContent(
+                message_text=response_text,
+                parse_mode=parse_mode,
+            ),
+        )
+    )
+```
+
+Добавьте недостающие библиотеки, заполните файл `settings.toml` по аналогии с `settings.example.toml` 
+и запустите бота:
+
+```bash
+uv add structlog pydantic-settings openai
+uv run -m bot
+```
+
+Теперь можно проверить пару сценариев. Например, бот не умеет читать картинки, но может ли он примерно 
+догадаться, что там, имея лишь описание?
+
+![Бот догадался о содержимом картинки по описанию](images/guest_bots/advanced_cloudflare_dark.png#only-dark)
+![Бот догадался о содержимом картинки по описанию](images/guest_bots/advanced_cloudflare_light.png#only-light)
+
+Что ж, вполне себе получилось. А как у него обстоят дела с цепочкой сообщений и с «чутьём» времени?
+
+![Бот знает текущую дату и возраст Дурова](images/guest_bots/advanced_durov_dark.png#only-dark)
+![Бот знает текущую дату и возраст Дурова](images/guest_bots/advanced_durov_light.png#only-light)
+
+Тоже корректно (этот текст готовился 10 мая 2026 года). Как видите, даже без продвинутых штук, типа веб-поиска и tool calling, можно получить довольно полезный в быту инструмент. На этом знакомство с гостевым режимом ботов подходит к концу.

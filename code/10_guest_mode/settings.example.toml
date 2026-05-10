@@ -1,0 +1,20 @@
+[bot]
+token = "1234567890:AaBbCcDdEeFfGrOoShAHhIiJjKkLlMmNnOo"
+
+
+[llm]
+base_url = "https://openrouter.ai/api/v1"
+api_key = "sk-or-v1-1234567890abcdef"
+# Учтите, что эта модель логирует все сообщения. Зато бесплатная.
+model_name = "nvidia/nemotron-3-super-120b-a12b:free"
+
+
+[logs]
+project_name = "hello_world"
+show_datetime = true
+datetime_format = "%Y-%m-%d %H:%M:%S"
+show_debug_logs = false
+time_in_utc = false
+use_colors_in_console = true
+renderer = "console"  # "console" or "json"
+allow_third_party_logs = true

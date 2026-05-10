@@ -59,6 +59,7 @@ markdown_extensions:
   - pymdownx.highlight
   - pymdownx.superfences
   - pymdownx.snippets
+  - pymdownx.details
   - pymdownx.tabbed:
       alternate_style: true
   - meta
