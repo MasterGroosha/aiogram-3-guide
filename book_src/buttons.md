@@ -37,7 +37,7 @@ async def cmd_start(message: types.Message):
 !!! info ""
     Несмотря на то, что Telegram Bot API [допускает](https://core.telegram.org/bots/api#keyboardbutton) указывать 
     просто строки вместо объектов `KeyboardButton`, при попытке использовать строку aiogram 3.x выкинет ошибку 
-    валидации и это не баг, а [фича](https://t.me/aiogram_ru/920453).  
+    валидации и это не баг, а особенность aiogram.  
     Живите теперь с этим 🤷‍♂️
 
 Что ж, запустим бота и обалдеем от громадных кнопок:
