@@ -9,12 +9,16 @@ source = { virtual = "." }
 dependencies = [
     { name = "aiogram" },
     { name = "openai" },
+    { name = "pydantic-settings" },
+    { name = "structlog" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "aiogram", specifier = ">=3.28.0" },
+    { name = "aiogram", specifier = ">=3.28.2" },
     { name = "openai", specifier = ">=2.36.0" },
+    { name = "pydantic-settings", specifier = ">=2.14.1" },
+    { name = "structlog", specifier = ">=25.5.0" },
 ]
 
 [[package]]
@@ -28,7 +32,7 @@ wheels = [
 
 [[package]]
 name = "aiogram"
-version = "3.28.0"
+version = "3.28.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiofiles" },
@@ -38,9 +42,9 @@ dependencies = [
     { name = "pydantic" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/6e/ec/3235d6111b4380ad9ea7ed2850ed864871cfb23950dcec3735eb44dbfb5c/aiogram-3.28.0.tar.gz", hash = "sha256:122dd89e47bcaf46ae7a3be428a987f5e9859171f3a467d746cc4d01a24e5cd9", size = 1854675, upload-time = "2026-05-08T22:42:31.679Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/db/3c/72e62c25a7fffedd7dd869e193797b0ed5207041ca90de16bf56fd99e41a/aiogram-3.28.2.tar.gz", hash = "sha256:140913a569516811c4ce576a292491024c8d8a739c47150d64a05aa4adc35310", size = 1855159, upload-time = "2026-05-10T14:20:40.384Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/8a/33/3226df39af93c26323ca132ce2d585666a2b2807eff186dbe3e63a16494f/aiogram-3.28.0-py3-none-any.whl", hash = "sha256:928d98955a9fbd78a6cab3e26ce238fac4005f7c92376cb8bedd004a74bb49d5", size = 750694, upload-time = "2026-05-08T22:42:29.498Z" },
+    { url = "https://files.pythonhosted.org/packages/c9/7b/8bc61691b1fc9d1653e12697436b2742dd1408f14c479d15f46d1ab34be1/aiogram-3.28.2-py3-none-any.whl", hash = "sha256:8a90cdf75a64ba629468f73b6e999662943fff39db213bb406afe114a3e8c0f2", size = 751693, upload-time = "2026-05-10T14:20:38.265Z" },
 ]
 
 [[package]]
@@ -467,12 +471,44 @@ wheels = [
 ]
 
 [[package]]
+name = "pydantic-settings"
+version = "2.14.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pydantic" },
+    { name = "python-dotenv" },
+    { name = "typing-inspection" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/07/60/1d1e59c9c90d54591469ada7d268251f71c24bdb765f1a8a832cee8c6653/pydantic_settings-2.14.1.tar.gz", hash = "sha256:e874d3bec7e787b0c9958277956ed9b4dd5de6a80e162188fdaff7c5e26fd5fa", size = 235551, upload-time = "2026-05-08T13:40:06.542Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ae/8d/f1af3832f5e6eb13ba94ee809e72b8ecb5eef226d27ee0bef7d963d943c7/pydantic_settings-2.14.1-py3-none-any.whl", hash = "sha256:6e3c7edfd8277687cdc598f56e5cff0e9bfff0910a3749deaa8d4401c3a2b9de", size = 60964, upload-time = "2026-05-08T13:40:04.958Z" },
+]
+
+[[package]]
+name = "python-dotenv"
+version = "1.2.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/82/ed/0301aeeac3e5353ef3d94b6ec08bbcabd04a72018415dcb29e588514bba8/python_dotenv-1.2.2.tar.gz", hash = "sha256:2c371a91fbd7ba082c2c1dc1f8bf89ca22564a087c2c287cd9b662adde799cf3", size = 50135, upload-time = "2026-03-01T16:00:26.196Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/0b/d7/1959b9648791274998a9c3526f6d0ec8fd2233e4d4acce81bbae76b44b2a/python_dotenv-1.2.2-py3-none-any.whl", hash = "sha256:1d8214789a24de455a8b8bd8ae6fe3c6b69a5e3d64aa8a8e5d68e694bbcb285a", size = 22101, upload-time = "2026-03-01T16:00:25.09Z" },
+]
+
+[[package]]
 name = "sniffio"
 version = "1.3.1"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/a2/87/a6771e1546d97e7e041b6ae58d80074f81b7d5121207425c964ddf5cfdbd/sniffio-1.3.1.tar.gz", hash = "sha256:f4324edc670a0f49750a81b895f35c3adb843cca46f0530f79fc1babb23789dc", size = 20372, upload-time = "2024-02-25T23:20:04.057Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e9/44/75a9c9421471a6c4805dbf2356f7c181a29c1879239abab1ea2cc8f38b40/sniffio-1.3.1-py3-none-any.whl", hash = "sha256:2f6da418d1f1e0fddd844478f41680e794e6051915791a034ff65e5f100525a2", size = 10235, upload-time = "2024-02-25T23:20:01.196Z" },
+]
+
+[[package]]
+name = "structlog"
+version = "25.5.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/ef/52/9ba0f43b686e7f3ddfeaa78ac3af750292662284b3661e91ad5494f21dbc/structlog-25.5.0.tar.gz", hash = "sha256:098522a3bebed9153d4570c6d0288abf80a031dfdb2048d59a49e9dc2190fc98", size = 1460830, upload-time = "2025-10-27T08:28:23.028Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a8/45/a132b9074aa18e799b891b91ad72133c98d8042c70f6240e4c5f9dabee2f/structlog-25.5.0-py3-none-any.whl", hash = "sha256:a8453e9b9e636ec59bd9e79bbd4a72f025981b3ba0f5837aebf48f02f37a7f9f", size = 72510, upload-time = "2025-10-27T08:28:21.535Z" },
 ]
 
 [[package]]
