@@ -75,6 +75,7 @@ nav:
   - 'Введение': index.md
   - 'Знакомство с aiogram': quickstart.md
   - 'Работа с сообщениями': messages.md
+  - 'Rich Messages': rich-messages.md
   - 'Кнопки': buttons.md
   - 'Роутеры. Структура': routers.md
   - 'Фильтры и мидлвари': filters-and-middlewares.md
