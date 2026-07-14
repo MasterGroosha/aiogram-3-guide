@@ -399,7 +399,7 @@ async def cmd_links(message: Message):
     links_text = (
         "https://nplus1.ru/news/2024/05/23/voyager-1-science-data"
         "\n"
-        "https://t.me/telegram"
+        "https://telegram.dog/telegram"
     )
     # Ссылка отключена
     options_1 = LinkPreviewOptions(is_disabled=True)
@@ -451,7 +451,7 @@ async def cmd_links(message: Message):
 
     # Можно выбрать, какая ссылка будет использоваться для предпосмотра,
     options_5 = LinkPreviewOptions(
-        url="https://t.me/telegram"
+        url="https://telegram.dog/telegram"
     )
     await message.answer(
         f"Предпросмотр не первой ссылки\n{links_text}",

@@ -18,7 +18,7 @@ cd code/02_rich_messages
 cp settings.example.toml settings.toml
 ```
 
-Откройте `settings.toml` и замените значение `bot.token` на токен вашего бота, полученный у [@BotFather](https://t.me/BotFather).
+Откройте `settings.toml` и замените значение `bot.token` на токен вашего бота, полученный у [@BotFather](https://telegram.dog/BotFather).
 
 Синхронизируйте окружение и установите зависимости:
 

@@ -44,7 +44,7 @@ theme:
 extra:
   social:
     - icon: fontawesome/brands/telegram
-      link: https://t.me/+DE0_2nCvbXozZjUy
+      link: https://telegram.dog/+DE0_2nCvbXozZjUy
       name: "Чат в Telegram"
     - icon: fontawesome/brands/github
       link: https://github.com/MasterGroosha/aiogram-3-guide
