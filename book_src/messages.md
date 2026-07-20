@@ -591,10 +591,10 @@ async def download_sticker(message: Message, bot: Bot):
 !!! info "Скачивание больших файлов"
     Боты, использующие Telegram Bot API, могут скачивать файлы размером не более [20 мегабайт](https://core.telegram.org/bots/api#getfile). 
     Если вы планируете скачивать/заливать большие файлы, лучше рассмотрите библиотеки, взаимодействующие с 
-    Telegram Client API, а не с Telegram Bot API, например, [Telethon](https://docs.telethon.dev/en/latest/index.html) 
+    Telegram Client API, а не с Telegram Bot API, например, [Telethon](https://docs.telethon.dev/en/stable/index.html) 
     или [Pyrogram](https://docs.pyrogram.org/).  
     Немногие знают, но Client API могут использовать не только обычные аккаунты, но ещё и 
-    [боты](https://docs.telethon.dev/en/latest/concepts/botapi-vs-mtproto.html).
+    [боты](https://docs.telethon.dev/en/stable/concepts/botapi-vs-mtproto.html).
     
     А начиная с Bot API версии 5.0, можно использовать 
     [собственный сервер Bot API](https://core.telegram.org/bots/api#using-a-local-bot-api-server) для работы с 
