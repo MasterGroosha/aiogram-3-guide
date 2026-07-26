@@ -74,7 +74,8 @@ markdown_extensions:
 nav:
   - 'Введение': index.md
   - 'Знакомство с aiogram': quickstart.md
-  - 'Работа с сообщениями': messages.md
+  - 'Текстовые сообщения': messages-text.md
+  - 'Медиафайлы': messages-media.md
   - 'Rich Messages': rich-messages.md
   - 'Кнопки': buttons.md
   - 'Роутеры. Структура': routers.md
