@@ -39,7 +39,7 @@ async def cmd_custom1(message: Message) -> None:
     await message.answer("Вижу команду!")
 
 
-# Можно указать несколько префиксов....vv...
+# Можно указать несколько префиксов........vv...
 @router.message(Command("custom2", prefix="/!"))
 async def cmd_custom2(message: Message) -> None:
     await message.answer("И эту тоже вижу!")

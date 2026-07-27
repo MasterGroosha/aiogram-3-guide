@@ -61,7 +61,7 @@ async def cmd_links(message: Message) -> None:
 
     # -------------------- #
 
-    # Можно выбрать, какая ссылка будет использоваться для предпосмотра,
+    # Можно выбрать, какая ссылка будет использоваться для предпросмотра
     options_5 = LinkPreviewOptions(
         url="https://telegram.dog/telegram"
     )

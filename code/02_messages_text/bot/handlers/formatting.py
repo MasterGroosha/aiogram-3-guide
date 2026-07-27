@@ -15,7 +15,7 @@ async def any_message(message: Message) -> None:
         parse_mode=ParseMode.HTML
     )
     await message.answer(
-        "Hello, *world*\!",
+        "Hello, *world*\\!",
         parse_mode=ParseMode.MARKDOWN_V2
     )
     await message.answer("Сообщение с <u>HTML-разметкой</u>")
