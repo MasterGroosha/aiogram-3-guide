@@ -19,29 +19,363 @@ HTML, Markdown, MarkdownV2 и Rich Messages. Но говорить далее б
 без цифры 2 считается устаревшим и здесь рассматриваться не будет, 
 а про Rich Messages подробно рассказано в [отдельной главе](rich-messages.md).
 
-Прежде, чем мы рассмотрим способы работы с текстом в aiogram, необходимо упомянуть 
-важное отличие aiogram 3.x от 2.x: в «двойке» по умолчанию обрабатывались только 
-текстовые сообщения, а в «тройке» — любого типа. Если точнее, вот как теперь надо 
-принимать исключительно текстовые сообщения:
+## Приём текстовых сообщений
+
+В прошлой главе вы уже видели простейший пример хэндлера на входящее сообщение любого типа:
 
 ```python
-# было (декоратором)
-@dp.message_handler()
-async def func_name(...)
-
-# было (функцией-регистратором)
-dp.register_message_handler(func_name)
-
-# стало (декоратором)
-from aiogram import F
-@dp.message(F.text)
-async def func_name(...)
-
-# стало (функцией-регистратором)
-dp.message.register(func_name, F.text)
+@dp.message()
+async def any_message(
+        message: Message,
+):
+    await message.answer("Hello world!")
 ```
 
-Про «магический фильтр» **F** мы поговорим в [другой главе](filters-and-middlewares.md).
+Чтобы принимать именно текстовые сообщения, надо добавить фильтр «принимать только текст». 
+Самый простой способ для этого – указать магический фильтр `F.text`:
+
+```python
+@dp.message(F.text)
+async def any_text_message(
+        message: Message,
+):
+    await message.answer("Вижу твоё текстовое сообщение")
+```
+
+Про «магический фильтр» **F** мы поговорим в [другой главе](filters-and-middlewares.md), но сейчас надо просто запомнить, 
+что конструкция `@dp.message(F.text)` означает «хэндлер на объект типа `Message`, у которого значение атрибута `text` не равно None».
+Иными словами – ловим сообщения с каким-то текстом. В следующем примере на входящее 
+сообщение с текстом «Дата» бот будет отвечать сегодняшней датой, а на текст «Время», соответственно, временем. И для этого 
+в фильтре надо будет сравнить значение атрибута `text` с желаемым. Смотрим:
+
+```python
+from datetime import datetime
+
+from aiogram import F, Router
+from aiogram.types import Message
+
+router = Router(name="date_and_time")
+
+
+@router.message(F.text == "Дата")
+async def current_date(
+        message: Message,
+) -> None:
+    await message.answer(
+        f"У бота сегодня {datetime.now().strftime("%d.%m.%Y")}"
+    )
+
+
+@router.message(F.text == "Время")
+async def current_time(
+        message: Message,
+) -> None:
+    await message.answer(
+        f"У бота сейчас на часах {datetime.now().strftime("%H:%M")}"
+    )
+```
+
+![Реакция бота на тексты 'Дата' и 'Время'](images/messages_text/date_and_time_dark.png#only-dark)
+![Реакция бота на тексты 'Дата' и 'Время'](images/messages_text/date_and_time_light.png#only-light)
+
+А что, если мы хотим пощадить пользователей ПК и избавить их от необходимости каждый раз зажимать Shift, 
+набирая «Дата» с большой буквы? Иными словами, хэндлер должен реагировать одинаково на два разных текста. Делать два 
+отдельных хэндлера с одинаковым кодом внутри **плохо**, поскольку это нарушает 
+[принцип DRY](https://ru.wikipedia.org/wiki/Don’t_repeat_yourself). Но в aiogram можно навесить несколько фильтров-декораторов на одну 
+функцию и это будет считаться логическим **ИЛИ**: 
+
+```python
+@router.message(F.text == "Дата")
+@router.message(F.text == "дата")
+async def current_date(
+        message: Message,
+) -> None:
+    await message.answer(
+        f"У бота сегодня {datetime.now().strftime("%d.%m.%Y")}"
+    )
+```
+
+??? "Альтернативный вариант"
+    Куда же без регулярных выражений! Два декоратора выше можно заменить на один:
+    ```python
+    @router.message(F.text.regexp(r"(?i)^дата$"))
+    async def current_date(
+            message: Message,
+    ) -> None:
+        await message.answer(
+            f"У бота сегодня {datetime.now().strftime("%d.%m.%Y")}"
+        )
+    ```
+    Такой вариант полностью регистронезависимый и будет срабатывать даже на «ДАТА»
+
+Чтобы получить логическое **И**, достаточно перечислить фильтры внутри декоратора через запятую. Например, 
+следующая конструкция означает «текстовое сообщение И айди чата 123456»:
+
+```python
+@router.message(F.text, F.chat.id == 123456)
+```
+
+## Команды
+
+Вместо того чтобы реагировать на какой-то конкретный текст на конкретном языке, да ещё и полагаясь на то, что данный 
+текст будет отправлен именно как триггер для бота, ботам доступна такая вещь, как команды. Команда — это текст в формате 
+`/command`, где в начале обязательно слэш, а затем до 32 символов латинского алфавита, цифры или подчёркивания. 
+
+Командами могут быть:
+
+* `/start`  
+* `/set_timer`  
+* `/01_continue`  
+
+Следующие тексты не являются командами:
+
+* `/привет` (кириллические символы не допускаются)
+* `/!корова%` (символы ! и % не допускаются, кириллица тоже) 
+* `\something` (слэш не в ту сторону)
+
+Когда пользователь впервые начинает диалог с ботом внизу экрана появляется кнопка «Начать», при нажатии на которую 
+от лица пользователя боту отправляется команда `/start`. Следовательно, очень важно всегда иметь обработчик на эту 
+команду, а что в нём делать — на ваше усмотрение: приветствие, справка или что-то ещё. 
+
+??? warning "`/start` может не всегда быть первой командой!"
+    Многие разработчики справедливо считают, что с команды `/start` всегда начинается взаимодействие пользователя и бота 
+    и поэтом на неё обработчик можно вешать логику регистрации пользователя, создание записей в базе данных и т.д. 
+    Однако есть, как минимум, одна ситуация, при котором начало диалога будет отличаться.  
+    Воспроизвести очень просто: добавьте в описание бота (его bio) какую-либо команду. И тогда при нажатии на эту команду 
+    первым сообщением будет именно она, а не `/start`. Учтите это при оформлении профиля бота и написании логики.
+    
+Напишем очень простой хэндлер на команду `/start` с приветствием пользователя. Для команд в aiogram существует специальный 
+фильтр `Command`:
+
+```python
+from aiogram import Router
+from aiogram.filters import Command
+from aiogram.types import Message
+
+router = Router(name="basic_commands")
+
+
+@router.message(Command("start"))
+async def cmd_start(
+        message: Message,
+) -> None:
+    await message.answer(
+        "Привет и добро пожаловать!"
+    )
+```
+
+## Команды с аргументами
+
+При проектировании команд может возникнуть ситуация, когда сама по себе команда не даёт нужной универсальности. 
+Простой пример: вы делаете команду `/set_timer` для отложенной отправки сообщений и хотите, чтобы можно было указать 
+время. Разумеется, делать разные команды `/set_timer_1m`, `/set_timer_2m`, `/set_timer_3m` бесполезно и глупо, это лишь 
+усложнит разработку. 
+
+В такой ситуации есть два грамотных подхода: через FSM (конечные автоматы, о них в [отдельной главе](fsm.md)) или 
+через параметризацию команд. В таком случае будет ожидаться не просто `/set_timer`, а `/set_timer <время> <текст>`. 
+Реализуем второй способ по следующим правилам:
+
+* Если вызывают команду без аргументов (`/set_timer`), то ругаемся на их отсутствие.
+* Если передан только один аргумент, то ругаемся и показываем правильный формат.
+* Если передано больше двух аргументов, то второй и последующий трактуем как один большой текст.
+* В конце пишем, что таймер добавлен, логику самого таймера здесь не реализуем и формат времени (`10m`, `3h`, `20d` и т.д.) тоже не проверяем.
+
+Для работы с параметрами есть специальный объект `CommandObject`, который автоматически заполнится 
+aiogram-ом, если используется фильтр для команд и если в параметры хэндлера добавить параметр 
+`command`, как на примере кода ниже:
+
+```python
+from aiogram import Router
+from aiogram.filters import Command, CommandObject
+from aiogram.types import Message
+
+router = Router(name="commands_args")
+
+
+@router.message(Command("set_timer"))
+async def cmd_set_timer(
+        message: Message,
+        command: CommandObject
+) -> None:
+    # Если не переданы никакие аргументы, то
+    # command.args будет None
+    if command.args is None:
+        await message.answer(
+            "Ошибка: не переданы аргументы"
+        )
+        return
+    # Пробуем разделить аргументы на две части по первому встречному пробелу
+    try:
+        delay_time, text_to_send = command.args.split(" ", maxsplit=1)
+    # Если получилось меньше двух частей, вылетит ValueError
+    except ValueError:
+        await message.answer(
+            "Ошибка: неправильный формат команды.\n"
+            "Правильный формат: /set_timer ВРЕМЯ ТЕКСТ\n"
+            "Например: /set_timer 5m таймер на пять минут"
+        )
+        return
+    await message.answer(
+        "Таймер добавлен!\n"
+        f"Время: {delay_time}\n"
+        f"Текст: {text_to_send}"
+    )
+```
+
+Результат:
+
+![Парсинг аргументов команд](images/messages_text/command_args_dark.png#only-dark)
+![Парсинг аргументов команд](images/messages_text/command_args_light.png#only-light)
+
+
+## Префикс команд
+
+С командами может возникнуть небольшая проблема в группах: Telegram автоматически подсвечивает команды, начинающиеся 
+со слэша, из-за чего порой случается вот такое (спасибо дорогим участником 
+[моей группы](https://telegram.dog/+DE0_2nCvbXozZjUy) за помощь в создании скриншота):
+
+![Флуд командами](images/messages_text/commands_spam_dark.png#only-dark)
+![Флуд командами](images/messages_text/commands_spam_light.png#only-light)
+
+Чтобы этого избежать, можно заставить бота реагировать на команды с другими префиксами. Они не будут подсвечиваться, 
+их нельзя будет поместить в меню команд, также они потребуют полностью ручной ввод, 
+так что сами оценивайте пользу такого подхода:
+
+```python
+from aiogram import Router
+from aiogram.filters import Command
+from aiogram.types import Message
+
+router = Router(name="commands_prefixes")
+
+
+@router.message(Command("custom1", prefix="%"))
+async def cmd_custom1(message: Message) -> None:
+    await message.answer("Вижу команду!")
+
+
+# Можно указать несколько префиксов........vv...
+@router.message(Command("custom2", prefix="/!"))
+async def cmd_custom2(message: Message) -> None:
+    await message.answer("И эту тоже вижу!")
+```
+
+![Различные префиксы команд](images/messages_text/custom_prefixes_dark.png#only-dark)
+![Различные префиксы команд](images/messages_text/custom_prefixes_light.png#only-light)
+
+
+Обратите внимание: из-за того, что кастомные префиксы делают команды командами только с точки зрения aiogram 
+(на стороне Telegram это всё ещё обычный текст), то возникает проблема с использованием таких команд в группах, 
+т.к. боты не-админы со включенным Privacy Mode (по умолчанию) могут 
+не увидеть такие команды из-за [особенностей](https://core.telegram.org/bots/faq#what-messages-will-my-bot-get) 
+логики Телеграма. Из-за этого кастомные префиксы лучше всего использовать вместе с ботами-модераторам групп, 
+которые уже являются администраторами, либо в личных сообщениях.
+
+## Диплинки {: id="deeplinks" }
+
+Команда `/start` умеет то, чего не умеют остальные: принимать параметр прямо из ссылки. 
+Если сформировать ссылку вида `t.me/bot?start=xxx`, то при переходе по ней бот получит 
+сообщение `/start xxx`, а пользователю ничего вводить не придётся. Такая ссылка называется 
+**диплинком** и годится для кучи вещей: шорткаты к командам, реферальные ссылки, привязка 
+аккаунта на вашем сайте к Telegram и т.д.
+
+!!! info "Ограничения на payload"
+    В параметр можно засунуть только символы `A-Z`, `a-z`, `0-9`, `_` и `-`, суммарно 
+    не более 64 символов. Всё остальное (пробелы, кириллица, JSON) нужно предварительно 
+    закодировать — Telegram рекомендует base64url, и в aiogram для этого есть готовые функции 
+    (см. ниже).
+
+### Обработка диплинков
+
+В aiogram есть специальный фильтр `CommandStart` непосредственно для `/start`. Необязательно использовать его, чтобы 
+ловить `/start` без параметров, однако для работы диплинков он необходим. Также при работе с диплинками в такой фильтр 
+требуется передать специальный параметр: `CommandStart(deep_link=True)`.
+
+
+```python
+import re
+
+from aiogram import F, Router
+from aiogram.filters import Command, CommandObject, CommandStart
+from aiogram.types import Message
+
+router = Router(name="deeplinks")
+
+
+@router.message(Command("help"))
+@router.message(CommandStart(
+    deep_link=True, magic=F.args == "help"
+))
+async def cmd_help(message: Message):
+    await message.answer(
+        "Это сообщение показывается как на команду /help, "
+        "так и по диплинку t.me/bot?start=help"
+    )
+
+
+@router.message(CommandStart(
+    deep_link=True,
+    magic=F.args.regexp(re.compile(r"secretfile_(?P<file_id>\d{1,6})"))
+))
+async def start_secret_file_deeplink(
+        message: Message,
+        command: CommandObject
+):
+    file_id = command.magic_result["file_id"]
+    await message.answer(f"Отправляю секретный документ №{file_id}")
+```
+
+![type:video](images/messages_text/deeplinks_demo.mp4)
+
+
+### Генерация ссылок
+
+Собирать ссылку руками не обязательно, в aiogram есть 
+[набор функций](https://docs.aiogram.dev/en/latest/utils/deep_linking.html):
+
+```python
+from aiogram.utils.deep_linking import create_start_link
+
+link = await create_start_link(bot, "secretfile_42")
+# https://t.me/bot?start=secretfile_42
+```
+
+Если нужно передать что-то, что не влезает в разрешённый набор символов, добавьте 
+`encode=True` и тогда payload будет превращён в base64-формат. На стороне хэндлера тогда достаточно 
+указать флаг `deep_link_encoded=True`, и в `command.args` приедет уже раскодированная 
+строка:
+
+```python
+@router.message(CommandStart(deep_link=True, deep_link_encoded=True))
+async def start_encoded_deeplink(
+        message: Message,
+        command: CommandObject
+):
+    await message.answer(f"Payload: {command.args}")
+```
+
+### Не только личка
+
+Помимо `start` есть ещё два типа ссылок:
+
+* `t.me/bot?startgroup=xxx` — предложит выбрать группу и добавить бота туда. 
+  После добавления в группу отправится сообщение `/start@your_bot xxx`. Функция-хелпер: 
+  `create_startgroup_link()`.
+* `t.me/bot?startapp=xxx` — откроет Mini App бота и передаст параметр туда. 
+  Функция-хелпер: `create_startapp_link()`.
+
+!!! danger "Payload — это ввод от пользователя"
+    Ссылку никто не проверяет: любой может просто взять и отправить боту 
+    `/start secretfile_9999` или `/start ref_1` руками, не переходя ни по какой ссылке. 
+    Поэтому payload нельзя считать доверенным. Обязательно валидируйте его на своей 
+    стороне и не кладите в него ничего, что само по себе даёт права. Если делаете 
+    реферальную систему — проверяйте, что приглашающий и приглашённый это разные люди, 
+    и что приглашённый действительно новый. Для некоторых вариантов использование UUID в качестве 
+    параметра start-ссылки будет хорошей практикой.
+
+!!! tip "Больше диплинков, но не для ботов"
+    В документации Telegram есть подробное описание всевозможных диплинков для клиентских 
+    приложений: [https://core.telegram.org/api/links](https://core.telegram.org/api/links)
 
 ## Форматированный вывод {: id="formatting-options" }
 
@@ -272,119 +606,6 @@ async def extract_data(message: Message):
 ```
 
 ![Парсинг entities](images/messages/parse_entities.png)
-
-## Команды и их аргументы {: id="commands-args" }
-
-Telegram [предоставляет](https://core.telegram.org/bots/features#inputs) пользователям множество способов ввода 
-информации. Одним из них являются команды: ключевые слова, начинающиеся со слэша, например, `/new` или `/ban`. 
-Иногда бот может быть спроектирован так, чтобы ожидать после самой команды какие-то _аргументы_, вроде `/ban 2d` или 
-`/settimer 20h This is delayed message`. В составе aiogram есть фильтр `Command()`, упрощающий жизнь разработчика. 
-Реализуем последний пример в коде:
-
-```python
-@dp.message(Command("settimer"))
-async def cmd_settimer(
-        message: Message,
-        command: CommandObject
-):
-    # Если не переданы никакие аргументы, то
-    # command.args будет None
-    if command.args is None:
-        await message.answer(
-            "Ошибка: не переданы аргументы"
-        )
-        return
-    # Пробуем разделить аргументы на две части по первому встречному пробелу
-    try:
-        delay_time, text_to_send = command.args.split(" ", maxsplit=1)
-    # Если получилось меньше двух частей, вылетит ValueError
-    except ValueError:
-        await message.answer(
-            "Ошибка: неправильный формат команды. Пример:\n"
-            "/settimer <time> <message>"
-        )
-        return
-    await message.answer(
-        "Таймер добавлен!\n"
-        f"Время: {delay_time}\n"
-        f"Текст: {text_to_send}"
-    )
-```
-
-Попробуем передать команду с разными аргументами (или вообще без них) и проверить реакцию:
-
-![Аргументы команд](images/messages/command_args.png)
-
-С командами может возникнуть небольшая проблема в группах: Telegram автоматически подсвечивает команды, начинающиеся 
-со слэша, из-за чего порой случается вот такое (спасибо моим дорогим подписчикам за помощь в создании скриншота):
-
-![Флуд командами](images/messages/commands_flood.png)
-
-Чтобы этого избежать, можно заставить бота реагировать на команды с другими префиксами. Они не будут подсвечиваться и 
-потребуют полностью ручной ввод, так что сами оценивайте пользу такого подхода.
-
-```python
-@dp.message(Command("custom1", prefix="%"))
-async def cmd_custom1(message: Message):
-    await message.answer("Вижу команду!")
-
-
-# Можно указать несколько префиксов....vv...
-@dp.message(Command("custom2", prefix="/!"))
-async def cmd_custom2(message: Message):
-    await message.answer("И эту тоже вижу!")
-```
-
-![Кастомные префиксы](images/messages/command_custom_prefix.png)
-
-Проблема кастомных префиксов в группах только в том, что боты не-админы со включенным Privacy Mode (по умолчанию) могут 
-не увидеть такие команды из-за [особенностей](https://core.telegram.org/bots/faq#what-messages-will-my-bot-get) 
-логики сервера. Самый частый use-case — боты-модераторы групп, которые уже являются администраторами.
-
-## Диплинки {: id="deeplinks" }
-
-Существует одна команда в Telegram, у которой есть чуть больше возможностей. Это `/start`. Дело в том, что можно 
-сформировать ссылку вида `t.me/bot?start=xxx` и пре переходе по такой ссылке пользователю покажут кнопку «Начать», при 
-нажатии которой бот получит сообщение `/start xxx`. Т.е. в ссылке зашивается некий дополнительный параметр, не требующий 
-ручного ввода. Это называется диплинк (не путать с дикпиком) и может использоваться для кучи разных вещей: шорткаты для 
-активации различных команд, реферальная система, быстрая конфигурация бота и т.д. Напишем два примера:
-
-```python
-import re
-from aiogram import F
-from aiogram.types import Message
-from aiogram.filters import Command, CommandObject, CommandStart
-
-@dp.message(Command("help"))
-@dp.message(CommandStart(
-    deep_link=True, magic=F.args == "help"
-))
-async def cmd_start_help(message: Message):
-    await message.answer("Это сообщение со справкой")
-
-
-@dp.message(CommandStart(
-    deep_link=True,
-    magic=F.args.regexp(re.compile(r'book_(\d+)'))
-))
-async def cmd_start_book(
-        message: Message,
-        command: CommandObject
-):
-    book_number = command.args.split("_")[1]
-    await message.answer(f"Sending book №{book_number}")
-```
-
-![Примеры диплинков](images/messages/deeplinks.png)
-
-Учтите, что диплинки через `start` отправляют пользователя в личку с ботом. Чтобы выбрать группу и отправить диплинк туда, 
-замените `start` на `startgroup`. Также у aiogram существует удобная 
-[функция](https://github.com/aiogram/aiogram/blob/228a86afdc3c594dd9db9e82d8d6d445adb5ede1/aiogram/utils/deep_linking.py#L126-L158) 
-для создания диплинков прямо из вашего кода.
-
-!!! tip "Больше диплинков, но не для ботов"
-    В документации Telegram есть подробное описание всевозможных диплинков для клиентских приложений: 
-    [https://core.telegram.org/api/links](https://core.telegram.org/api/links)
 
 
 ## Предпросмотр ссылок {: id="link-previews" }

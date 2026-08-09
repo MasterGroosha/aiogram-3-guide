@@ -5,8 +5,8 @@ from aiogram.types import Message
 router = Router(name="commands_args")
 
 
-@router.message(Command("settimer"))
-async def cmd_settimer(
+@router.message(Command("set_timer"))
+async def cmd_set_timer(
         message: Message,
         command: CommandObject
 ) -> None:
@@ -23,8 +23,9 @@ async def cmd_settimer(
     # Если получилось меньше двух частей, вылетит ValueError
     except ValueError:
         await message.answer(
-            "Ошибка: неправильный формат команды. Пример:\n"
-            "/settimer <time> <message>"
+            "Ошибка: неправильный формат команды.\n"
+            "Правильный формат: /set_timer ВРЕМЯ ТЕКСТ\n"
+            "Например: /set_timer 5m таймер на пять минут"
         )
         return
     await message.answer(
@@ -32,14 +33,3 @@ async def cmd_settimer(
         f"Время: {delay_time}\n"
         f"Текст: {text_to_send}"
     )
-
-
-@router.message(Command("custom1", prefix="%"))
-async def cmd_custom1(message: Message) -> None:
-    await message.answer("Вижу команду!")
-
-
-# Можно указать несколько префиксов........vv...
-@router.message(Command("custom2", prefix="/!"))
-async def cmd_custom2(message: Message) -> None:
-    await message.answer("И эту тоже вижу!")
