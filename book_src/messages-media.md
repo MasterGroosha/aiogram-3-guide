@@ -199,7 +199,8 @@ async def cmd_album(message: Message):
 отдельные сообщения, а это значит, что боту они прилетают тоже в разных апдейтах. Вряд ли существует 100% надёжный 
 способ принять весь альбом одним куском, но можно попытаться сделать это с минимальными потерями. Обычно это делается 
 через мидлвари, мою собственную реализацию приёма медиагрупп можно найти 
-[по этой ссылке](https://github.com/MasterGroosha/telegram-feedback-bot-topics/blob/master/bot/middlewares/albums_collector.py).
+[по этой ссылке](https://github.com/MasterGroosha/telegram-feedback-bot-topics/blob/8b620bbaf6bf2989f4bfe495e050a27f59fe113c/bot/middlewares/albums_collector.py) 
+(остальной код в том репозитории лучше не смотреть, он безнадёжно устарел).
 
 ## Сервисные (служебные) сообщения {: id="service" }
 
