@@ -75,8 +75,8 @@ async def current_time(
     )
 ```
 
-![Реакция бота на тексты 'Дата' и 'Время'](images/messages_text/date_and_time_dark.png#only-dark)
-![Реакция бота на тексты 'Дата' и 'Время'](images/messages_text/date_and_time_light.png#only-light)
+![Реакция бота на тексты 'Дата' и 'Время'](images/messages_text/date_and_time_dark.png#only-dark){ loading=lazy }
+![Реакция бота на тексты 'Дата' и 'Время'](images/messages_text/date_and_time_light.png#only-light){ loading=lazy }
 
 А что, если мы хотим пощадить пользователей ПК и избавить их от необходимости каждый раз зажимать Shift, 
 набирая «Дата» с большой буквы? Иными словами, хэндлер должен реагировать одинаково на два разных текста. Делать два 
@@ -224,8 +224,8 @@ async def cmd_set_timer(
 
 Результат:
 
-![Парсинг аргументов команд](images/messages_text/command_args_dark.png#only-dark)
-![Парсинг аргументов команд](images/messages_text/command_args_light.png#only-light)
+![Парсинг аргументов команд](images/messages_text/command_args_dark.png#only-dark){ loading=lazy }
+![Парсинг аргументов команд](images/messages_text/command_args_light.png#only-light){ loading=lazy }
 
 
 ## Префикс команд
@@ -234,8 +234,8 @@ async def cmd_set_timer(
 со слэша, из-за чего порой случается вот такое (спасибо дорогим участником 
 [моей группы](https://telegram.dog/+DE0_2nCvbXozZjUy) за помощь в создании скриншота):
 
-![Флуд командами](images/messages_text/commands_spam_dark.png#only-dark)
-![Флуд командами](images/messages_text/commands_spam_light.png#only-light)
+![Флуд командами](images/messages_text/commands_spam_dark.png#only-dark){ loading=lazy }
+![Флуд командами](images/messages_text/commands_spam_light.png#only-light){ loading=lazy }
 
 Чтобы этого избежать, можно заставить бота реагировать на команды с другими префиксами. Они не будут подсвечиваться, 
 их нельзя будет поместить в меню команд, также они потребуют полностью ручной ввод, 
@@ -260,8 +260,8 @@ async def cmd_custom2(message: Message) -> None:
     await message.answer("И эту тоже вижу!")
 ```
 
-![Различные префиксы команд](images/messages_text/custom_prefixes_dark.png#only-dark)
-![Различные префиксы команд](images/messages_text/custom_prefixes_light.png#only-light)
+![Различные префиксы команд](images/messages_text/custom_prefixes_dark.png#only-dark){ loading=lazy }
+![Различные префиксы команд](images/messages_text/custom_prefixes_light.png#only-light){ loading=lazy }
 
 
 Обратите внимание: из-за того, что кастомные префиксы делают команды командами только с точки зрения aiogram 
@@ -377,49 +377,93 @@ async def start_encoded_deeplink(
     В документации Telegram есть подробное описание всевозможных диплинков для клиентских 
     приложений: [https://core.telegram.org/api/links](https://core.telegram.org/api/links)
 
+
+## Отправка текстовых сообщений
+
+Выше для отправки сообщений мы почти везде писали `await message.answer(<текст>)`, но что это вообще такое? 
+Для отправки текстовых сообщений в Bot API используется метод
+[sendMessage](https://core.telegram.org/bots/api#sendmessage), принимающий на вход, как минимум, обязательные айди чата 
+и, собственно, текст. Чтобы сделать реплай (т.е. «ответ» на другое сообщение) требуется также указать айди того сообщения, 
+на которое отвечает бот. В большинстве случаев ваш бот будет как-то реагировать на сообщения пользователя и делать это 
+в том же чате, поэтому в aiogram существуют два метода `.answer()` и `.reply()` у объекта сообщения, которые избавляют 
+от необходимости указывать `chat_id`. Если же вам всё-таки требуется отправить сообщение в какой-то другой чат, то 
+в этом случае добавьте аргумент `bot` в хэндлер и вызывайте `send_message` у объекта бота. Лучше один раз увидеть:
+
+```python
+from aiogram import Bot, Router
+from aiogram.filters import Command
+from aiogram.types import Message
+
+router = Router(name="basic_commands")
+
+
+@router.message(Command("answer_and_reply"))
+async def cmd_answer_and_reply(
+        message: Message,
+        bot: Bot,
+) -> None:
+    await message.answer(
+        "Отправка сообщения в тот же чат"
+    )
+    await message.reply(
+        "Отправка сообщения в тот же чат "
+        "как ответ на команду"
+    )
+    await bot.send_message(
+        chat_id=-1001234567890,
+        text="А это сообщение отправлено в другую группу"
+    )
+```
+
+![Различные способы отправки](images/messages_text/answer_and_reply_dark.png#only-dark){ loading=lazy }
+![Различные способы отправки](images/messages_text/answer_and_reply_light.png#only-light){ loading=lazy }
+
 ## Форматированный вывод {: id="formatting-options" }
 
-За выбор форматирования при отправке сообщений отвечает аргумент `parse_mode`, например:
+При необходимости отправить сообщение с форматированием HTML или Markdown, вам нужно добавить аргумент `parse_mode`:
 ```python
-from aiogram import F
-from aiogram.types import Message
-from aiogram.filters import Command
+from aiogram import F, Router
 from aiogram.enums import ParseMode
+from aiogram.filters import Command
+from aiogram.types import Message
 
-# Если не указать фильтр F.text, 
-# то хэндлер сработает даже на картинку с подписью /test
-@dp.message(F.text, Command("test"))
-async def any_message(message: Message):
+router = Router(name="formatting")
+
+
+# Если не указать фильтр F.text,
+# то хэндлер сработает даже на картинку с подписью /formatting
+@router.message(F.text, Command("formatting"))
+async def any_message(message: Message) -> None:
     await message.answer(
-        "Hello, <b>world</b>!", 
+        "Hello, <b>HTML</b>!",
         parse_mode=ParseMode.HTML
     )
     await message.answer(
-        "Hello, *world*\!", 
+        "Hello, *Markdown*\\!",
         parse_mode=ParseMode.MARKDOWN_V2
     )
 ```
 
-![Hello world с разным форматированием](images/messages/l02_1.png)
-
-Если в боте повсеместно используется определённое форматирование, то каждый раз указывать аргумент `parse_mode` довольно 
-накладно. К счастью, в aiogram можно задать параметры бота по умолчанию. Для этого создайте объект `DefaultBotProperties` 
+Если в боте везде используется определённое форматирование, то каждый раз указывать аргумент `parse_mode` может быстро утомить. 
+К счастью, в aiogram можно задать параметры бота по умолчанию. Для этого создайте объект `DefaultBotProperties` 
 и передайте туда нужные настройки:
 
 ```python
 from aiogram.client.default import DefaultBotProperties
 
+# При создании бота
 bot = Bot(
     token="123:abcxyz",
     default=DefaultBotProperties(
         parse_mode=ParseMode.HTML
-        # тут ещё много других интересных настроек
+        # прочие ваши настройки бота
     )
 )
 
-# где-то в функции...
+# Далее этот код автоматически будет с HTML-разметкой
 await message.answer("Сообщение с <u>HTML-разметкой</u>")
-# чтобы явно отключить форматирование в конкретном запросе, 
+
+# а чтобы явно отключить форматирование в конкретном запросе, 
 # передайте parse_mode=None
 await message.answer(
     "Сообщение без <s>какой-либо разметки</s>", 
@@ -427,21 +471,27 @@ await message.answer(
 )
 ```
 
-![Настройка типа разметки по умолчанию](images/messages/l02_2.png)
-
 ## Экранирование ввода {: id="input-escaping" }
 
-Нередко бывают ситуации, когда окончательный текст сообщения бота заранее неизвестен 
+Бывают ситуации, когда окончательный текст сообщения бота заранее неизвестен 
 и формируется исходя из каких-то внешних данных: имя пользователя, его ввод и т.д. 
 Напишем хэндлер на команду `/hello`, который будет приветствовать пользователя по его полному имени
 (`first_name + last_name`), например: «Hello, Иван Иванов»:
 
 ```python
+from aiogram import Router
+from aiogram.enums import ParseMode
 from aiogram.filters import Command
+from aiogram.types import Message
 
-@dp.message(Command("hello"))
+router = Router(name="escaping")
+
+
+@router.message(Command("hello"))
 async def cmd_hello(message: Message):
     await message.answer(
+        # специальный атрибут full_name собирает 
+        # first_name и last_name (при наличии) за вас
         f"Hello, <b>{message.from_user.full_name}</b>",
         parse_mode=ParseMode.HTML
     )
@@ -449,20 +499,23 @@ async def cmd_hello(message: Message):
 
 И вроде всё хорошо, бот приветствует пользователей:
 
-![Работа команды /hello](images/messages/cmd_hello_before.png)
+![Работа команды /hello до исправлений](images/messages_text/cmd_hello_original_dark.png#only-dark){ loading=lazy }
+![Работа команды /hello до исправлений](images/messages_text/cmd_hello_original_light.png#only-light){ loading=lazy }
 
-Но тут приходит юзер с именем &lt;Славик777&gt; и бот молчит! А в логах видно следующее:
-`aiogram.exceptions.TelegramBadRequest: Telegram server says - Bad Request: can't parse entities: 
+Но тут приходит юзер, который указал имя **&lt;Славик777&gt;** и фамилию **&lt;only_telegram&gt;** и бот молчит! 
+А в логах видно следующее: `aiogram.exceptions.TelegramBadRequest: Telegram server says - Bad Request: can't parse entities: 
 Unsupported start tag "Славик777" at byte offset 7`
 
-Упс, у нас стоит режим форматирования HTML, и Telegram пытается распарсить &lt;Славик777&gt; как HTML-тег. Непорядок. 
-Но у этой проблемы есть несколько решений. Первое: экранировать передаваемые значения.
+Упс, у нас стоит режим форматирования HTML, и Telegram пытается распарсить «имя» &lt;Славик777&gt; как HTML-тег, что закономерно 
+приводит к ошибке, ведь такого тега не существует, а до обработки «фамилии» код даже не доходит. 
+Есть несколько решений. Первое: экранировать передаваемые значения.
 
 ```python
+# добавьте импорт к имеющимся
 from aiogram import html
-from aiogram.filters import Command
 
-@dp.message(Command("hello"))
+
+@router.message(Command("hello"))
 async def cmd_hello(message: Message):
     await message.answer(
         f"Hello, {html.bold(html.quote(message.from_user.full_name))}",
@@ -470,14 +523,15 @@ async def cmd_hello(message: Message):
     )
 ```
 
-Второе чуть сложнее, но более продвинутое: воспользоваться специальным инструментом, который будет 
+Второе решение чуть сложнее, но более продвинутое: воспользоваться специальным инструментом, который будет 
 собирать отдельно текст и отдельно информацию о том, какие его куски должны быть отформатированы.
 
 ```python
-from aiogram.filters import Command
+# добавьте импорты к имеющимся
 from aiogram.utils.formatting import Text, Bold
 
-@dp.message(Command("hello"))
+# Сделаем в виде отдельной команды
+@router.message(Command("hello2"))
 async def cmd_hello(message: Message):
     content = Text(
         "Hello, ",
@@ -491,20 +545,28 @@ async def cmd_hello(message: Message):
 В примере выше конструкция `**content.as_kwargs()` вернёт аргументы `text`, `entities`, `parse_mode` и 
 подставит их в вызов `answer()`.
 
-![Работа команды /hello после фиксов](images/messages/cmd_hello_after.png)
+Независимо от того, что вы выберите, результат одинаковый и ровно тот, который ожидается:
+
+![Работа команды /hello после исправлений](images/messages_text/cmd_hello_improved_dark.png#only-dark){ loading=lazy }
+![Работа команды /hello после исправлений](images/messages_text/cmd_hello_improved_light.png#only-light){ loading=lazy }
 
 Упомянутый инструмент форматирования довольно комплексный, 
 [официальная документация](https://docs.aiogram.dev/en/latest/utils/formatting.html) демонстрирует удобное отображение 
 сложных конструкций, например:
 
 ```python
+from aiogram import Router
 from aiogram.filters import Command
+from aiogram.types import Message
 from aiogram.utils.formatting import (
-    Bold, as_list, as_marked_section, as_key_value, HashTag
+    Bold, HashTag, as_key_value, as_list, as_marked_section,
 )
 
-@dp.message(Command("advanced_example"))
-async def cmd_advanced_example(message: Message):
+router = Router(name="advanced_formatting")
+
+
+@router.message(Command("advanced_formatting"))
+async def cmd_advanced_formatting(message: Message) -> None:
     content = as_list(
         as_marked_section(
             Bold("Success:"),
@@ -531,7 +593,8 @@ async def cmd_advanced_example(message: Message):
     await message.answer(**content.as_kwargs())
 ```
 
-![Продвинутый пример](images/messages/advanced_example.png)
+![Продвинутый пример](images/messages_text/advanced_formatting_dark.png#only-dark){ loading=lazy }
+![Продвинутый пример](images/messages_text/advanced_formatting_light.png#only-light){ loading=lazy }
 
 !!! info ""
     Подробнее о различных способах форматирования и поддерживаемых тегах можно узнать 
@@ -543,20 +606,30 @@ async def cmd_advanced_example(message: Message):
 своё, например, отметку времени. Напишем простой код:
 
 ```python
-# новый импорт!
 from datetime import datetime
 
-@dp.message(F.text)
-async def echo_with_time(message: Message):
+from aiogram import F, Router, html
+from aiogram.enums import ParseMode
+from aiogram.types import Message
+
+router = Router()
+
+@router.message(F.text)
+async def echo_with_time(message: Message) -> None:
     # Получаем текущее время в часовом поясе ПК
     time_now = datetime.now().strftime('%H:%M')
     # Создаём подчёркнутый текст
     added_text = html.underline(f"Создано в {time_now}")
     # Отправляем новое сообщение с добавленным текстом
-    await message.answer(f"{message.text}\n\n{added_text}", parse_mode="HTML")
+    await message.answer(
+        f"{message.text}\n\n{added_text}",
+        parse_mode=ParseMode.HTML,
+    )
 ```
 
-![Добавленный текст (неудачная попытка)](images/messages/keep_formatting_bad.png)
+![Добавленный текст (неудачная попытка)](images/messages_text/keep_formatting_bad_dark.png#only-dark){ loading=lazy }
+![Добавленный текст (неудачная попытка)](images/messages_text/keep_formatting_bad_light.png#only-light){ loading=lazy }
+
 
 Мда, что-то пошло не так, почему сбилось форматирование исходного сообщения? 
 Это происходит из-за того, что `message.text` возвращает просто текст, без каких-либо оформлений. 
@@ -564,7 +637,9 @@ async def echo_with_time(message: Message):
 `message.html_text` или `message.md_text`. Сейчас нам нужен первый вариант. Заменяем в примере 
 выше `message.text` на `message.html_text` и получаем корректный результат:
 
-![Добавленный текст (успех)](images/messages/keep_formatting_good.png)
+![Добавленный текст (успех)](images/messages_text/keep_formatting_good_dark.png#only-dark){ loading=lazy }
+![Добавленный текст (успех)](images/messages_text/keep_formatting_good_light.png#only-light){ loading=lazy }
+
 
 ## Работа с entities {: id="message-entities" }
 
@@ -575,9 +650,30 @@ Telegram сильно упрощает жизнь разработчикам, в
 `entities`, содержащего массив объектов типа 
 [MessageEntity](https://core.telegram.org/bots/api#messageentity). В качестве примера напишем 
 хэндлер, который извлекает ссылку, e-mail и моноширинный текст из сообщения (по одной штуке).  
-Здесь кроется важный подвох. **Telegram возвращает не сами значения, а их начало в тексте и длину**. 
-Более того, текст считается в символах UTF-8, а entities работают с UTF-16, из-за этого, если просто взять 
-позицию и длину, то при наличии UTF-16 символов (например, эмодзи) ваш обработанный текст просто съедет. 
+
+Здесь кроется важный подвох. **Telegram возвращает не сами значения, а позицию начала 
+и длину**, причём считает он их в единицах UTF-16 (code units) — так и написано 
+в описании [MessageEntity](https://core.telegram.org/bots/api#messageentity). 
+А Python работает со строкой как с последовательностью символов (кодовых точек Unicode): 
+и `len()`, и срезы считают именно их.
+
+Пока в тексте только символы «основной части» Unicode — латиница, кириллица, 
+знаки препинания — одна кодовая точка занимает ровно одну единицу UTF-16, и числа совпадают. 
+Но символы за её пределами (эмодзи, математические буквы вида 𝐀𝐁𝐂, редкие иероглифы) 
+кодируются в UTF-16 суррогатной парой, то есть занимают две единицы вместо одной. 
+Каждый такой символ левее entity сдвигает срез «в лоб» на единицу — и текст съезжает.
+
+Правильный способ — метод `extract_from()` у объекта entity, которому на вход передаётся 
+весь исходный текст. Внутри он кодирует строку в UTF-16, режет её там же, где считал 
+Telegram, и декодирует обратно.
+
+!!! info "А в документации было что-то про UTF-8!"
+    В документации у `Message.text` написано «the actual UTF-8 text», и это иногда сбивает 
+    с толку. Речь про кодировку передачи: JSON от Bot API приезжает по HTTP в UTF-8. 
+    К моменту, когда aiogram отдаёт вам `message.text`, это уже обычная Python-строка, 
+    никаких байтов UTF-8 в ней нет. Проверить легко: в UTF-8 кириллическая буква занимает 
+    два байта, и если бы offset считался в байтах, наивный срез ломался бы на любом 
+    русском тексте. А он ломается только на эмодзи.
 
 Лучше всего это демонстрирует пример ниже. На скриншоте первый ответ бота есть результат парсинга «в лоб», 
 а второй — результат применения аиограмного метода `extract_from()` над entity. На вход ему передаётся весь исходный текст:
@@ -592,7 +688,7 @@ async def extract_data(message: Message):
     }
     entities = message.entities or []
     for item in entities:
-        if item.type in data.keys():
+        if item.type in data:
             # Неправильно
             # data[item.type] = message.text[item.offset : item.offset+item.length]
             # Правильно
@@ -605,7 +701,18 @@ async def extract_data(message: Message):
     )
 ```
 
-![Парсинг entities](images/messages/parse_entities.png)
+Разберём по картинке. Перед ссылкой `example.com` в сообщении стоят два эмодзи — 👋 и 🔑. 
+Каждый из них занимает в UTF-16 две единицы вместо одной, поэтому присланный Telegram 
+`offset` оказывается на два больше, чем индекс этой ссылки в Python-строке. Срез «в лоб» 
+начинается на два символа правее нужного (`ample.com` вместо `example.com`) и на два 
+символа правее заканчивается — поэтому в ответ и попали двоеточие с переводом строки.
+
+Перед e-mail и паролем эмодзи уже три (добавился 📩), и смещение, соответственно, три: 
+`@telegram.org, и` вместо адреса и `erS3cretPa$$w0rd,` вместо пароля. Вот и получается 
+плюс одна единица за каждый символ вне основной плоскости Unicode, стоящий левее entity.
+
+![Парсинг entities](images/messages_text/parse_entities_dark.png#only-dark){ loading=lazy }
+![Парсинг entities](images/messages_text/parse_entities_light.png#only-light){ loading=lazy }
 
 
 ## Предпросмотр ссылок {: id="link-previews" }
@@ -684,7 +791,8 @@ async def cmd_links(message: Message):
 ```
 
 Результат: 
-![Примеры предпросмотров ссылок](images/messages/link_preview_options.png)
+![Примеры предпросмотров ссылок](images/messages_text/link_preview_dark.png#only-dark){ loading=lazy }
+![Примеры предпросмотров ссылок](images/messages_text/link_preview_light.png#only-light){ loading=lazy }
 
 Также некоторые параметры предпросмотра можно указать по умолчанию в `DefaultBotProperties`, о чём рассказывалось 
 в начале главы.
@@ -696,26 +804,55 @@ async def cmd_links(message: Message):
 Для решения этой проблемы ещё много лет назад придумали подход со «скрытыми ссылками» в HTML-разметке. Суть в том, что 
 можно поместить ссылку в [пробел нулевой ширины](http://www.fileformat.info/info/unicode/char/200b/index.htm) и вставить 
 всю эту конструкцию в начало сообщения. Для наблюдателя в сообщении нет ничего лишнего, а сервер Telegram всё видит и честно 
-добавляет предпросмотр.  
-Разработчики aiogram для этого даже сделали специальный вспомогательный метод `hide_link()`:
+добавляет предпросмотр. Разработчики aiogram для этого даже сделали специальный вспомогательный метод `hide_link()`. 
+Однако есть и второй способ: оказывается, ссылка в LinkPreviewOptions из прошлого раздела не обязана даже быть в тексте! 
+Т.е. туда можно положить вообще всё что угодно. 
+
+Впрочем, при прочих равных условиях, вариант с `hide_link()` лучше, поскольку он всегда сохраняет ссылку внутри сообщения, 
+даже если для неё невозможно сделать превью (какой-нибудь большой zip-архив, например), а LinkPreviewOptions в таком случае просто 
+выкинет ссылку целиком.
+
+А теперь примеры:
 ```python
-# новый импорт!
+from aiogram import Router
+from aiogram.filters import Command
+from aiogram.types import Message, LinkPreviewOptions
 from aiogram.utils.markdown import hide_link
 
-@dp.message(Command("hidden_link"))
-async def cmd_hidden_link(message: Message):
+router = Router(name="hidden_links")
+
+@router.message(Command("hidden_link"))
+async def cmd_hidden_link(message: Message) -> None:
     await message.answer(
         f"{hide_link('https://telegra.ph/file/562a512448876923e28c3.png')}"
         f"Документация Telegram: *существует*\n"
         f"Пользователи: *не читают документацию*\n"
         f"Груша:"
     )
+
+@router.message(Command("hidden_link2"))
+async def cmd_hidden_link2(message: Message) -> None:
+    link_preview = LinkPreviewOptions(
+        url="https://images.meme-arsenal.com/486c03d2bb9d2ef7588f8f16c282579a.jpg",
+        prefer_large_media=True
+    )
+    await message.answer(
+        f"Bot API: *обновляется*\n"
+        f"Груша: *игнорирует*\n"
+        f"Bot API: *обновляется ещё 100500 раз*\n"
+        f"Груша:",
+        link_preview_options=link_preview
+    )
 ```
 
-![Изображение со скрытой ссылкой](images/messages/hidden_link.png)
+![Изображение со скрытой ссылкой](images/messages_text/hidden_links_dark.png#only-dark){ loading=lazy }
+![Изображение со скрытой ссылкой](images/messages_text/hidden_links_light.png#only-light){ loading=lazy }
 
-А при помощи LinkPreviewOptions (см. выше) можно сделать медиафайл сверху с длинной подписью в 4096 символов ниже, что 
-пригодится в [следующей главе](messages-media.md) при работе с медиафайлами.
+!!! info "Но... зачем?"
+    В 2026 году я оставил этот «бонусный» раздел чисто ради `hide_link()`. Саму идею «картинка + огромная подпись» 
+    легко решают [Rich Messages](rich-messages.md). Наверное, один из более-менее полезных кейсов скрытых ссылок – это 
+    именно что скрывать какую-то информацию в сообщении, что можно сделать даже на клиенте, скопировав пробел нулевой 
+    ширины и добавив его как ссылку.
 
 На этом всё. До следующих глав!  
 <s><small>Ставьте лайки, подписывайтесь, прожимайте колокольчик</small></s>

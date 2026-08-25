@@ -3,12 +3,12 @@ from aiogram.enums import ParseMode
 from aiogram.filters import Command
 from aiogram.types import Message
 
-router = Router(name="formatting")
+router = Router(name="basic_formatting")
 
 
 # Если не указать фильтр F.text,
 # то хэндлер сработает даже на картинку с подписью /test
-@router.message(F.text, Command("test"))
+@router.message(F.text, Command("formatting"))
 async def any_message(message: Message) -> None:
     await message.answer(
         "Hello, <b>world</b>!",
@@ -18,7 +18,6 @@ async def any_message(message: Message) -> None:
         "Hello, *world*\\!",
         parse_mode=ParseMode.MARKDOWN_V2
     )
-    await message.answer("Сообщение с <u>HTML-разметкой</u>")
     # чтобы явно отключить форматирование в конкретном запросе,
     # передайте parse_mode=None
     await message.answer(

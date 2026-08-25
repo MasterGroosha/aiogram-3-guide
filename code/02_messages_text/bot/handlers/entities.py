@@ -13,7 +13,7 @@ async def extract_data(message: Message) -> None:
     }
     entities = message.entities or []
     for item in entities:
-        if item.type in data.keys():
+        if item.type in data:
             # Неправильно
             # data[item.type] = message.text[item.offset : item.offset+item.length]
             # Правильно

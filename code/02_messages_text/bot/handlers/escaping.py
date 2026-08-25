@@ -2,44 +2,27 @@ from aiogram import Router, html
 from aiogram.enums import ParseMode
 from aiogram.filters import Command
 from aiogram.types import Message
-from aiogram.utils.formatting import (
-    Bold, HashTag, as_key_value, as_list, as_marked_section,
-)
+from aiogram.utils.formatting import Text, Bold
 
 router = Router(name="escaping")
 
 
 @router.message(Command("hello"))
-async def cmd_hello(message: Message) -> None:
+async def cmd_hello(message: Message):
     await message.answer(
+        # специальный атрибут full_name собирает
+        # first_name и last_name (при наличии) за вас
         f"Hello, {html.bold(html.quote(message.from_user.full_name))}",
         parse_mode=ParseMode.HTML
     )
 
 
-@router.message(Command("advanced_example"))
-async def cmd_advanced_example(message: Message) -> None:
-    content = as_list(
-        as_marked_section(
-            Bold("Success:"),
-            "Test 1",
-            "Test 3",
-            "Test 4",
-            marker="✅ ",
-        ),
-        as_marked_section(
-            Bold("Failed:"),
-            "Test 2",
-            marker="❌ ",
-        ),
-        as_marked_section(
-            Bold("Summary:"),
-            as_key_value("Total", 4),
-            as_key_value("Success", 3),
-            as_key_value("Failed", 1),
-            marker="  ",
-        ),
-        HashTag("#test"),
-        sep="\n\n",
+@router.message(Command("hello2"))
+async def cmd_hello2(message: Message):
+    content = Text(
+        "Hello, ",
+        Bold(message.from_user.full_name)
     )
-    await message.answer(**content.as_kwargs())
+    await message.answer(
+        **content.as_kwargs()
+    )
