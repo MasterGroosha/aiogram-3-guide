@@ -3,7 +3,9 @@ from aiogram import Router
 from . import (
     start,
     rich_send,
+    rich_blocks,
     rich_edit,
+    rich_edit_blocks,
     rich_stream,
     rich_media,
     rich_parse,
@@ -14,7 +16,9 @@ def get_routers() -> list[Router]:
     return [
         start.router,
         rich_send.router,
+        rich_blocks.router,
         rich_edit.router,
+        rich_edit_blocks.router,
         rich_stream.router,
         rich_media.router,
         # rich_parse идёт последним: его фильтр срабатывает на любое

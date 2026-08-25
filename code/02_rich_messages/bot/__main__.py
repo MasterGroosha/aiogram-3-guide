@@ -12,13 +12,17 @@ from bot.logging_config import get_structlog_config
 logger: FilteringBoundLogger = structlog.get_logger()
 
 
-# async def set_bot_commands(bot: Bot) -> None:
-#     await bot.set_my_commands([
-#         BotCommand(command="sendrich", description="Богатое сообщение"),
-#         BotCommand(command="sendrichedit", description="Богатое сообщение с редактированием"),
-#         BotCommand(command="sendrichstream", description="Богатое сообщение со стримингом"),
-#         BotCommand(command="sendrichmedia", description="Богатое сообщение с картинками"),
-#     ])
+async def set_bot_commands(bot: Bot) -> None:
+    await bot.set_my_commands([
+        BotCommand(command="sendrich", description="Богатое сообщение"),
+        BotCommand(command="sendrichblocks", description="Богатое сообщение из блоков"),
+        BotCommand(command="sendrichedit", description="Богатое сообщение с редактированием"),
+        BotCommand(command="sendricheditblocks", description="Чек-лист на блоках"),
+        BotCommand(command="sendrichstream", description="Богатое сообщение со стримингом"),
+        BotCommand(command="sendrichmedia", description="Богатое сообщение с картинками"),
+        BotCommand(command="sendrichmediafile", description="Картинка с диска внутри сообщения"),
+        BotCommand(command="sendrichmediafileid", description="Картинка по file_id внутри сообщения"),
+    ])
 
 
 async def main() -> None:
@@ -32,7 +36,7 @@ async def main() -> None:
     dp = Dispatcher()
     dp.include_routers(*get_routers())
 
-    # await set_bot_commands(bot)
+    await set_bot_commands(bot)
 
     await logger.ainfo("Starting polling...")
     try:
