@@ -1,0 +1,11 @@
+[project]
+name = "messages_media"
+version = "1.0.0"
+description = "Бот для главы «Медиафайлы»"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "aiogram>=3.30.0",
+    "pydantic-settings>=2.14.0",
+    "structlog>=25.5.0",
+]
