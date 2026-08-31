@@ -426,6 +426,153 @@ async def cmd_send_rich_blocks(
     в исходящее, поправив пару блоков. До появления `blocks` пришлось бы рендерить разобранное дерево 
     обратно в HTML-строку.
 
+## Кнопки внутри сообщения {: id="buttons" }
+
+До Bot API 10.3 кнопки к Rich Message прикручивались ровно так же, как к обычному сообщению: объектом 
+`reply_markup`, отдельной клавиатурой снизу. Работало это нормально, но в длинном структурированном сообщении 
+кнопка, живущая где-то под текстом, — так себе идея: пока читатель доскроллит до неё, он уже забудет, 
+к какому именно пункту она относилась. В 10.3 кнопки можно вставлять внутрь тела сообщения, 
+ровно там, где они нужны.
+
+Способов два. Первый — блок [InputRichBlockButtons](https://core.telegram.org/bots/api#inputrichblockbuttons): 
+ряд из 1-8 кнопок с необязательным `align` (`left`, `center` или `right`). Таких рядов в сообщении может быть 
+сколько угодно и в любом месте: между абзацами, после таблицы, в самом конце. HTML-двойник — кастомный тег 
+`<tg-button-row>`. Второй способ — [RichTextButton](https://core.telegram.org/bots/api#richtextbutton): 
+кнопка прямо в потоке текста. Это обычный rich-text-узел, который лежит в `text` любого блока наравне 
+с `RichTextBold` и остальными; в Rich HTML ему соответствует тег `<tg-button>` внутри `<p>`.
+
+Сама кнопка — объект [RichMessageButton](https://core.telegram.org/bots/api#richmessagebutton), и он почти 
+дословно повторяет знакомый по обычным клавиатурам `InlineKeyboardButton`: `url`, `callback_data`, `web_app`, 
+`login_url`, `switch_inline_query` во всех трёх вариантах, `copy_text`. Как и там, заполнить нужно ровно одно 
+из этих полей. Отличий, по сути, два. Во-первых, появился `style` — `"danger"`, `"success"`, `"primary"` 
+или `"link"` (последний рисует кнопку простой ссылкой без рамки и разрешён **только** для callback-кнопок). 
+Клиент подберёт цвета под свою тему сам. Во-вторых, есть `disabled`: положите туда пустой объект 
+`DisabledButton()` — и кнопка останется на месте, но нажать её будет нельзя.
+
+Обратите внимание на имя класса: `RichMessageButton` — **без** префикса `Input`. Он общий для отправки и приёма, 
+ровно как уже знакомый по этой главе `RichBlockTableCell`.
+
+!!! warning "Важно"
+    Поле `text` у кнопки — это `RichText`, но с сильно урезанным набором узлов: разрешены только обычный текст, 
+    `RichTextCustomEmoji` и `RichTextDateTime`. Жирный, курсив, код и всё остальное внутрь кнопки положить 
+    не получится.
+
+Соберём карточку релиза, которую бот присылает дежурному в пятницу вечером:
+
+```python title="bot/handlers/rich_buttons.py"
+from aiogram import F, Router
+from aiogram.filters import Command
+from aiogram.types import (
+    CallbackQuery,
+    CopyTextButton,
+    DisabledButton,
+    InputRichBlockButtons,
+    InputRichBlockParagraph,
+    InputRichBlockSectionHeading,
+    InputRichMessage,
+    Message,
+    RichMessageButton,
+    RichTextButton,
+)
+
+router = Router(name="rich_buttons")
+
+RELEASE = "v4.2.0"
+
+
+def build_release_card() -> InputRichMessage:
+    return InputRichMessage(blocks=[
+        InputRichBlockSectionHeading(text=f"Релиз {RELEASE}", size=1),
+        InputRichBlockParagraph(text=[
+            "Тесты зелёные, чейнджлог написан, на часах пятница, 17:45.",
+            " Номер релиза можно ",
+            RichTextButton(button=RichMessageButton(               # [1]
+                text="скопировать одним касанием",
+                copy_text=CopyTextButton(text=RELEASE),
+            )),
+            ", а решение принять кнопками ниже.",
+        ]),
+        InputRichBlockButtons(                                     # [2]
+            buttons=[
+                RichMessageButton(
+                    text="Катить в прод",
+                    style="danger",
+                    callback_data="release:deploy",
+                ),
+                RichMessageButton(
+                    text="До понедельника",
+                    style="success",
+                    callback_data="release:postpone",
+                ),
+            ],
+            align="center",                                        # [3]
+        ),
+        InputRichBlockButtons(
+            buttons=[
+                RichMessageButton(
+                    text="Чейнджлог",
+                    style="primary",
+                    url="https://github.com/aiogram/aiogram/releases",
+                ),
+                RichMessageButton(
+                    text="Что вообще происходит?",
+                    style="link",                                  # [4]
+                    callback_data="release:help",
+                ),
+                RichMessageButton(
+                    text="Откатить",
+                    disabled=DisabledButton(),                     # [5]
+                ),
+            ],
+            align="left",
+        ),
+    ])
+
+
+@router.message(Command("sendrichbuttons"))
+async def cmd_send_rich_buttons(
+        message: Message,
+) -> None:
+    await message.answer_rich(
+        rich_message=build_release_card(),
+    )
+
+
+@router.callback_query(F.data.startswith("release:"))              # [6]
+async def on_release_button(
+        callback: CallbackQuery,
+) -> None:
+    answers = {
+        "release:deploy": "Смелость города берёт. Дежурный предупреждён.",
+        "release:postpone": "Мудрое решение. Хороших выходных!",
+        "release:help": "Обычный CallbackQuery и обычный F.data, ничего нового.",
+    }
+    await callback.answer(answers[callback.data], show_alert=True)
+```
+
+По пунктам:
+
+1. Кнопка прямо в потоке текста: `RichTextButton` — такой же узел, как `RichTextBold`, и лежит он в общем списке 
+   `text` вперемешку со строками. Внутри — обычный `RichMessageButton`, на этот раз с `copy_text`: 
+   по нажатию номер релиза уедет в буфер обмена.
+2. А это уже блок, отдельный ряд кнопок между абзацем и следующим блоком. Рядов может быть несколько, у нас их два.
+3. Выравнивание ряда: верхний ряд по центру, нижний прижат влево. Разрешены `left`, `center` и `right`.
+4. Тот самый `style="link"` — кнопка отрисуется простой ссылкой. Напомню, что для кнопок с `url` этот стиль 
+   запрещён, только для callback.
+5. Кнопка на месте, но нажать её нельзя: `DisabledButton()` — пустой объект вообще без полей. Удобно, когда 
+   действие временно недоступно, а выкидывать кнопку из макета не хочется.
+6. И самое приятное: нажатие на кнопку внутри Rich Message прилетает **обычным** `CallbackQuery`. Никаких новых 
+   типов апдейтов и фильтров учить не надо — привычный `F.data` работает ровно как работал.
+
+Результат:
+
+![Rich Message](images/rich-messages/rich_buttons_dark.png#only-dark){ loading=lazy }
+![Rich Message](images/rich-messages/rich_buttons_light.png#only-light){ loading=lazy }
+
+!!! note "`disabled` — не только для Rich Messages"
+    В том же обновлении 10.3 поле `disabled` завезли и в обычный `InlineKeyboardButton`. Так что приём 
+    «кнопка есть, но неактивна» теперь работает и в привычных инлайн-клавиатурах.
+
 ## Редактирование Rich Messages {: id="editing" }
 
 Отправлять научились, теперь про редактирование. Отдельного метода вроде `editRichMessage` в Bot API не завезли:
