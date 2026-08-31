@@ -871,6 +871,96 @@ async def cmd_send_rich_stream(
 
 ![type:video](images/rich-messages/streaming_dark.mp4)
 
+### Кнопка «Остановить» {: id="streaming-stop" }
+
+У примера выше есть неприятная особенность: пока бот печатает свои 100500 абзацев, пользователь может только 
+смотреть. Если модель ушла не туда на втором предложении, прервать её нечем. В Bot API 10.3 это починили — 
+у `sendRichMessageDraft` появилась пара аргументов:
+
+* `can_stop=True` показывает пользователю кнопку остановки дальнейших черновиков;
+* `keep_on_stop=True` оставляет недописанный черновик в чате после нажатия.
+
+Когда пользователь нажимает эту кнопку, боту прилетает апдейт нового типа — `stopped_message_generation`, 
+внутри которого лежит объект [MessageGenerationStopped](https://core.telegram.org/bots/api#messagegenerationstopped) 
+с полями `chat`, `draft_id` и необязательным `message_thread_id`. Обратите внимание: сам Telegram ничего 
+не останавливает, он только сообщает о нажатии. Прекратить генерацию — задача бота.
+
+Важно: `keep_on_stop=True` — это **не** способ сохранить частичный ответ. Черновик остаётся эфемерным: 
+документация прямо говорит, что он всё равно исчезнет через некоторое время или как только бот отправит 
+любое сообщение. Так что и здесь, чтобы недописанный текст остался в чате, бот обязан отправить его новым сообщением.
+
+В aiogram под новый апдейт есть отдельный хэндлер — `stopped_message_generation`, названный так же, 
+как поле в `Update`. Дописываем в тот же файл вторую команду:
+
+```python title="bot/handlers/rich_stream.py"
+# Черновики, которые пользователь может остановить: draft_id -> «стоп-сигнал»
+active_drafts: dict[int, asyncio.Event] = {}                      # [1]
+
+
+@router.message(Command("sendrichstreamstop"))
+async def cmd_send_rich_stream_stop(
+        message: Message,
+        bot: Bot,
+) -> None:
+    draft_id = randint(1, 100_000_000)
+    stop_event = asyncio.Event()
+    active_drafts[draft_id] = stop_event
+
+    # Если пользователь ничего не нажмёт, отправим полный текст
+    text = FINAL_MARKDOWN
+    try:
+        for chunk in _build_chunks(FINAL_MARKDOWN):
+            await bot.send_rich_message_draft(
+                chat_id=message.chat.id,
+                draft_id=draft_id,
+                rich_message=InputRichMessage(markdown=chunk),
+                can_stop=True,                                    # [2]
+                keep_on_stop=True,                                # [3]
+            )
+            await asyncio.sleep(0.7)
+            if stop_event.is_set():                               # [4]
+                text = chunk
+                break
+    finally:
+        active_drafts.pop(draft_id, None)                         # [5]
+
+    await message.answer_rich(                                    # [6]
+        rich_message=InputRichMessage(markdown=text),
+    )
+
+
+@router.stopped_message_generation()                              # [7]
+async def on_generation_stopped(
+        event: MessageGenerationStopped,
+) -> None:
+    stop_event = active_drafts.get(event.draft_id)
+    if stop_event is not None:
+        stop_event.set()
+```
+
+По пунктам:
+
+1. Связь между `draft_id` и конкретной «генерацией» бот держит сам: апдейт об остановке придёт в другой 
+   хендлер, и как-то до цикла нужно достучаться. Простой способ — модульный словарь с `asyncio.Event` 
+   под ключом `draft_id`. В настоящем боте на его месте, скорее всего, окажется Redis или задача, 
+   которую вы отменяете через `Task.cancel()`.
+2. Вот она, кнопка остановки. Передавать `can_stop` нужно в каждом вызове, а не только в первом.
+3. А это просьба не стирать черновик сразу после нажатия. Всё равно ненадолго, см. предупреждение выше.
+4. После каждого куска проверяем «стоп-сигнал». Если он взведён — запоминаем последний отправленный кусок 
+   и выходим из цикла.
+5. Обязательный `finally`: словарь нужно чистить при любом исходе, иначе он будет расти на каждый вызов команды.
+6. Финал у обоих сценариев общий — отправляем настоящее сообщение. Разница только в том, что именно 
+   в нём окажется: полный текст или то, что успели напечатать до нажатия.
+7. Тот самый новый обсервер. Внутри — только поиск нужного `asyncio.Event` по `draft_id` и `set()`; 
+   всю остальную работу делает цикл, который этот сигнал и ждёт.
+
+!!! warning "Не забудьте про `allowed_updates`"
+    `stopped_message_generation` — это новый тип апдейта, а Telegram по умолчанию такие не присылает. 
+    Если вы, как и мы, ничего не указываете руками, всё в порядке: aiogram сам соберёт `allowed_updates` 
+    по зарегистрированным хендлерам. А вот если вы передаёте список в `start_polling()` или в `setWebhook` 
+    вручную, строку `stopped_message_generation` придётся дописать самостоятельно — иначе апдейт просто 
+    не придёт, и кнопка будет нажиматься вхолостую.
+
 ## Медиафайлы {: id="media" }
 
 Текстом дело не ограничивается — внутрь RM можно встраивать медиа. Самый простой путь — обычная HTTP(S)-ссылка 
