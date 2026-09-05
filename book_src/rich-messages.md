@@ -1023,9 +1023,10 @@ async def cmd_send_rich_media(
 
 !!! note "Коллаж, слайд-шоу и прочее медиа"
     Несколько изображений подряд — это базовый случай. Для тонкого управления компоновкой в Rich HTML есть отдельные
-    теги: `<img>`, `<video>` и `<audio>` для одиночных медиа, а также кастомные `<tg-collage>` (коллаж) и
-    `<tg-slideshow>` (слайд-шоу), внутрь которых вкладываются медиа-блоки. У каждого из этих тегов теперь есть 
-    и блок-двойник: `InputRichBlockPhoto`, `InputRichBlockVideo`, `InputRichBlockAudio`, `InputRichBlockCollage`, 
+    теги: `<img>`, `<video>` и `<audio>` для одиночных медиа, `<tg-document>` (появился в 10.3) для обычных 
+    файлов, а также кастомные `<tg-collage>` (коллаж) и `<tg-slideshow>` (слайд-шоу), внутрь которых 
+    вкладываются медиа-блоки. У каждого из этих тегов теперь есть и блок-двойник: `InputRichBlockPhoto`, 
+    `InputRichBlockVideo`, `InputRichBlockAudio`, `InputRichBlockDocument`, `InputRichBlockCollage`, 
     `InputRichBlockSlideshow` — см. [каталог блоков](#blocks-catalog). Пощупать рендеринг вживую можно в
     [@richtextdemobot](https://telegram.dog/richtextdemobot).
 
@@ -1128,6 +1129,68 @@ async def cmd_send_rich_media_file_id(
     распечатайте `message.photo[-1].file_id` — способ ровно тот же, что и в главе
     [про медиафайлы](messages-media.md).
 
+### Документы {: id="media-document" }
+
+Внутрь Rich Message можно также положить файлы (тип Document): работает всё ровно так же, как с фотографиями, 
+только слово `photo` меняется на `document`.
+
+Если файл лежит в открытом доступе, достаточно привычного markdown-синтаксиса — 
+`![](https://telegram.org/example/document.zip "Подпись к файлу")`. Если файл свой, в тексте ставится ссылка 
+`tg://document?id=<id>`, а сам файл описывается элементом `media` с тем же `id` — один в один приём 
+из предыдущего подраздела:
+
+```python title="bot/handlers/rich_media.py"
+DOC_MARKDOWN = """\
+# Документ внутри Rich Message
+
+Ссылка `tg://document?id=notes` работает так же, как `tg://photo?id=...`:
+меняется ровно одно слово, а сам файл описан в поле `media`.
+
+![](tg://document?id=notes "Release notes v4.2.0")
+"""
+
+
+@router.message(Command("sendrichdoc"))
+async def cmd_send_rich_doc(
+        message: Message,
+) -> None:
+    await message.answer_rich(
+        rich_message=InputRichMessage(
+            markdown=DOC_MARKDOWN,
+            media=[
+                InputRichMessageMedia(
+                    # Тот же id, что стоит в ссылке tg://document?id=...
+                    id="notes",
+                    media=InputMediaDocument(
+                        media=FSInputFile("bot/assets/release-notes.pdf"),
+                    ),
+                ),
+            ],
+        ),
+    )
+```
+
+В Rich HTML файлу соответствует тег `<tg-document src="...">`, а подпись к нему 
+задаётся так:
+
+```html
+<figure><tg-document src="https://telegram.org/example/document.zip"></tg-document>
+<figcaption>Подпись к файлу</figcaption></figure>
+```
+
+В блочном режиме есть тип `InputRichBlockDocument`:
+
+```python
+InputRichBlockDocument(
+    document=InputMediaDocument(media=FSInputFile("bot/assets/release-notes.pdf")),
+    # Подпись задаётся только здесь: caption у самого InputMediaDocument игнорируется
+    caption=RichBlockCaption(text="Release notes v4.2.0"),
+)
+```
+
+Обратите внимание на последнюю строчку — аналогичная ситуация, что и с остальными медиа-блоками: 
+`caption` у вложенного `InputMediaDocument` Telegram игнорирует, подпись указывается только в `RichBlockCaption`.
+
 
 ## Как поймать и разобрать Rich Message {: id="parsing" }
 
@@ -1158,24 +1221,27 @@ def flatten_text(node) -> str:
     # У кастомных эмодзи нет вложенного text, зато есть альтернативный текст
     if getattr(node, "type", None) == "custom_emoji":             # [3]
         return node.alternative_text
-    return flatten_text(getattr(node, "text", None))              # [4]
+    # У кнопки текст лежит на уровень глубже, в самой кнопке
+    if getattr(node, "type", None) == "button":                   # [4]
+        return flatten_text(node.button.text)
+    return flatten_text(getattr(node, "text", None))              # [5]
 
 
-@router.message(F.rich_message)                                   # [5]
+@router.message(F.rich_message)                                   # [6]
 async def on_rich_message(
         message: Message,
 ) -> None:
     blocks = message.rich_message.blocks
 
-    stats = "\n".join(f"• {block.type}" for block in blocks)      # [6]
+    stats = "\n".join(f"• {block.type}" for block in blocks)      # [7]
 
-    headings = [                                                  # [7]
+    headings = [                                                  # [8]
         flatten_text(block.text)
         for block in blocks
         if block.type == "heading"
     ]
 
-    table = next((b for b in blocks if b.type == "table"), None)  # [8]
+    table = next((b for b in blocks if b.type == "table"), None)  # [9]
 
     lines = [
         f"Rich Message из {len(blocks)} блоков.",
@@ -1196,14 +1262,22 @@ async def on_rich_message(
 1. Базовый случай рекурсии: если узел — обычная строка, возвращаем её как есть.
 2. Если узел — список, склеиваем результат обхода каждого элемента.
 3. У кастомного эмодзи нет вложенного `text`, зато есть `alternative_text` — берём его.
-4. Во всех остальных случаях это стилизованный узел: спускаемся в его поле `text` ещё на уровень глубже.
-5. Магический фильтр `F.rich_message` срабатывает, только если у входящего сообщения заполнено поле `rich_message`. 
+4. Ещё одно исключение, и уже из-за Bot API 10.3: у `RichTextButton` поля `text` попросту нет, подпись кнопки 
+   лежит на уровень глубже — в `node.button.text`. Без этой ветки функция дошла бы до `getattr(node, "text", None)`, 
+   получила `None` и молча вернула пустую строку, потеряв текст кнопки.
+5. Во всех остальных случаях это стилизованный узел: спускаемся в его поле `text` ещё на уровень глубже.
+6. Магический фильтр `F.rich_message` срабатывает, только если у входящего сообщения заполнено поле `rich_message`. 
    Так мы ловим именно богатые сообщения и не мешаем командам.
-6. Собираем блоки в порядке их появления.
-7. Собираем все заголовки в оглавление. Заодно видно, как `flatten_text` вытаскивает текст из заголовка, 
+7. Собираем блоки в порядке их появления.
+8. Собираем все заголовки в оглавление. Заодно видно, как `flatten_text` вытаскивает текст из заголовка, 
    даже если он обёрнут в курсив или жирный.
-8. Если внутри есть таблица, достаём её первую строку. Ячейки лежат в `table.cells` как список списков (`строки → ячейки`), 
+9. Если внутри есть таблица, достаём её первую строку. Ячейки лежат в `table.cells` как список списков (`строки → ячейки`), 
    а текст ячейки — снова дерево RichText.
+
+Раз уж речь зашла про свежие блоки: во входящих сообщениях теперь встречаются и `buttons`, и `document`, 
+и `expandable_blockquote` — если ваш код перебирает `block.type`, эти три значения стоит предусмотреть. 
+И если вы спускаетесь по дереву вглубь, помните про несимметричность цитат: у `blockquote` содержимое лежит 
+в `blocks`, а у `expandable_blockquote` — в `text`.
 
 Если переслать боту его же собственный пример с HTTP-котиками, то вы должны увидеть следующее сообщение:
 
@@ -1229,8 +1303,9 @@ Rich Message из 9 блоков.
 
 Rich Messages — это давно напрашивавшийся ответ Telegram на эпоху нейросетей и повсеместного использования Markdown.
 В этой главе мы научились отправлять такие сообщения всеми тремя способами — `markdown`, `html` и `blocks`, — 
-редактировать их, прикладывать к ним свои файлы, разбирать входящие по блокам и стримить ответы через эфемерные 
-черновики. Главный практический вывод: разметку удобно писать руками, а блоки — генерировать кодом, и выбирать 
+редактировать их, прикладывать к ним свои картинки и документы, ставить кнопки прямо внутрь текста, разбирать 
+входящие по блокам и стримить ответы через эфемерные черновики, которые пользователь при желании может 
+остановить. Главный практический вывод: разметку удобно писать руками, а блоки — генерировать кодом, и выбирать 
 стоит по тому, откуда берётся содержимое сообщения.
 
 За кадром остались отдельные блоки вроде карт и слайд-шоу, но после [каталога блоков](#blocks-catalog) 
