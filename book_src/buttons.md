@@ -37,7 +37,7 @@ async def cmd_start(message: types.Message):
 !!! info ""
     Несмотря на то, что Telegram Bot API [допускает](https://core.telegram.org/bots/api#keyboardbutton) указывать 
     просто строки вместо объектов `KeyboardButton`, при попытке использовать строку aiogram 3.x выкинет ошибку 
-    валидации и это не баг, а [фича](https://t.me/aiogram_ru/920453).  
+    валидации и это не баг, а особенность aiogram.  
     Живите теперь с этим 🤷‍♂️
 
 Что ж, запустим бота и обалдеем от громадных кнопок:
@@ -237,7 +237,7 @@ async def on_user_shared(message: types.Message):
 
 
 @dp.message(F.chat_shared)
-async def on_user_shared(message: types.Message):
+async def on_chat_shared(message: types.Message):
     print(
         f"Request {message.chat_shared.request_id}. "
         f"User ID: {message.chat_shared.chat_id}"
@@ -424,7 +424,7 @@ async def callbacks_num(callback: types.CallbackQuery):
 ![Всё работает?](images/buttons/l03_7.png)
 
 Но теперь представим, что ушлый пользователь сделал следующее: вызвал команду `/numbers` (значение 0), увеличил значение 
-до 1, снова вызвал `/numbers` (значение сбросилось до 0) и отредактировал и нажал кнопку "+1" на первом сообщении. 
+до 1, снова вызвал `/numbers` (значение сбросилось до 0) и нажал кнопку "+1" на первом сообщении. 
 Что произойдёт? Бот по-честному отправит запрос на редактирование текста со значением 1, но т.к. на том сообщении 
 уже стоит цифра 1, то Bot API вернёт ошибку, что старый и новый тексты совпадают, а бот словит исключение: 
 `Bad Request: message is not modified: specified new message content and reply markup are exactly the same 

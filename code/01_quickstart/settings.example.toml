@@ -1,0 +1,13 @@
+[bot]
+token = "1234567890:AaBbCcDdEeFfGrOoShAHhIiJjKkLlMmNnOo"
+
+
+[logs]
+project_name = "hello_world"
+show_datetime = true
+datetime_format = "%Y-%m-%d %H:%M:%S"
+show_debug_logs = false
+time_in_utc = false
+use_colors_in_console = true
+renderer = "console"  # "console" or "json"
+allow_third_party_logs = true

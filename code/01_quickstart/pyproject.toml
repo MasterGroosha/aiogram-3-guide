@@ -1,0 +1,11 @@
+[project]
+name = "hello_world_bot"
+version = "1.0.0"
+description = "Первый и самый простой бот"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "aiogram>=3.27.0",
+    "pydantic-settings>=2.14.0",
+    "structlog>=25.5.0",
+]
