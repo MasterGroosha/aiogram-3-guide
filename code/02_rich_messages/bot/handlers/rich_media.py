@@ -2,6 +2,7 @@ from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import (
     FSInputFile,
+    InputMediaDocument,
     InputMediaPhoto,
     InputRichMessage,
     InputRichMessageMedia,
@@ -101,6 +102,36 @@ async def cmd_send_rich_media_file_id(
                     # Разница с примером выше — только здесь:
                     # вместо FSInputFile обычная строка с file_id
                     media=InputMediaPhoto(media=PHOTO_FILE_ID),
+                ),
+            ],
+        ),
+    )
+
+
+DOC_MARKDOWN = """\
+# Документ внутри Rich Message
+
+Ссылка `tg://document?id=notes` работает так же, как `tg://photo?id=...`:
+меняется ровно одно слово, а сам файл описан в поле `media`.
+
+![](tg://document?id=notes "Release notes v4.2.0")
+"""
+
+
+@router.message(Command("sendrichdoc"))
+async def cmd_send_rich_doc(
+        message: Message,
+) -> None:
+    await message.answer_rich(
+        rich_message=InputRichMessage(
+            markdown=DOC_MARKDOWN,
+            media=[
+                InputRichMessageMedia(
+                    # Тот же id, что стоит в ссылке tg://document?id=...
+                    id="notes",
+                    media=InputMediaDocument(
+                        media=FSInputFile("bot/assets/release-notes.pdf"),
+                    ),
                 ),
             ],
         ),

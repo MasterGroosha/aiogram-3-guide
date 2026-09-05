@@ -53,6 +53,7 @@ def build_metrics_table() -> InputRichBlockTable:
         cells=[header, *rows],
         is_bordered=True,
         is_striped=True,
+        is_compact=True,
     )
 
 

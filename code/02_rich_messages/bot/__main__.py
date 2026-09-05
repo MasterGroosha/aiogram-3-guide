@@ -16,12 +16,15 @@ async def set_bot_commands(bot: Bot) -> None:
     await bot.set_my_commands([
         BotCommand(command="sendrich", description="Богатое сообщение"),
         BotCommand(command="sendrichblocks", description="Богатое сообщение из блоков"),
+        BotCommand(command="sendrichbuttons", description="Богатое сообщение с кнопками внутри"),
         BotCommand(command="sendrichedit", description="Богатое сообщение с редактированием"),
         BotCommand(command="sendricheditblocks", description="Чек-лист на блоках"),
         BotCommand(command="sendrichstream", description="Богатое сообщение со стримингом"),
+        BotCommand(command="sendrichstreamstop", description="Стриминг с кнопкой остановки"),
         BotCommand(command="sendrichmedia", description="Богатое сообщение с картинками"),
         BotCommand(command="sendrichmediafile", description="Картинка с диска внутри сообщения"),
         BotCommand(command="sendrichmediafileid", description="Картинка по file_id внутри сообщения"),
+        BotCommand(command="sendrichdoc", description="Документ внутри сообщения"),
     ])
 
 

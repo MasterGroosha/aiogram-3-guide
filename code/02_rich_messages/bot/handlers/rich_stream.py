@@ -3,7 +3,7 @@ from random import randint
 
 from aiogram import Bot, Router
 from aiogram.filters import Command
-from aiogram.types import InputRichMessage, Message
+from aiogram.types import InputRichMessage, Message, MessageGenerationStopped
 
 router = Router(name="rich_stream")
 
@@ -68,3 +68,48 @@ async def cmd_send_rich_stream(
     await message.answer_rich(
         rich_message=InputRichMessage(markdown=FINAL_MARKDOWN),
     )
+
+
+# Черновики, которые пользователь может остановить: draft_id -> «стоп-сигнал»
+active_drafts: dict[int, asyncio.Event] = {}                      # [1]
+
+
+@router.message(Command("sendrichstreamstop"))
+async def cmd_send_rich_stream_stop(
+        message: Message,
+        bot: Bot,
+) -> None:
+    draft_id = randint(1, 100_000_000)
+    stop_event = asyncio.Event()
+    active_drafts[draft_id] = stop_event
+
+    # Если пользователь ничего не нажмёт, отправим полный текст
+    text = FINAL_MARKDOWN
+    try:
+        for chunk in _build_chunks(FINAL_MARKDOWN):
+            await bot.send_rich_message_draft(
+                chat_id=message.chat.id,
+                draft_id=draft_id,
+                rich_message=InputRichMessage(markdown=chunk),
+                can_stop=True,                                    # [2]
+                keep_on_stop=True,                                # [3]
+            )
+            await asyncio.sleep(0.7)
+            if stop_event.is_set():                               # [4]
+                text = chunk
+                break
+    finally:
+        active_drafts.pop(draft_id, None)                         # [5]
+
+    await message.answer_rich(                                    # [6]
+        rich_message=InputRichMessage(markdown=text),
+    )
+
+
+@router.stopped_message_generation()                              # [7]
+async def on_generation_stopped(
+        event: MessageGenerationStopped,
+) -> None:
+    stop_event = active_drafts.get(event.draft_id)
+    if stop_event is not None:
+        stop_event.set()

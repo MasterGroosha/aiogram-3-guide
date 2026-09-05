@@ -5,7 +5,7 @@ description = "Бот для главы Rich Messages"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
-    "aiogram>=3.30.0",
+    "aiogram>=3.31.0",
     "pydantic-settings>=2.14.0",
     "structlog>=25.5.0",
 ]
