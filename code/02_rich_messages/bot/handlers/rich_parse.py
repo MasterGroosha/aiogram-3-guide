@@ -20,6 +20,9 @@ def flatten_text(node) -> str:
     # У кастомных эмодзи нет вложенного text, зато есть альтернативный текст
     if getattr(node, "type", None) == "custom_emoji":
         return node.alternative_text
+    # У кнопки текст лежит на уровень глубже, в самой кнопке
+    if getattr(node, "type", None) == "button":
+        return flatten_text(node.button.text)
     return flatten_text(getattr(node, "text", None))
 
 

@@ -10,7 +10,7 @@ REPORT_HTML = """\
 <p>Небольшой пример того, как <b>Rich Messages</b> держат структуру: здесь есть \
 заголовки разного уровня, таблица, формула и сноска<sup><a name="ref-1"></a><a href="#note-1">1</a></sup>.</p>
 <h2>Ключевые метрики</h2>
-<table>
+<table bordered striped compact>
 <tr><th align="left">Метрика</th><th align="right">Было</th><th align="right">Стало</th></tr>
 <tr><td align="left">MRR</td><td align="right">$35k</td><td align="right">$42k</td></tr>
 <tr><td align="left">Активные чаты</td><td align="right">1 240</td><td align="right">1 510</td></tr>
@@ -22,7 +22,7 @@ REPORT_HTML = """\
 <blockquote>Это блочная цитата. Внутри неё можно держать <i>курсив</i>, \
 <code>код</code> и даже <tg-spoiler>спойлер</tg-spoiler>.</blockquote>
 
-<footer>1. Цифры выдуманы для примера и ничего не отражают. <a name="note-1"></a><a href="#ref-1">↩️</a>️</footer>
+<footer>1. Цифры выдуманы для примера и ничего не отражают. <a name="note-1"></a><a href="#ref-1">↩️</a></footer>
 """
 
 
