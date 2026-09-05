@@ -106,10 +106,10 @@ services:
 
   bot:
     build:
-      context: src
+      context: .
       dockerfile: ./Dockerfile
     volumes:
-      - ./src/settings.toml:/app/src/settings.toml:ro
+      - ./settings.toml:/app/settings.toml:ro
     depends_on:
       - llm
     restart: "no"  # "no" для примера, обычно "unless-stopped"

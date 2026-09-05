@@ -43,7 +43,7 @@ class TomlConfigSettingsSource(PydanticBaseSettingsSource):
         return None, field_name, False
 
     def __call__(self) -> dict[str, Any]:
-        file_path = Path(__file__).resolve().parent.parent.joinpath("settings.toml")
+        file_path = Path(__file__).resolve().parent.parent.parent.joinpath("settings.toml")
         if not file_path.exists():
             return {}
         with file_path.open("rb") as f:
