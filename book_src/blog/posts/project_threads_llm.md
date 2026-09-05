@@ -106,7 +106,7 @@ services:
 
   bot:
     build:
-      context: src
+      context: .
       dockerfile: ./Dockerfile
     volumes:
       - ./settings.toml:/app/settings.toml:ro
